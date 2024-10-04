@@ -1,0 +1,332 @@
+---
+title: "Estructura y descripción de los metadatos de geonetwork"
+author: "Marius Bottin"
+date: "`r Sys.Date()`"
+output: 
+    github_document:
+       number_sections: true
+       toc: true
+---
+
+
+```{r setup}
+require(RPostgreSQL)
+require(dm)
+require(DiagrammeRsvg)
+require(rsvg)
+require(png)
+knitr::opts_chunk$set(cache=F,tidy.opts = list(width.cutoff = 70),
+                     tidy = TRUE,
+                     max.print=50,fig.path="./Fig/expl_meta",echo=T,
+                     collapse=F, echo=T)
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  paste0("\n \\", "footnotesize","\n\n", x, "\n\n \\normalsize\n\n")
+})
+```
+
+# Importación
+
+In my computer at home I created the database with the following commands:
+
+```bash
+createdb geonetwork -D extra
+pg_restore -d geonetwork -c --no-owner --no-acl access_dump/dump-geonetwork-202409051028.sql
+```
+
+```{r}
+geonetwork<-dbConnect(PostgreSQL(),dbname="geonetwork",user="marius")
+```
+
+```{r}
+dm_object <- dm_from_con(geonetwork, learn_keys = T)
+A<-dm_object %>%
+  dm_draw(view_type = "all")
+```
+
+# XML representation and analyses
+
+It seems that most of the data is in an xml form in the field `data` of the `metadata` table.
+
+We will need to analyse particularly this XML structure, to be able to extract the metadata from the geonetwork.
+
+```{r}
+require(xml2)
+require(XML)
+require(data.tree)
+require(collapse)
+mtdt<-dbGetQuery(geonetwork,"SELECT data FROM metadata")
+#xmlToDataFrame(xmlParse(mtdt[1,]))
+```
+
+```{r}
+xml_list<-lapply(mtdt[-479,1],function(x)xmlToList(xmlParse(x)))
+names1<-names(xml_list[[1]])
+names_all<-lapply(xml_list,names) 
+#sapply(names_all,function(x,y)!all(y==x),y=names1)
+(names_fields<-unique(Reduce(c,names_all)))
+mostComplete<-which.max(sapply(names_all,function(x,y)sum(y%in%x),y=names_fields))
+```
+
+```{r}
+level1<-data.frame(
+  name=names_fields,
+  hasValue=F
+)
+A<-sapply(xml_list,names)
+A_corres<-data.frame(
+  lev0_nb=rep(1:length(A),sapply(A,length)),
+  lev1_nb=unlist(lapply(A,function(x)1:length(x))),
+  level1_match=unlist(lapply(A,function(x,y)match(x,y),y=level1$name))
+)
+LIST<- ISNULL <- logical(length=nrow(A_corres))
+LENGTH <- DEPTH <- numeric(length=nrow(A_corres))
+NAMES <- list()
+for(i in 1:nrow(A_corres))LIST[i]<-is.list(xml_list[[A_corres[i,1]]][[A_corres[i,2]]])
+for(i in 1:nrow(A_corres))ISNULL[i]<-is.null(xml_list[[A_corres[i,1]]][[A_corres[i,2]]])
+for(i in 1:nrow(A_corres))LENGTH[i]<-length(xml_list[[A_corres[i,1]]][[A_corres[i,2]]])
+for(i in 1:nrow(A_corres))DEPTH[i]<-ldepth(xml_list[[A_corres[i,1]]][[A_corres[i,2]]])
+for(i in 1:nrow(A_corres))NAMES[[i]]<-names(xml_list[[A_corres[i,1]]][[A_corres[i,2]]])
+#tapply(LENGTH,level1[A_corres[,3],"name"],table)
+# table(unlist(NAMES[A_corres$level1_match==1]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==2]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==3]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==4]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==5]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==6]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==7]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==8]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==9]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==10]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==11]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==12]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==13]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==14]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==15]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==16]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==17]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==18]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==19]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==20]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==21]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==22]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==23]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==24]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==25]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==26]),useNA = "ifany")
+# table(unlist(NAMES[A_corres$level1_match==27]),useNA = "ifany")
+```
+
+
+Algoritmo que permite navegar en toda la estructura de los xml.
+Basado en 2 tablas:
+
+1. tabla que describe la jerarquía de los campos potenciales
+1. tabla que describe la presencia de los campos para los registros
+
+Note: the following function get the elements from a recursive path
+
+```{r}
+recPathList<-function(listNavig,path)
+{
+  x=listNavig
+  for(i in path)
+    x <- x[[i]]
+  return(x)
+}
+# example
+path<-c(1,7,1,3,1)
+xml_list[[1]][[7]][[1]][[3]][[1]]
+recPathList(xml_list,path)
+```
+
+Lo que hacemos primero es crear una matriz que contiene todo los paths, nivel por nivel que existen en la lista representando el XML.
+Anotar: cuando el nivel siguiente no es una lista, no fila está añadida.
+
+```{r}
+listStruct<-matrix(data=c(1:length(xml_list),rep(NA,length(xml_list)*(ldepth(xml_list)-1))),nrow=length(xml_list),ncol=ldepth(xml_list))
+findNextLevelPaths<-function(li,pathParent,maxDepth)
+{
+  if(!is.list(recPathList(li,pathParent))){return(NULL)}
+  LN<-length(recPathList(li,pathParent))
+  return(cbind(
+    matrix(data=pathParent,nrow=LN,byrow=T,ncol=length(pathParent)),
+    1:LN,
+    matrix(NA,nrow=LN,ncol=maxDepth-(length(pathParent)+1))
+  ))
+}
+for(i in 2:ncol(listStruct))
+{
+  cat("number of parents",sum(apply(listStruct,1,function(x)length(na.omit(x)))==(i-1)),"\n")
+listStruct<-rbind(listStruct,
+                  Reduce(rbind,apply(listStruct[apply(listStruct,1,function(x)length(na.omit(x)))==(i-1),],1,function(p,l)
+  {
+  ml=length(p)
+  p=p[!is.na(p)]
+  findNextLevelPaths(l,p,ml)
+  },l=xml_list))
+)
+}
+```
+
+
+Now let's apply a function to get transform this matrix in a name matrix.
+
+```{r}
+nameCurrentLevel<-apply(listStruct[apply(listStruct,1,function(x)length(na.omit(x)))>1,],1,function(x,li)
+{
+  A<-na.omit(x)
+  last<-A[length(A)]
+  path<-A[-length(A)]
+  names(recPathList(li,path))[last]
+},li=xml_list)
+nameCurrentLevel[(length(nameCurrentLevel)-50):length(nameCurrentLevel)]
+
+allNames<-matrix(NA,nrow=nrow(listStruct),ncol=ncol(listStruct)-1)
+for(i in 1:nrow(listStruct))
+{
+  if(i%%10000==0)cat(i,"/",nrow(listStruct),"\n")
+  for(j in 2:max(2,length(na.omit(listStruct[i,]))))
+  {
+    
+    path<-listStruct[i,1:(j-1)]
+    last<-listStruct[i,j]
+    allNames[i,j-1]<-names(recPathList(xml_list,path))[last]
+  }
+}
+```
+
+Desde el nivel 2 hasta maximo, determinamos cual es el parent:
+```{r}
+level<-apply(listStruct,1,function(x)length(na.omit(x)))
+parent<-integer(nrow(listStruct))
+for(i in 2:max(level))
+{
+  m<-match(apply(listStruct[level==i,],1,function(x){x[which.max(which(!is.na(x)))]<-NA;return(x)},simplify = F),split(listStruct[level==(i-1),],row(listStruct[level==(i-1),])))
+  parent[level==i]<-which(level==(i-1))[m]
+}
+```
+
+
+
+
+Cuales son los hijos directos?
+
+```{r}
+directChildren<-list()
+for(i in 1:length(parent))
+{
+  directChildren[[i]]<-which(parent==i)
+}
+```
+
+
+Cuales son los path que contienen una lista
+```{r}
+contList<-apply(listStruct,1,function(x,li)
+{path=na.omit(x);return(is.list(recPathList(li,path)))},li=xml_list)
+```
+
+Cuales son los casos que no contienen listas, pero son nulos:
+
+```{r}
+contNull<-apply(listStruct,1,function(x,li)
+{path=na.omit(x);return(is.null(recPathList(li,path)))},li=xml_list)
+noListButNull<-!contList&contNull
+sum(!contList)
+sum(noListButNull)
+sum(!contList&!contNull)
+```
+
+```{r}
+# which of listStruct is a non-null, non-list value
+leaves<-which(!contList&!contNull)
+# table of unique variable names
+un_leaves<-unique(allNames[leaves,])
+# correspondence between non-null, non-list values and unique variable names
+m<-match(split(allNames[leaves,],row(allNames[leaves,])),split(un_leaves,row(un_leaves)))
+# Correspondence between listStruct and unique variable names
+corres_leaves<-integer(nrow(listStruct))
+corres_leaves[leaves]<-m
+```
+
+
+```{r}
+NAMES<-apply(un_leaves,1,function(x)paste(na.omit(x),collapse="."))
+nb_byVar<-table(m)
+names(nb_byVar)<-NAMES
+nb_byVar[order(nb_byVar)]
+#View(un_leaves[do.call("order",as.data.frame(un_leaves)),])
+```
+
+Para cada variable (hoja), necesitamos saber:
+
+* cuantas veces aparece?
+* En cuantos registros aparece?
+* cual es el maximo de las repeticiones en un registro?
+* cual es el minimo/maximo de la longitud del vector de valores?
+* ejemplos de valores
+
+```{r}
+
+nbOccurrences<-table(corres_leaves[corres_leaves!=0])
+nbReg<-tapply(listStruct[,1],corres_leaves,function(x)length(unique(x)))[-1]
+nbRepMin<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,function(x)min(na.omit(x[x>0])))[-1]
+nbRepMax<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,max)[-1]
+rangeLN<-by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
+  {
+    ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml)
+    return(range(sapply(ls_byVar,length)))
+  },ls_xml=xml_list)
+len_min<-sapply(rangeLN,min)[-1]
+len_max<-sapply(rangeLN,max)[-1]
+subNames<-by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
+  {
+    subN<-unique(unlist(lapply(apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml),names)))
+    return(paste(subN,sep="|",collapse="|"))
+  },ls_xml=xml_list)[-1]
+examples<-as.list(by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
+  {
+    ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml)
+  },ls_xml=xml_list)[-1])
+isAttr<-grepl("\\.attr",NAMES)
+```
+
+
+Now we export a csv file to be able to analyse and name the variables:
+```{r}
+un_leaves<-data.frame(id=1:nrow(un_leaves),
+                      un_leaves,
+                      isAttr,
+                      nbOccurrences,
+                      nbReg,
+                      nbRepMin,
+                      nbRepMax,
+                      len_min,
+                      len_max,
+                      subNames
+                      )
+
+write.csv(un_leaves,"../../data_metadatos_catalogos/un_leaves.csv")
+```
+
+
+It might be interesting to classify the individual datasets depending on the variable they have:
+
+```{r}
+require(vegan)
+distInd<-vegdist(table(listStruct[,1],corres_leaves)[,-1],method = "chisq",binary=T)
+HC<-hclust(distInd)
+plot(HC)
+```
+
+
+```{r}
+save(list=c("listStruct","nameCurrentLevel","allNames","level","parent","directChildren","contList"),file="../../data_metadatos_catalogos/analyseXmlStruct_geonetwork.RData")
+```
+
+```{r}
+dbDisconnect(geonetwork)
+```
+

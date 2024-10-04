@@ -1,0 +1,105 @@
+---
+title: "Estructura y descripción de los catalogos institucionales"
+author: "Marius Bottin"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+       number_sections: true
+       toc: true
+---
+
+
+```{r setup}
+require(RPostgreSQL)
+require(dm)
+require(DiagrammeRsvg)
+require(rsvg)
+require(png)
+knitr::opts_chunk$set(cache=F,tidy.opts = list(width.cutoff = 70),
+                     tidy = TRUE,
+                     max.print=50,fig.path="./Fig/expl_meta",echo=T,
+                     collapse=F, echo=T)
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  paste0("\n \\", "footnotesize","\n\n", x, "\n\n \\normalsize\n\n")
+})
+```
+
+# Geonetwork
+
+In my computer at home I created the database with the following commands:
+
+```bash
+createdb geonetwork -D extra
+pg_restore -d geonetwork -c --no-owner --no-acl access_dump/dump-geonetwork-202409051028.sql
+```
+
+```{r}
+geonetwork<-dbConnect(PostgreSQL(),dbname="geonetwork",user="marius")
+```
+
+```{r}
+dm_object <- dm_from_con(geonetwork, learn_keys = T)
+A<-dm_object %>%
+  dm_draw(view_type = "all")
+```
+
+# XML representation and analyses
+
+It seems that most of the data is in an xml form in the field `data` of the `metadata` table.
+
+We will need to analyse particularly this XML structure, to be able to extract the metadata from the geonetwork.
+
+```{r}
+require(xml2)
+require(XML)
+require(data.tree)
+require(collapse)
+mtdt<-dbGetQuery(geonetwork,"SELECT data FROM metadata")
+#xmlToDataFrame(xmlParse(mtdt[1,]))
+```
+
+```{r}
+xml_list<-lapply(mtdt[-479,1],function(x)xmlToList(xmlParse(x)))
+names1<-names(xml_list[[1]])
+names_all<-lapply(xml_list,names) 
+sapply(names_all,function(x,y)!all(y==x),y=names1)
+(names_fields<-unique(Reduce(c,names_all)))
+mostComplete<-which.max(sapply(names_all,function(x,y)sum(y%in%x),y=names_fields))
+```
+
+
+```{r}
+
+```
+
+
+
+```{r}
+n1<-xmlToList(xmlParse(mtdt[mostComplete,1]))
+names(n1)
+(depth_1<-sapply(n1,ldepth))
+A<-FromListExplicit(n1[[7]],nodeName = names(n1)[7])
+#A<-FromListSimple(n1[[7]],nodeName = names(n1)[7])
+plot(A$root,direction="climb")
+A<-FromListSimple(n1[[8]],nodeName=names(n1)[8])
+plot(A$root,direction="climb")
+A<-FromListSimple(n1$referenceSystemInfo,nodeName="referenceSystemInfo")
+plot(A$root,direction="climb")
+A<-FromListSimple(n1$identificationInfo,nodeName="identificationInfo")
+plot(A$root,direction="climb")
+names(n1$identificationInfo[[1]])
+sapply(n1$identificationInfo[[1]],ldepth)
+A<-FromListSimple(n1$identificationInfo[[1]]$citation,nodeName="citation")
+plot(A$root,direction="climb")
+lapply(n1$identificationInfo[[1]],function(x){
+  A<-FromListSimple(x)
+  plot(A$root,direction="climb")
+}
+  )
+```
+```{r}
+dbDisconnect(geonetwork)
+```
+

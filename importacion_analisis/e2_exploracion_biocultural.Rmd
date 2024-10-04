@@ -1,0 +1,168 @@
+---
+title: "Estructura y descripción de los metadatos de biocultural"
+author: "Marius Bottin"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+       number_sections: true
+       toc: true
+---
+
+
+```{r setup}
+require(kableExtra)
+require(RPostgreSQL)
+require(dm)
+require(png)
+knitr::opts_chunk$set(cache=F,tidy.opts = list(width.cutoff = 70),
+                     tidy = TRUE,
+                     max.print=50,fig.path="./Fig/explor_biocultural_",echo=T,
+                     collapse=F, echo=T)
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  paste0("\n \\", "footnotesize","\n\n", x, "\n\n \\normalsize\n\n")
+})
+```
+
+# Base de datos en postgres
+
+La base de datos en postgres está almacenada en un servidor en AWS.
+Esta base de datos no se puede consultar desde el exterior, así, el procedimiento es:
+
+1. conectarse, desde la red del instituto Humboldt, con ssh al servidor AWS
+1. producir el archivo dump en el servidor con el comando `pg_dump -U dvnreader -d dvndb -Fc > dump_dvndb_20240918`
+1. reproducir la base de datos en un computador local :
+
+```bash
+createdb biocultural
+pg_restore -d biocultural -c --no-owner --no-acl ../access_dump/dump_dvndb_20240918
+```
+
+```{r}
+biocultural<-dbConnect(PostgreSQL(),dbname="biocultural",user="marius")
+```
+
+
+# Descripción de la estructura de la base de datos de biocultural-dataverse
+
+El sistema dataverse es un ensamblaje de software que permite almacenar, organizar y publicar juegos de datos.
+El manejo de los datos y sus flujos se hace a través de una base de datos en PostgreSQL.
+
+A continuación se presenta la estructura de las 109 tablas que contiene el sistema dataverse y sus relaciones
+
+```{r fig.height=40,fig.width=25}
+dm_object <- dm_from_con(biocultural, learn_keys = T)
+A<-dm_object %>%
+  dm_draw(view_type = "all")
+A
+```
+
+Como se puede ver, es una estructura compleja con muchas tablas diferentes.
+Muchas de esas tablas, en el sistema de biocultural, no se utilizan (no tienen registros):
+
+```{r}
+tables_biocultural <- dbListTables(biocultural)
+info_tables<-function(conn,tables)
+{
+  sapply(tables,function(ta,co)
+  {
+    tab<-dbReadTable(co,ta)
+    return(c(size=object.size(tab),nrow=nrow(tab),ncol=ncol(tab),propNull=sum(is.na(tab)|is.null(tab))/(nrow(tab)*ncol(tab))))
+  },co=conn)
+}
+inf_tab_biotablero<-as.data.frame(t(info_tables(biocultural,tables_biocultural)))
+kable(inf_tab_biotablero)
+```
+
+Podemos filtrar las tablas que tienen registros así:
+
+```{r}
+inf_tab_biotablero_signif<-inf_tab_biotablero[inf_tab_biotablero$nrow>1,]
+inf_tab_biotablero_signif[order(inf_tab_biotablero_signif$size,decreasing=T),]
+```
+
+Acá representamos las relaciones entre tablas que tienen registros:
+
+```{r fig.height=20,fig.width=15}
+dm_object <- dm_from_con(biocultural, table_names=rownames(inf_tab_biotablero_signif), learn_keys = T)
+A<-dm_object %>%
+  dm_draw(view_type = "all")
+A
+```
+
+# Ejercicios de extracción en la base de datos
+
+## List of datasets
+
+Los objetos de la base de datos están en la tabla `dvobject`
+
+```{sql connection=biocultural}
+SELECT *
+FROM dvobject
+LIMIT 10
+```
+
+En el sistema dataverse tenemos 3 tipos de objetos:
+
+```{sql connection=biocultural}
+SELECT dtype,count(*)
+FROM dvobject
+GROUP BY dtype
+```
+
+Existen tambien versiones de los dataset, que están descritas en la tabla `datasetversion`, tabla que está referenciada en todas las tablas que describen los metadatos de los dataset.
+
+```{sql connection=biocultural}
+SELECT dataset_id,id,versionnumber,minorversionnumber,versionnote,versionstate,releasetime
+FROM datasetversion
+ORDER BY dataset_id, versionnumber, minorversionnumber
+```
+
+```{sql connection=biocultural}
+SELECT dataset_id, ARRAY_AGG(versionnumber||'.'||minorversionnumber ORDER BY versionnumber,minorversionnumber)
+FROM datasetversion
+GROUP BY dataset_id
+```
+
+
+
+Getting the titles of datasets:
+
+```{r}
+
+dbGetQuery(biocultural,statement=
+       
+"SELECT dft.title,value,dtype,dvo.id,version
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN datasetversion dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+WHERE dft.title='Title'
+ORDER BY dvo.id,version
+") %>%
+  kable()
+```
+
+
+
+```{r}
+dbGetQuery(biocultural,statement=
+       
+"SELECT dft.title,value,identifier 
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN datasetversion dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+")
+```
+
+
+
+
+```{r}
+dbDisconnect(biocultural)
+```
+
