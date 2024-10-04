@@ -54,7 +54,6 @@ devDocs/*.tex
 *.html
 *.xlsx
 *.RData
-*.png
 *.Rout
 *.aux
 *.toc
