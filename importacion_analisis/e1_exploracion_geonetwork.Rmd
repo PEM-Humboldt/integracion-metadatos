@@ -43,6 +43,8 @@ geonetwork<-dbConnect(PostgreSQL(),dbname="geonetwork",user="marius")
 dm_object <- dm_from_con(geonetwork, learn_keys = T)
 A<-dm_object %>%
   dm_draw(view_type = "all")
+A2<-DiagrammeRsvg::export_svg(A)%>%charToRaw()%>%rsvg::rsvg_png("Fig/explor_geonetwork_structureDB.png")
+knitr::include_graphics("Fig/explor_geonetwork_structureDB.png")
 ```
 
 # XML representation and analyses

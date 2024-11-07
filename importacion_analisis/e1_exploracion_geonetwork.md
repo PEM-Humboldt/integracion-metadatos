@@ -1,7 +1,7 @@
 Estructura y descripción de los metadatos de geonetwork
 ================
 Marius Bottin
-2024-10-04
+2024-10-18
 
 - [1 Importación](#1-importación)
 - [2 XML representation and
@@ -85,7 +85,13 @@ dm_object <- dm_from_con(geonetwork, learn_keys = T)
 ``` r
 A <- dm_object %>%
     dm_draw(view_type = "all")
+A2 <- DiagrammeRsvg::export_svg(A) %>%
+    charToRaw() %>%
+    rsvg::rsvg_png("Fig/explor_geonetwork_structureDB.png")
+knitr::include_graphics("Fig/explor_geonetwork_structureDB.png")
 ```
+
+<img src="Fig/explor_geonetwork_structureDB.png" width="3380" />
 
 # 2 XML representation and analyses
 

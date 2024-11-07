@@ -55,7 +55,8 @@ A continuación se presenta la estructura de las 109 tablas que contiene el sist
 dm_object <- dm_from_con(biocultural, learn_keys = T)
 A<-dm_object %>%
   dm_draw(view_type = "all")
-A
+A2<-DiagrammeRsvg::export_svg(A)%>%charToRaw()%>%rsvg::rsvg_png("Fig/explor_biocultural_structureBD.png")
+knitr::include_graphics("Fig/explor_biocultural_structureBD.png")
 ```
 
 Como se puede ver, es una estructura compleja con muchas tablas diferentes.
@@ -111,13 +112,105 @@ FROM dvobject
 GROUP BY dtype
 ```
 
-Existen tambien versiones de los dataset, que están descritas en la tabla `datasetversion`, tabla que está referenciada en todas las tablas que describen los metadatos de los dataset.
+## Versiones de los datasets
+
+Existen también versiones de los dataset, que están descritas en la tabla `datasetversion`, tabla que está referenciada en todas las tablas que describen los metadatos de los datasets.
 
 ```{sql connection=biocultural}
 SELECT dataset_id,id,versionnumber,minorversionnumber,versionnote,versionstate,releasetime
 FROM datasetversion
 ORDER BY dataset_id, versionnumber, minorversionnumber
 ```
+
+Cuales son los ultimos datasets:
+
+```{sql connection=biocultural}
+WITH a AS(
+SELECT id, dataset_id, versionnumber||'.'||minorversionnumber version_tot, releasetime,
+  ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY releasetime DESC) recent_to_old
+FROM datasetversion
+)
+SELECT *
+FROM a
+WHERE recent_to_old=1
+```
+
+Nota: con este codigo, podemos ahora extraer las variables que conciernen únicamente la ultima versión de cada uno de los dataset.
+
+## Variables de los metadatos
+
+La consulta siguiente permite obtener los metadatos de cada dataset:
+
+```{sql connection=biocultural}
+WITH a AS(
+SELECT id, dataset_id, versionnumber||'.'||minorversionnumber version_tot, releasetime,
+  ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY releasetime DESC) recent_to_old
+FROM datasetversion
+)
+SELECT dvo.id, version_tot, dft.title, value
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN a dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+WHERE dver.recent_to_old=1
+ORDER BY dvo.id
+LIMIT 10
+```
+
+En algunos casos, tenemos repeticiones de variables para algunos datasets:
+
+```{sql connection=biocultural}
+WITH a AS(
+SELECT id, dataset_id, versionnumber||'.'||minorversionnumber version_tot, releasetime,
+  ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY releasetime DESC) recent_to_old
+FROM datasetversion
+), b AS(
+SELECT dvo.id, version_tot, dft.title, value
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN a dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+WHERE dver.recent_to_old=1
+ORDER BY dvo.id
+)
+SELECT id,title, count(*),STRING_AGG(value,'|')
+FROM b
+GROUP BY id,title
+HAVING count(*)>1
+```
+
+Ahora para crear una matriz que pueda contener todas las variables:
+
+```{r}
+require(ecolUtil)
+db_meta<-dbGetQuery(biocultural,
+"WITH a AS(
+SELECT id, dataset_id, versionnumber||'.'||minorversionnumber version_tot, releasetime,
+  ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY releasetime DESC) recent_to_old
+FROM datasetversion
+), b AS(
+SELECT dvo.id, version_tot, dft.title, value
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN a dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+WHERE dver.recent_to_old=1
+ORDER BY dvo.id
+)
+SELECT id,title, STRING_AGG(value,'|') value
+FROM b
+GROUP BY id,title
+")
+
+mat<-dbTab2mat(db_meta,col_samplingUnits = "id",col_species = "title",col_content = "value")
+write.csv(mat,file="../../data_metadatos_catalogos/export_datasets_biocultural.csv")
+
+```
+
+
 
 ```{sql connection=biocultural}
 SELECT dataset_id, ARRAY_AGG(versionnumber||'.'||minorversionnumber ORDER BY versionnumber,minorversionnumber)
@@ -129,7 +222,7 @@ GROUP BY dataset_id
 
 Getting the titles of datasets:
 
-```{r}
+```r
 
 dbGetQuery(biocultural,statement=
        
@@ -147,7 +240,7 @@ ORDER BY dvo.id,version
 
 
 
-```{r}
+```r
 dbGetQuery(biocultural,statement=
        
 "SELECT dft.title,value,identifier 
