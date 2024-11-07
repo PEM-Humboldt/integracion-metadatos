@@ -1,21 +1,12 @@
-# Integración de los metadatos de los juegos de datos publicados en los catalogos institucionales del IAvH
+# Integración de los catálogos institucionales
 
-# Abstract
-This repository includes documentation and code for analysing and integrating the data repositories of Instituto Alexander von Humboldt (biodiversity research institute for Colombia).
-Institutional data repositories are divided in 3 main component:
+Para el Instituto colombiano de investigación de investigación de recursos biológicos Alexander von Humboldt (IAvH), es importante tener un sistema de publicación de datos de investigación simple y visible, tanto para el publico externo como para el trabajo investigativo interno.
+Hasta ahora la Infraestructura Institucional de Datos e información (I2D) contiene 3 catálogos principales: Ceiba (datos biológicos), GeoNetwork (datos geograficos) y Biocultural (datos socio-ecológicos).
+Con el objetivo de simplificar el manejo de los datos y aumentar la visibilidad de los datos institucionales, la I2D está estudiando hipotesis de integración de esos 3 catalogos.
 
-* **Ceiba**: biological data managed through an Integrated Publishing Toolkit from GBIF
-* **Geonetwork**: Geographical data managed through the geonetwork tool set
-* **BioCultural**: socio-ecological data managed through a dataverse project toolset
+La primera etapa de este análisis es una descripción de las soluciones técnicas que componen los sistemas de gestión y publicación de los datos actuales, en el marco de este proceso de integración:
 
-The goal here is to extract, analyse and document the metadata from the 3 components, and to explore the possibility to integrate the 3 institutional catalogs.
+* [Integrated Publishing Toolkit para los datos biológicos](./system_IPT.md)
+* [GeoNetwork para los datos geográficos](./system_GeoNetwork.md)
+* [dataverse para los datos socioecológicos](./system_dataverse.md)
 
-# Resumen
-El objetivo de este repositorio es presentar la documentación y los codigos para el proceso de integración de los catalogos de datos institucionales del Instituto Alexander von Humboldt.
-Existen 3 catálogos de datos principales en el instituto:
-
-* **Ceiba**: datos biologicos manejados a través de un IPT (Integrated Publishing Toolset de GBIF)
-* **Geonetwork**: datos geograficos manejados a través de las herramientas contenidas en ensamble geonetwork
-* **BioCultural**: datos socioecológicos manejados gracias a un dataverse project
-
-En el marco de un proyecto de integración de esos catálogos, presentaremos los codigos de extracción, análisis y exploraremos las posibilidades que permitan su integración, 
