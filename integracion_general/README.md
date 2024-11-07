@@ -6,7 +6,7 @@ Con el objetivo de simplificar el manejo de los datos y aumentar la visibilidad 
 
 La primera etapa de este análisis es una descripción de las soluciones técnicas que componen los sistemas de gestión y publicación de los datos actuales, en el marco de este proceso de integración:
 
-* [Integrated Publishing Toolkit para los datos biológicos](./system_IPT.md)
-* [GeoNetwork para los datos geográficos](./system_GeoNetwork.md)
-* [dataverse para los datos socioecológicos](./system_dataverse.md)
+* [Integrated Publishing Toolkit para los datos biológicos](./documentacion/system_IPT.md)
+* [GeoNetwork para los datos geográficos](./documentacion/system_GeoNetwork.md)
+* [dataverse para los datos socioecológicos](./documentacion/system_dataverse.md)
 
