@@ -47,6 +47,10 @@ devDocs/*.tex
 # R Environment Variables
 .Renviron
 
+# Python virtual environment
+integmeta_env/**
+
+
 # kate
 *.kate-swp
 # For now let's not follow the changes in the rmarkdown-produced documents, nor in any excel or such R results, what's important is code!
@@ -61,3 +65,4 @@ devDocs/*.tex
 *.csv
 *.Rproj
 # exception
+

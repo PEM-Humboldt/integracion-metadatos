@@ -1,0 +1,65 @@
+---
+title: "Estructura y descripción de los catalogos institucionales"
+author: "Marius Bottin"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+       number_sections: true
+       toc: true
+---
+
+
+```{r}
+require(httr)
+require(jsonlite)
+
+```
+
+Eso parece funcionar:
+
+```bash
+curl -U "User:Pass" --request GET 'http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.search' -v
+```
+
+
+Para que funcione el codigo siguiente, se necesita un archivo texto con las 3 filas siguientes:
+
+`# API geonetwork`
+
+`usuario: ********`
+
+`password: *******`
+
+
+```{r}
+access <- readLines("../../../access_dump/accesos")
+api_access_line <- which(access=="# API geonetwork")
+usuario <- gsub("usuario: ","",access[api_access_line+1])
+password <- gsub("password: ", "", access[api_access_line+2])
+```
+
+```{r}
+get_xml_search<-GET("http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.search",list(authenticate(usuario,password),content_type("application/xml")))
+str(get_xml_search)
+
+B<-GET("http://geonetwork.humboldt.org.co/geonetwork/srv/eng/info?type=me",list(authenticate(usuario,password),content_type("application/json")))
+```
+
+```{r}
+from_curl<-system(paste0("curl -U \"",usuario,":",password,"\" --request GET 'http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.search' -v"),intern = T)
+require(XML)
+ls_from_curl<-xmlToList(from_curl)
+length(ls_from_curl)
+Reduce(rbind.data.frame,lapply(ls_from_curl[2:length(ls_from_curl)],function(x)x$info))
+```
+
+
+Para entender como funcionan los llamados a la API por la pagina principal de la I2D y las busquedas, se pueden consultar los enlaces siguientes:
+
+1. ir a <http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.search> : consiste a entrar a los resultados de una busqueda xmd, sin ninguna palabra clave ni attributo. Entonces, la API envia todos los recursos del catálogo
+1. Anotar el id de uno de los recursos y ponerlo en la consulta siguiente (ejemplo con 733): <http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.metadata.get?id=733>. Corresponde a pedir el xml del recurso 733
+
+Quedan varias preguntas:
+* Porque la API cuando está consultada por R, da resultados que no se pueden leer
+
+
