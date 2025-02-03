@@ -3,7 +3,7 @@ title: "Estructura y descripción de los metadatos de Ceiba"
 author: "Marius Bottin"
 date: "`r Sys.Date()`"
 output: 
-    html_document:
+    bookdown::github_document2:
        number_sections: true
        toc: true
 ---
@@ -46,16 +46,18 @@ En ssh, accedemos al servidor de ceiba desde la red del instituto:
 ssh integracion@192.168.11.74
 ```
 
-Extraemos 2 archivos:
+Extraemos 3 archivos:
 
 * un archivo que tiene las direcciones de los archivos "eml.xml" y sus contenidos
+* un archivo que contiene las direcciones de los archivos "resource.xml" y sus contenidos
 * un catalogo de todos los archivos presentes en la carpeta de datos manejada por el ipt
 
 Esos 2 archivos se pueden obtener con:
 
 ```bash
 find /home/pem/datadir/ -name eml.xml -exec bash file_and_content.sh {} \; >file_and_content_result_eml 2> errors_find_file_and_content_eml
-find /home/pem/datadir/ > result_find
+fimd /home/pem/datadir/ -name resource.xml  -exec bash file_and_content.sh {} \; >file_and_content_result_resource 2> errors_find_file_and_content_resource
+find -type f /home/pem/datadir/ > result_find
 ```
 
 Los archivos se pueden descargar desde la red del instituto, gracias al applicativo scp, que funciona a través de ssh.
@@ -63,22 +65,67 @@ Los archivos se pueden descargar desde la red del instituto, gracias al applicat
 # Analisis de los metadatos
 
 ```{r}
-result_find <- readLines("../data_metadatos_catalogos/ceiba/result_find")
-meta_ceiba <- readLines("../data_metadatos_catalogos/ceiba/file_and_content_result_eml")
+result_find <- readLines("../../../data_metadatos_catalogos/ceiba/result_find")
+meta_ceiba <- readLines("../../../data_metadatos_catalogos/ceiba/file_and_content_result_eml")
+```
+
+Numero de archivos de metadatos
+
+```{r}
 sum(grepl("---file:.*---",meta_ceiba))
+```
+
+We search for the names/pathes of the files and we create the tables describing the adresses in the R object
+
+```{r}
 nameFilesAddr<-grep("---file:.*---",meta_ceiba)
 addresses_xml<-data.frame(
   file=sub("^---file:(.*)---$","\\1",meta_ceiba[nameFilesAddr]),
   beg=nameFilesAddr+1,
   end=c(nameFilesAddr[2:length(nameFilesAddr)]-1,length(meta_ceiba))
 )
+```
+
+Checking integrity and correspondances with the other objects
+
+```{r}
 any(duplicated(addresses_xml$file))
 match(addresses_xml$file,result_find)
+```
+There might be a problem when there is an empty xml.
+After manual checking, we realize that this problem creates an end before the beg, so to avoid these lines in the rest of the code, we just suppress these cases in the addresses_xml object:
+
+```{r}
+w_empty<-which((addresses_xml$beg[1:(nrow(addresses_xml)-1)]+1)==addresses_xml$beg[2:nrow(addresses_xml)])
+addresses_xml[(w_empty-2):(w_empty+2),]
+
+addresses_xml[addresses_xml$beg>addresses_xml$end,]
+addresses_xml<-addresses_xml[addresses_xml$beg<addresses_xml$end,]
+```
+
+
+Separating by origin files:
+
+```{r}
 xml_files<-apply(addresses_xml,1,function(a,rl)paste(rl[a[2]:a[3]],sep="\n",collapse="\n"),rl=meta_ceiba)
 names(xml_files)<-addresses_xml$file
+```
+
+Then reading the xml code:
+
+```{r}
 require(XML)
 require(xml2)
 xml_list<-lapply(xml_files,function(x)xmlToList(xmlParse(x)))
+```
+
+I gotta check this part because it does not make sense: this only take the large categories which are:
+
+* dataset
+* additionalMetadata
+* .attrs
+
+```r
 names1<-names(xml_list[[1]])
 names_all<-lapply(xml_list,names) 
 sapply(names_all,function(x,y)!all(y==x),y=names1)
@@ -87,9 +134,9 @@ mostComplete<-which.max(sapply(names_all,function(x,y)sum(y%in%x),y=names_fields
   
 ```
 
+Seems that part is useless as well:
 
-
-```{r}
+```r
 level1<-data.frame(
   name=names_fields,
   hasValue=F
@@ -215,6 +262,7 @@ for(i in 1:nrow(listStruct))
 ```
 
 Desde el nivel 2 hasta maximo, determinamos cual es el parent:
+
 ```{r}
 level<-apply(listStruct,1,function(x)length(na.omit(x)))
 parent<-integer(nrow(listStruct))
@@ -291,18 +339,22 @@ nbOccurrences<-table(corres_leaves[corres_leaves!=0])
 nbReg<-tapply(listStruct[,1],corres_leaves,function(x)length(unique(x)))[-1]
 nbRepMin<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,function(x)min(na.omit(x[x>0])))[-1]
 nbRepMax<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,max)[-1]
-rangeLN<-by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
+
+
+rangeLN<-by(listStruct[corres_leaves!=0,],corres_leaves[corres_leaves!=0],FUN=function(tab,ls_xml)
   {
-    ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml)
+    ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml,simplify=F)
     return(range(sapply(ls_byVar,length)))
   },ls_xml=xml_list)
-len_min<-sapply(rangeLN,min)[-1]
-len_max<-sapply(rangeLN,max)[-1]
-subNames<-by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
+len_min<-sapply(rangeLN,min)
+len_max<-sapply(rangeLN,max)
+
+subNames<-by(listStruct[corres_leaves!=0,],corres_leaves[corres_leaves!=0],FUN=function(tab,ls_xml)
   {
-    subN<-unique(unlist(lapply(apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml),names)))
+    subN<-unique(unlist(lapply(apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml,simplify = F),names)))
     return(paste(subN,sep="|",collapse="|"))
-  },ls_xml=xml_list)[-1]
+  },ls_xml=xml_list)
+
 examples<-as.list(by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
   {
     ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml)
@@ -324,8 +376,47 @@ un_leaves<-data.frame(id=1:nrow(un_leaves),
                       len_max,
                       subNames
                       )
-un_leaves<-un_leaves[do.call("order",as.data.frame(un_leaves[2:10,])),]
+un_leaves<-un_leaves[do.call("order",as.list(un_leaves[2:ncol(un_leaves)])),]
 
-write.csv(un_leaves,"../data_metadatos_catalogos/ceiba_un_leaves.csv")
+write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_un_leaves.csv")
+```
+
+# Exportation of a table with values and references (dataset and variables)
+
+What we have got is:
+
+* the table `un_leaves` which contains many characteristics of the different variables
+* `listStruct` which contains all the paths in rows
+* `corres_leaves`, which corresponds one on one to listStruct and which gives 0 when the path does not go to a "leaf" and gives the id of the table `un_leaves` when it is a leaf
+* `xml_list` which contains all the info from the xml files, and might be accessed through the function `recPathList` with the path from `listStruct`
+* `parent` which gives, for each of the line of `listStruct` the parent line, in `listStruct` as well 
+* `addresses_xml` which contains, in the first column, the system path of the files xml, on the same order as the column 1 from `listStruct`: we can extract the name of the folder from there...
+
+One of the difficulties we could have to extract the table of values is that some leaves (some of the .attr ones only) have more than one value on the leaves
+
+```{r}
+folder <- gsub("^.*/","",dirname(addresses_xml$file))
+ref<-which(corres_leaves!=0)
+res<-Reduce(rbind,lapply(ref,function(x,f,lS,cl,xl,p,ul)
+  {
+  val <- recPathList(xl,na.omit(lS[x,]))
+  nameVal <- names(val)
+  if(is.null(nameVal)){nameVal<-NA}
+  return(data.frame(
+    ref_struct=x,
+    parent=p[x],
+    folder=f[lS[x,1]],
+    id_var=cl[x],
+    subname=nameVal,
+    value=as.character(val)
+  ))},
+  f=folder,
+  lS=listStruct,
+  cl=corres_leaves,
+  xl=xml_list,
+  p=parent,
+  ul=un_leaves
+  ))
+save(res,file="../../../data_metadatos_catalogos/tab_variable.RData")
 ```
 
