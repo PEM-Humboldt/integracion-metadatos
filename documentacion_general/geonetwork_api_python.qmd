@@ -20,12 +20,16 @@ print(sys.version)
 ```
 
 En lo que concierne los paquetes, se pueden referir al archivo [requirements.txt](../requirements.txt) de este repositorio, sin embargo la mayoría de las dependencias que están allá es para utilizar Jupyter y escribir documentos que contienen códigos de Python.
-El único paquete indispensable para aplicar los codigos contenidos en este documento es `requests`.
+Los paquete indispensable para aplicar los codigos contenidos en este documento son `requests` y `xml`.
 
 ## Endpoint `search.xml`
 
+La API de Geonetwork contiene un endpoint de busqueda en xml que se puede utilizar para consultar y encontrar conjuntos de datos que se publicarón en la plataforma.
+
+
 ```{python}
 import requests
+urlBase='http://geonetwork.humboldt.org.co/geonetwork/srv/eng/xml.search'
 
 ```
 
