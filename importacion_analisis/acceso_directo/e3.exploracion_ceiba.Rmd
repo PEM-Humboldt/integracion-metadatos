@@ -13,7 +13,7 @@ output:
 require(RPostgreSQL)
 require(dm)
 require(png)
-knitr::opts_chunk$set(cache=F,tidy.opts = list(width.cutoff = 70),
+knitr::opts_chunk$set(cache=T,tidy.opts = list(width.cutoff = 70),
                      tidy = TRUE,
                      max.print=50,fig.path="./Fig/explor_ceiba_",echo=T,
                      collapse=F, echo=T)
@@ -56,8 +56,8 @@ Esos 2 archivos se pueden obtener con:
 
 ```bash
 find /home/pem/datadir/ -name eml.xml -exec bash file_and_content.sh {} \; >file_and_content_result_eml 2> errors_find_file_and_content_eml
-fimd /home/pem/datadir/ -name resource.xml  -exec bash file_and_content.sh {} \; >file_and_content_result_resource 2> errors_find_file_and_content_resource
-find -type f /home/pem/datadir/ > result_find
+find /home/pem/datadir/ -name resource.xml  -exec bash file_and_content.sh {} \; >file_and_content_result_resource 2> errors_find_file_and_content_resource
+find /home/pem/datadir/ -type f  > result_find
 ```
 
 Los archivos se pueden descargar desde la red del instituto, gracias al applicativo scp, que funciona a través de ssh.
@@ -117,6 +117,8 @@ Then reading the xml code:
 require(XML)
 require(xml2)
 xml_list<-lapply(xml_files,function(x)xmlToList(xmlParse(x)))
+xml_list2<-lapply(xml_files,function(x)xmlToList(xmlParse(x),simplify = F))
+
 ```
 
 I gotta check this part because it does not make sense: this only take the large categories which are:
@@ -235,10 +237,11 @@ listStruct<-rbind(listStruct,
 ```
 
 
-Now let's apply a function to get transform this matrix in a name matrix.
+Now let's apply a function to transform this matrix in a name matrix.
 
 ```{r}
-nameCurrentLevel<-apply(listStruct[apply(listStruct,1,function(x)length(na.omit(x)))>1,],1,function(x,li)
+#nameCurrentLevel<-apply(listStruct[apply(listStruct,1,function(x)length(na.omit(x)))>1,],1,function(x,li)
+nameCurrentLevel<-apply(listStruct,1,function(x,li)
 {
   A<-na.omit(x)
   last<-A[length(A)]
@@ -250,7 +253,7 @@ nameCurrentLevel[(length(nameCurrentLevel)-50):length(nameCurrentLevel)]
 allNames<-matrix(NA,nrow=nrow(listStruct),ncol=ncol(listStruct)-1)
 for(i in 1:nrow(listStruct))
 {
-  if(i%%10000==0)cat(i,"/",nrow(listStruct),"\n")
+  if(i%%50000==0)cat(i,"/",nrow(listStruct),"\n")
   for(j in 2:max(2,length(na.omit(listStruct[i,]))))
   {
     
@@ -287,6 +290,89 @@ for(i in 1:length(parent))
 ```
 
 
+```{r}
+allChildren<-vector(mode="list",length(directChildren))
+for(i in 1:length(allChildren))
+{
+  newChildren<-children<-directChildren[[i]]
+  while(length(newChildren)>0)
+  {
+    newChildren<-unlist(directChildren[newChildren])
+    children<-c(children,newChildren)
+  }
+  allChildren[[i]]<-children
+}
+```
+
+## Repetitions
+
+From the children list, we may see what are the repetitions.
+
+`directChildren` takes all nivels in the `listStruct` object which describes all the hierarchical levels in the xml. For each of these levels (each row of `listStruct`), it gives the children. It results in a list which contains all rows of `listStruct`, without duplication:
+
+
+```{r}
+length(directChildren)
+any(duplicated(unlist(directChildren)))
+```
+
+Hence, we can use this simple list to see whether there are repetitions there of the names, which are in nameCurrentLevel
+
+```{r}
+nameChildren<-lapply(directChildren,function(x,n){n[x]},n=nameCurrentLevel)
+dupliNameChildren<-lapply(nameChildren,duplicated)
+anyDupliNameChildren<-sapply(dupliNameChildren,any)
+```
+
+Using mapply (to apply a function to corresponding elements of various list), we may use, in the cases where there are various children with the same names:
+
+```{r}
+# La función numRep da el indice de repetición en un
+# NOTE: not sure how it would react to NA
+numRep<-function(x)
+{
+  x<-factor(x)
+  un<-levels(x)
+  m<-match(x,un)
+  t<-table(x)
+  res<-integer(length(x))
+  res[order(m)]<-unlist(lapply(t,function(x)1:x))
+  return(res)
+}
+```
+
+
+```{r}
+repetitions<-Reduce(rbind,mapply(function(id_listStruct,name,dupl)
+{
+  nameUn<-unique(name[dupl])
+  mnD<-match(name,nameUn)
+  num<-numRep(name)
+  return(
+    data.frame(
+    id=id_listStruct[!is.na(mnD)],
+    name=name[!is.na(mnD)],
+    numRep=num[!is.na(mnD)]
+  )
+  )
+}
+  ,id_listStruct=directChildren[anyDupliNameChildren],name=nameChildren[anyDupliNameChildren],dupl=dupliNameChildren[anyDupliNameChildren],SIMPLIFY = F))
+```
+
+Now we will create a matrix of the same dimension as listStruct, with values 0 for the levels which exist, NA when the level does not exist and instead of 0, the number of the repetition when it does apply
+```{r}
+listStructRep<-matrix(0L,nrow(listStruct),ncol(listStruct))
+listStructRep[is.na(listStruct)]<-NA
+for(i in 1:nrow(repetitions))
+{
+  matrixAdd<-cbind(row=c(repetitions$id[i],allChildren[[repetitions$id[i]]]),
+                   col=level[repetitions$id[i]])
+  listStructRep[matrixAdd]<-repetitions$numRep[i]
+}
+```
+
+
+## Extracting final variables (leaves of the xml tree)
 Cuales son los path que contienen una lista
 ```{r}
 contList<-apply(listStruct,1,function(x,li)
@@ -381,6 +467,148 @@ un_leaves<-un_leaves[do.call("order",as.list(un_leaves[2:ncol(un_leaves)])),]
 write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_un_leaves.csv")
 ```
 
+
+
+
+# Estructura de repetición
+Tenemos 2 objetos principales para entender la estructura de repetición de las variables en los archivos xml:
+
+* repetitions: data.frame que da "id" la referencia a `listStruct` (fila), "name" el nombre del nivel Xn donde está la repetición, "numRep" que cuenta la repetición de una variable en un mismo parent.
+* listStructRep: matriz que contiene exactamente en fila los mismos objetos que listStruct. Vale NA cuando el nivel no aplica, 0 cuando no aplica la repetición y el numero de repetición (numRep) cuando aplica una repetición de variable en un mismo parent.
+
+
+```{r}
+unRep<-unique(allNames[repetitions$id,])
+un_leaves_matNames<-as.matrix(un_leaves[grep("^X",names(un_leaves))])
+lev_rep<-apply(unRep,1,function(x)sum(!is.na(x)))
+inRep<-matrix(NA,nrow=nrow(un_leaves),ncol=length(unique(lev_rep)),dimnames=list(NULL,unique(lev_rep)))
+for(i in unique(lev_rep))
+{
+  inRep[,as.character(i)]<-which(lev_rep==i)[match(split(un_leaves_matNames[,1:i],row(un_leaves_matNames[,1:i])),split(unRep[lev_rep==i,1:i,drop=F],row(unRep[lev_rep==i,1:i,drop=F])))]
+}
+inGp<-apply(inRep,1,function(x)
+  {
+    A<-na.omit(x)
+    if(length(A)==0)
+    {return(0)}else{
+      return(A[length(A)])
+    }
+  })
+gpInGp<-Reduce(rbind,apply(unique(inRep[apply(inRep,1,function(x)sum(!is.na(x))>1),,drop=F]),1,
+              function(x){
+                A<-na.omit(x)
+                return(data.frame(gp=A[length(A)],
+                                  inGp=A[length(A)-1]))
+              }))
+
+```
+
+## Managing names without repetitions in gp
+
+Tenemos que dar nombres a los grupos, a las variables, que no se repiten en los grupos.
+
+```{r}
+nameGp <- apply(unRep,1,function(x){A<-na.omit(x);A[length(A)]})
+gp_var_info<-data.frame(type="gp",
+                        refUn=1:nrow(unRep),
+                        name=nameGp,
+                        varPath=apply(unRep,1,function(x)paste(na.omit(x),collapse="|")),
+                        inGp=0
+                        )
+gp_var_info[match(gpInGp$gp,gp_var_info$refUn),"inGp"]<-gpInGp$inGp
+```
+
+
+
+```{r}
+namesVar<-apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)
+  {A<-na.omit(x)
+  A[length(A)]
+  })
+gp_var_info<-rbind(gp_var_info,
+                   data.frame(
+                     type="var",
+                     refUn=un_leaves$id,
+                     name=namesVar,
+                     varPath=apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)paste(na.omit(x),collapse="|")),
+                     inGp=inGp
+                   )
+                   )
+```
+
+```{r}
+repeatedNames<-by(gp_var_info,gp_var_info$inGp,function(x)
+{
+  dupliNames<-x$name[duplicated(x$name)]
+  res<-x[x$name%in%dupliNames,c("type","refUn","name","varPath")]
+})
+repeatedNames<-repeatedNames[sapply(repeatedNames,nrow)>0]
+nbNamesToTake<-1
+while((length(repeatedNames)>0 & nbNamesToTake < ldepth(xml_list)) && (sum(sapply(repeatedNames,length))>0 ))
+{
+nbNamesToTake<-nbNamesToTake + 1
+toModif<-Reduce(rbind,lapply(repeatedNames,function(x,n){
+  replacement<-lapply(strsplit(x$varPath,"\\|"),function(x,n)
+    paste(x[max(length(x)-(n-1),1):length(x)],collapse="_")
+  ,n=n)
+  x$name<-unlist(replacement)
+  return(x)
+}
+,n=nbNamesToTake))
+for(i in 1:nrow(toModif))
+{
+  gp_var_info$name[gp_var_info$type==toModif$type[i]&gp_var_info$refUn==toModif$refUn[i]]<-toModif$name[i]
+}
+repeatedNames<-by(gp_var_info,gp_var_info$inGp,function(x)
+{
+  dupliNames<-x$name[duplicated(x$name)]
+  res<-x[x$name%in%dupliNames,c("type","refUn","name","varPath")]
+  return(res)
+})
+repeatedNames<-repeatedNames[sapply(repeatedNames,nrow)>0]
+}
+```
+
+# Representation of the variable structure
+
+```{r}
+require(data.tree)
+gp_var_info$gp_var_name<-paste(gp_var_info$type,gp_var_info$refUn,sep="_")
+gp_var_info$pathString<-NA
+gp_var_info$pathString[gp_var_info$inGp==0]<-paste0("gp_0/",gp_var_info$gp_var_name[gp_var_info$inGp==0])
+while(any(is.na(gp_var_info$pathString))){
+  toAdd<-gp_var_info$pathString[match(paste0("gp_",gp_var_info$inGp[is.na(gp_var_info$pathString)]),gp_var_info$gp_var_name)]
+  gp_var_info$pathString[is.na(gp_var_info$pathString)][!is.na(toAdd)]<-paste(toAdd[!is.na(toAdd)],gp_var_info$gp_var_name[is.na(gp_var_info$pathString)][!is.na(toAdd)],sep="/")
+}
+gp_var_info$label<-gp_var_info$name
+nodeGpVar<-as.Node(gp_var_info,"pathString","label")
+print(nodeGpVar,"label",pruneMethod = NULL)
+```
+
+```r fig.height=10,fig.width=2
+SetGraphStyle(nodeGpVar,rankdir="LR")
+SetNodeStyle(nodeGpVar,label=function(node)node$label)
+plot(nodeGpVar)
+```
+
+```{r fig.height=15,fig.width=15}
+library(igraph)
+#png("testReprNetwork.pdf",1500,1500)
+ig_gpVar<-as.igraph(nodeGpVar, directed = TRUE, direction = "climb")
+str(ig_gpVar)
+V(ig_gpVar)$inGp<-gp_var_info$inGp[match(names(V(ig_gpVar)),gp_var_info$gp_var_name)]
+V(ig_gpVar)$type<-ifelse(grepl("^gp",names(V(ig_gpVar))),"gp","var")
+gpCol<-rep(NA,length(V(ig_gpVar)))
+gpCol[V(ig_gpVar)$type=="gp"]<-as.integer(gsub("^gp_","",names(V(ig_gpVar))[V(ig_gpVar)$type=="gp"]))+1
+gpCol[V(ig_gpVar)$type=="var"]<-V(ig_gpVar)$inGp[V(ig_gpVar)$type=="var"]+1
+COL<-rainbow(max(gpCol))[gpCol]
+
+#gp_var_info[c("gp_var_name","name")][match(names(V(ig_gpVar)),gp_var_info$gp_var_name),]
+plot(ig_gpVar,vertex.label=gp_var_info$name[match(names(V(ig_gpVar)),gp_var_info$gp_var_name)],vertex.size=5,vertex.shape=c(var="circle",gp="square")[V(ig_gpVar)$type], vertex.color=COL)
+```
+
+
+
 # Exportation of a table with values and references (dataset and variables)
 
 What we have got is:
@@ -395,8 +623,10 @@ What we have got is:
 One of the difficulties we could have to extract the table of values is that some leaves (some of the .attr ones only) have more than one value on the leaves
 
 ```{r}
+recalculate<-F
 folder <- gsub("^.*/","",dirname(addresses_xml$file))
 ref<-which(corres_leaves!=0)
+if(recalculate){
 res<-Reduce(rbind,lapply(ref,function(x,f,lS,cl,xl,p,ul)
   {
   val <- recPathList(xl,na.omit(lS[x,]))
@@ -418,5 +648,63 @@ res<-Reduce(rbind,lapply(ref,function(x,f,lS,cl,xl,p,ul)
   ul=un_leaves
   ))
 save(res,file="../../../data_metadatos_catalogos/tab_variable.RData")
+}else{(load(file="../../../data_metadatos_catalogos/tab_variable.RData"))}
 ```
+
+# Utilizar sql para manejar los datos extraídos
+
+El trabajo para hacer acá es muy fastidioso, se trata de explorar los campos del eml en xml para crear tablas y grupos de variables que pueden ser repetidos etc.
+Utilizar SQL permite hacer este trabajo con un lenguaje más adaptado a esa complejidad...
+En esa instancia, vamos a crear una base de datos SQLite para el desarrollo, sin embargo, puede valer la pena más tarde pasar a un motor más eficiente com PostgreSQL.
+
+****************************
+
+Incluso, para empezar, vamos a utilizar `sqldf`
+
+```{r}
+require(sqldf)
+sqldf("
+      WITH a AS(
+        SELECT id_var,subname, folder, count(*) nb
+        FROM res 
+        GROUP BY id_var,subname ,folder
+        ), b AS(
+        SELECT id_var,subname,nb,count(*) nb_cases
+        FROM a
+        GROUP BY id_var,subname,nb)
+      SELECT id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
+      FROM b 
+      LEFT JOIN un_leaves ul ON b.id_var=ul.id
+      GROUP BY id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
+      HAVING max(nb)=1
+      ",drv="SQLite")
+sqldf("
+      WITH a AS(
+        SELECT id_var,subname, folder, count(*) nb
+        FROM res 
+        GROUP BY id_var,subname ,folder
+        ), b AS(
+        SELECT id_var,subname,nb,count(*) nb_cases
+        FROM a
+        GROUP BY id_var,subname,nb)
+      SELECT id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8,max(nb)
+      FROM b
+      LEFT JOIN un_leaves ul ON b.id_var=ul.id
+      GROUP BY id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
+      HAVING max(nb)!=1
+      ORDER BY X1,X2,X3,X4,X5,X6,X7,x8
+      ",drv="SQLite")
+```
+
+
+## Crear la base de datos
+
+```r
+require(RSQLite)
+dbFile<-"../../../data_metadatos_catalogos/metadata_ceiba.sqlite"
+metaCeiba<-dbConnect(SQLite(),dbFile)
+```
+
+## Crear las primeras tablas
+
 
