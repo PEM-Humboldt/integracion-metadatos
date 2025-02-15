@@ -67,6 +67,7 @@ Los archivos se pueden descargar desde la red del instituto, gracias al applicat
 ```{r}
 result_find <- readLines("../../../data_metadatos_catalogos/ceiba/result_find")
 meta_ceiba <- readLines("../../../data_metadatos_catalogos/ceiba/file_and_content_result_eml")
+meta_ceiba<-meta_ceiba[!meta_ceiba==""]
 ```
 
 Numero de archivos de metadatos
@@ -359,8 +360,45 @@ repetitions<-Reduce(rbind,mapply(function(id_listStruct,name,dupl)
   ,id_listStruct=directChildren[anyDupliNameChildren],name=nameChildren[anyDupliNameChildren],dupl=dupliNameChildren[anyDupliNameChildren],SIMPLIFY = F))
 ```
 
-Now we will create a matrix of the same dimension as listStruct, with values 0 for the levels which exist, NA when the level does not exist and instead of 0, the number of the repetition when it does apply
+
+Now we will create a matrix with the same row as listStruct, the number of column corresponding to the number of variables which are potentially repeated in their parent:
+for each level from listStruct, it gives us 
+
 ```{r}
+repAllNames<-allNames[repetitions$id,]
+unRep_allNames<-unique(repAllNames)
+gps<-match(split(allNames,row(allNames)),split(unRep_allNames,row(unRep_allNames)))
+listStructRep<-matrix(NA,nrow(listStruct),max(gps,na.rm=T))
+for(i in 1:max(gps,na.rm=T))
+{
+  potential_rep<-which(gps==i)
+  num_rep<-numRep(parent[potential_rep])# five the index of repetitions when it has the same parent
+  allChildrenRep<-allChildren[potential_rep]
+  listStructRep[potential_rep,i]<-num_rep
+  listStructRep[unlist(allChildrenRep),i]<-rep(num_rep,sapply(allChildrenRep,length))
+}
+lev_rep<-tapply(level,gps,unique)# note it is the real level, not -1
+gpInGp<-data.frame(gp=NULL,inGp=NULL)
+for(i in 1:max(gps,na.rm=T))
+{
+  lowerLevels<-lev_rep<lev_rep[i]
+  if(any(lowerLevels))
+  {
+    curLevNotNa <- listStructRep[!is.na(listStructRep[,i]),lowerLevels]
+    lowerLevApply<-apply(curLevNotNa,2,function(x)any(!is.na(x)))
+    if(any(lowerLevApply)){
+      inGp<-which(lowerLevels)[which(lowerLevApply)]
+      inGp<-inGp[length(inGp)]
+      gpInGp<-rbind(gpInGp,data.frame(gp=i,inGp=inGp))
+    }
+  }
+}
+```
+
+
+
+Now we will create a matrix of the same dimension as listStruct, with values 0 for the levels which exist, NA when the level does not exist and instead of 0, the number of the repetition when it does apply
+```r
 listStructRep<-matrix(0L,nrow(listStruct),ncol(listStruct))
 listStructRep[is.na(listStruct)]<-NA
 for(i in 1:nrow(repetitions))
@@ -407,7 +445,7 @@ corres_leaves[leaves]<-m
 NAMES<-apply(un_leaves,1,function(x)paste(na.omit(x),collapse="."))
 nb_byVar<-table(m)
 names(nb_byVar)<-NAMES
-nb_byVar[order(nb_byVar)]
+#nb_byVar[order(nb_byVar)]
 #View(un_leaves[do.call("order",as.data.frame(un_leaves)),])
 ```
 
@@ -415,18 +453,24 @@ Para cada variable (hoja), necesitamos saber:
 
 * cuantas veces aparece?
 * En cuantos registros aparece?
-* cual es el maximo de las repeticiones en un registro?
+* En que grupo (repeticiones) está?
 * cual es el minimo/maximo de la longitud del vector de valores?
 * ejemplos de valores
+* Que es la secuencia de nombre de campos xml?
 
 ```{r}
-
+# Cuantas veces aparece?
 nbOccurrences<-table(corres_leaves[corres_leaves!=0])
+# En cuantos registros
 nbReg<-tapply(listStruct[,1],corres_leaves,function(x)length(unique(x)))[-1]
-nbRepMin<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,function(x)min(na.omit(x[x>0])))[-1]
-nbRepMax<-apply(Reduce(rbind,tapply(factor(corres_leaves),listStruct[,1],table)),2,max)[-1]
+# En cual gp
 
-
+inRep<-inGp<-tapply(apply(listStructRep[leaves,],1,function(x){
+  w<-which(!is.na(x))
+  if(length(w)){return(max(w))}
+  return(0)
+}),corres_leaves[leaves],unique)
+# Longitud de valores
 rangeLN<-by(listStruct[corres_leaves!=0,],corres_leaves[corres_leaves!=0],FUN=function(tab,ls_xml)
   {
     ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml,simplify=F)
@@ -453,11 +497,10 @@ Now we export a csv file to be able to analyse and name the variables:
 ```{r}
 un_leaves<-data.frame(id=1:nrow(un_leaves),
                       un_leaves,
+                      inRep,
                       isAttr,
                       nbOccurrences,
                       nbReg,
-                      nbRepMin,
-                      nbRepMax,
                       len_min,
                       len_max,
                       subNames
@@ -474,10 +517,10 @@ write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_un_leaves.csv"
 Tenemos 2 objetos principales para entender la estructura de repetición de las variables en los archivos xml:
 
 * repetitions: data.frame que da "id" la referencia a `listStruct` (fila), "name" el nombre del nivel Xn donde está la repetición, "numRep" que cuenta la repetición de una variable en un mismo parent.
-* listStructRep: matriz que contiene exactamente en fila los mismos objetos que listStruct. Vale NA cuando el nivel no aplica, 0 cuando no aplica la repetición y el numero de repetición (numRep) cuando aplica una repetición de variable en un mismo parent.
+* gplistStructRep: matriz que contiene exactamente en fila los mismos objetos que listStruct. Vale NA cuando el nivel no aplica, 0 cuando no aplica la repetición y el numero de repetición (numRep) cuando aplica una repetición de variable en un mismo parent.
 
 
-```{r}
+```r
 unRep<-unique(allNames[repetitions$id,])
 un_leaves_matNames<-as.matrix(un_leaves[grep("^X",names(un_leaves))])
 lev_rep<-apply(unRep,1,function(x)sum(!is.na(x)))
@@ -508,11 +551,11 @@ gpInGp<-Reduce(rbind,apply(unique(inRep[apply(inRep,1,function(x)sum(!is.na(x))>
 Tenemos que dar nombres a los grupos, a las variables, que no se repiten en los grupos.
 
 ```{r}
-nameGp <- apply(unRep,1,function(x){A<-na.omit(x);A[length(A)]})
+nameGp <- apply(unRep_allNames,1,function(x){A<-na.omit(x);A[length(A)]})
 gp_var_info<-data.frame(type="gp",
-                        refUn=1:nrow(unRep),
+                        refUn=1:nrow(unRep_allNames),
                         name=nameGp,
-                        varPath=apply(unRep,1,function(x)paste(na.omit(x),collapse="|")),
+                        varPath=apply(unRep_allNames,1,function(x)paste(na.omit(x),collapse="|")),
                         inGp=0
                         )
 gp_var_info[match(gpInGp$gp,gp_var_info$refUn),"inGp"]<-gpInGp$inGp
@@ -619,15 +662,19 @@ What we have got is:
 * `xml_list` which contains all the info from the xml files, and might be accessed through the function `recPathList` with the path from `listStruct`
 * `parent` which gives, for each of the line of `listStruct` the parent line, in `listStruct` as well 
 * `addresses_xml` which contains, in the first column, the system path of the files xml, on the same order as the column 1 from `listStruct`: we can extract the name of the folder from there...
+* `listStructRep` corresponde exactamente a `listStructRep` en terminos de row y columns, vale NA en los levels que no conciernen la fila, 0 cuando no hay repetición (incluso cuando puede haber repetición para la variable), y el numero de repetición dentro de un parent cuando aplique
+* `gp_var_info` contiene toda la información sobre la estructura de tablas y de relaciones entre tablas
+
 
 One of the difficulties we could have to extract the table of values is that some leaves (some of the .attr ones only) have more than one value on the leaves
 
+
+Here is an attempt to extract all leaves in a simple table, in a "dataset->var->value" schema which do not account for the repeated variables and their groups.
 ```{r}
 recalculate<-F
 folder <- gsub("^.*/","",dirname(addresses_xml$file))
-ref<-which(corres_leaves!=0)
 if(recalculate){
-res<-Reduce(rbind,lapply(ref,function(x,f,lS,cl,xl,p,ul)
+res<-Reduce(rbind,lapply(leaves,function(x,f,lS,cl,xl,p,ul)
   {
   val <- recPathList(xl,na.omit(lS[x,]))
   nameVal <- names(val)
@@ -650,6 +697,49 @@ res<-Reduce(rbind,lapply(ref,function(x,f,lS,cl,xl,p,ul)
 save(res,file="../../../data_metadatos_catalogos/tab_variable.RData")
 }else{(load(file="../../../data_metadatos_catalogos/tab_variable.RData"))}
 ```
+
+Now if we want to account for the repeated variables and their groups, we need to:
+
+1. for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
+1. create the table as matrix of character
+1. go through the leaf table and put the values in the corresponding table
+1. determine the type of the variables and transform the matrix into data.frame that may be exported in a database
+
+<!--
+It does not make sense to manage that here:
+the process should be the following
+
+1. We search for repetitions
+2. We look for which names present repetitions in their parents
+3. For all case where a names is associated with a repetition, then we look for each leaf (part of allChildren for these names) in which repetition it is
+
+It is different than the current process, because we did already that for repetitions, but it might be some case where the xml variable accept repetitions in their parent but is not actually repeated.
+
+Note: we need to decide whether we do it only for leaves or for every row of listStruct
+
+
+-->
+
+
+```{r}
+#Step 1:for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
+matGp<-matrix(NA,nrow=length(leaves),ncol=sum(gp_var_info$type=="gp")+1,dimnames=list(leaves,c(0,gp_var_info$refUn[gp_var_info$type=="gp"])))
+matGp[,"0"]<- listStruct[leaves,1]
+
+gps<-gp_var_info$refUn[gp_var_info$type=="gp"]
+for(i in 1:length(gps))
+{
+  curGp<-gps[i]
+  levCurGp<-lev_rep[i]+1
+  cur_var_info<-gp_var_info[gp_var_info$inGp==i]
+}
+```
+
+
+
+
+
+
 
 # Utilizar sql para manejar los datos extraídos
 
