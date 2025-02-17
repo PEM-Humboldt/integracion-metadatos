@@ -710,21 +710,6 @@ Now if we want to account for the repeated variables and their groups, we need t
 1. go through the leaf table and put the values in the corresponding table
 1. determine the type of the variables and transform the matrix into data.frame that may be exported in a database
 
-<!--
-It does not make sense to manage that here:
-the process should be the following
-
-1. We search for repetitions
-2. We look for which names present repetitions in their parents
-3. For all case where a names is associated with a repetition, then we look for each leaf (part of allChildren for these names) in which repetition it is
-
-It is different than the current process, because we did already that for repetitions, but it might be some case where the xml variable accept repetitions in their parent but is not actually repeated.
-
-Note: we need to decide whether we do it only for leaves or for every row of listStruct
-
-
--->
-
 
 ```{r}
 #Step 1:for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
@@ -778,12 +763,7 @@ for(i in 1:length(prepTables))
   field_complete[hasSubnames]<-mapply(function(x,y){paste(x,names(y),sep="_")},
                                       x=var_info[varM,"name"][hasSubnames],
                                       y=content[hasSubnames],SIMPLIFY = F)
-  # Add the subnames
-  #field_complete<-mapply(function(x,y){
-  #  if(length(names(y))){return(paste(x,names(y),sep="_"))}
-  # return(x)
-  #},x=field_part1,y=content)
-  # get the match in a matrix to automatically fill the contents in the matrix
+  # Step 4: filling the tables
   matData[[i]][
     cbind(row=rep(rowM,sapply(content,length)),
           col=match(unlist(field_complete),colnames(matData[[i]]))
@@ -793,65 +773,219 @@ for(i in 1:length(prepTables))
 ```
 
 
+Creating id for each table and hierarchical level:
 
 
-
-
-
-# Utilizar sql para manejar los datos extraídos
-
-El trabajo para hacer acá es muy fastidioso, se trata de explorar los campos del eml en xml para crear tablas y grupos de variables que pueden ser repetidos etc.
-Utilizar SQL permite hacer este trabajo con un lenguaje más adaptado a esa complejidad...
-En esa instancia, vamos a crear una base de datos SQLite para el desarrollo, sin embargo, puede valer la pena más tarde pasar a un motor más eficiente com PostgreSQL.
-
-****************************
-
-Incluso, para empezar, vamos a utilizar `sqldf`
-
-```r
-require(sqldf)
-sqldf("
-      WITH a AS(
-        SELECT id_var,subname, folder, count(*) nb
-        FROM res 
-        GROUP BY id_var,subname ,folder
-        ), b AS(
-        SELECT id_var,subname,nb,count(*) nb_cases
-        FROM a
-        GROUP BY id_var,subname,nb)
-      SELECT id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
-      FROM b 
-      LEFT JOIN un_leaves ul ON b.id_var=ul.id
-      GROUP BY id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
-      HAVING max(nb)=1
-      ",drv="SQLite")
-sqldf("
-      WITH a AS(
-        SELECT id_var,subname, folder, count(*) nb
-        FROM res 
-        GROUP BY id_var,subname ,folder
-        ), b AS(
-        SELECT id_var,subname,nb,count(*) nb_cases
-        FROM a
-        GROUP BY id_var,subname,nb)
-      SELECT id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8,max(nb)
-      FROM b
-      LEFT JOIN un_leaves ul ON b.id_var=ul.id
-      GROUP BY id_var,subname,X1,X2,X3,X4,X5,X6,X7,x8
-      HAVING max(nb)!=1
-      ORDER BY X1,X2,X3,X4,X5,X6,X7,x8
-      ",drv="SQLite")
+```{r}
+# What id (primary and foreign key) do need each table
+primaryKey <- sapply(prepTables,function(x)paste0("cd_",x$nameTable))
+m<-match(names(prepTables), as.character(gp_info$refUn))
+foreignKey<-primaryKey[as.character(gp_info$inGp[m])]
+names(foreignKey) <- names(prepTables)
+foreignTables<-sapply(prepTables[as.character(gp_info$inGp[m])],function(x){
+  if(is.null(x)){return(NA)}
+  return(x$nameTable)
+})
+parentGp<-as.character(gp_info$inGp[m])
+foreignKeyMatch<-list()
+for(i in 1:length(prepTables))
+{
+  if(is.na(parentGp[i]))
+  {
+    foreignKeyMatch[[i]]<-NA
+    next
+  }
+  gpC<-names(prepTables)[i]
+  mat1 <- prepTables[[i]]$un_gp[,-i]
+  mat2 <- prepTables[[as.character(parentGp[i])]]$un_gp[,-i]
+  foreignKeyMatch[[i]]<-match(split(mat1,row(mat1)),split(mat2,row(mat2)))
+}
 ```
 
+```{r}
+finalTables<-vector(mode="list",length(matData))
+for(i in 1:length(finalTables))
+{
+  if(is.na(foreignKey[i]))
+  {
+    preamble<-data.frame(primaryKey=1:nrow(matData[[i]]))
+    names(preamble)<-primaryKey[i]
+  }else{
+    preamble<-data.frame(primaryKey=1:nrow(matData[[i]]),
+                         foreignKey=foreignKeyMatch[[i]])
+    names(preamble)<-c(primaryKey[i],foreignKey[i])
+  }
+  finalTables[[i]]<-cbind(preamble,lapply(as.data.frame(matData[[i]]),type.convert,as.is=T))
+}
+names(finalTables)<-sapply(prepTables,function(x)x$nameTable)
+```
 
 ## Crear la base de datos
 
-```r
+```{r}
 require(RSQLite)
 dbFile<-"../../../data_metadatos_catalogos/metadata_ceiba.sqlite"
+if(file.exists(dbFile)){file.remove(dbFile)}
 metaCeiba<-dbConnect(SQLite(),dbFile)
 ```
 
 ## Crear las primeras tablas
 
+### Información de grupos de variables
+
+For now we will only create the tables gp_info, var_info and sub_var_info, to describe the way final tables and var were managed in the xml files:
+
+```{r}
+statement<-
+"CREATE TABLE gp_info(
+  cd_gp int PRIMARY KEY,
+  name text,
+  xml_path text,
+  in_gp int REFERENCES gp_info(cd_gp),
+  gp_path text,
+  UNIQUE(name,in_gp));
+"
+dbExecute(metaCeiba,statement)
+statement<-
+"CREATE TABLE var_info(
+  cd_var int PRIMARY KEY,
+  name text,
+  xml_path text,
+  in_gp int REFERENCES gp_info(cd_gp),
+  gp_path text,
+  UNIQUE (name,in_gp)
+);"
+dbExecute(metaCeiba,statement)
+statement<-
+"CREATE TABLE subvar_info
+(
+  cd_subvar int PRIMARY KEY,
+  cd_var int REFERENCES var_info(cd_var),
+  subname text,
+  unique(cd_var,subname)
+);
+"
+dbExecute(metaCeiba,statement)
+dbExecute(metaCeiba,"CREATE INDEX fk_gp_info_in_gp_idx ON gp_info(in_gp);")
+dbExecute(metaCeiba,"CREATE INDEX fk_var_info_in_gp_gp_info_idx ON var_info(in_gp);")
+dbExecute(metaCeiba,"CREATE INDEX fk_subvar_info_cd_var_var_info_idx ON subvar_info(cd_var);")
+```
+
+**Inserting the data:**
+
+We start by inserting the 0 level, which is not in the R objects
+```{r}
+tab0<-data.frame(
+  refUn=0,
+  name="dataset",
+  varPath="",
+  inGp=NA,
+  gp_path="gp_0"
+  )
+colnames(tab0)<-dbListFields(metaCeiba,Id(table="gp_info"))
+dbAppendTable(metaCeiba,Id(table="gp_info"),value=tab0)
+```
+
+Then we insert other information about the groups from the R object:
+
+```{r}
+tab1<-gp_info
+colnames(tab1)<-dbListFields(metaCeiba,Id(table="gp_info"))
+dbAppendTable(metaCeiba,Id(table="gp_info"),value=tab1)
+```
+
+Now we insert information about the variables:
+
+```{r}
+tab1<-var_info[c("refUn","name","varPath","inGp","gp_path")]
+colnames(tab1)<-dbListFields(metaCeiba,"var_info")
+dbAppendTable(metaCeiba,Id(table="var_info"),value=tab1)
+```
+
+And the subVar table:
+
+```{r}
+sp<-strsplit(var_info$subNames,"\\|")
+dbAppendTable(metaCeiba,Id(table="subvar_info"),
+data.frame(cd_subvar=1:length(unlist(sp)),
+           cd_var=rep(var_info$refUn,sapply(sp,length)),
+           subname=unlist(sp)
+           )
+)
+```
+
+
+## Crear the metadata tables
+
+```{r}
+for(i in 1:length(finalTables))
+{
+  gp<-names(prepTables)[i]
+  quotedCol<-dbQuoteIdentifier(metaCeiba,colnames(finalTables[[i]]))
+  types<-dbDataType(metaCeiba,finalTables[[i]])
+  pk<-ifelse(colnames(finalTables[[i]])==primaryKey[i]," PRIMARY KEY","")
+  fk<-character(length(quotedCol))
+  if(!is.na(foreignKey[i])){
+    w<-which(colnames(finalTables[[i]])==foreignKey[i])
+    fk[w]<-paste0(" REFERENCES ",dbQuoteIdentifier(metaCeiba,Id(table=foreignTables[i])),"(",dbQuoteIdentifier(metaCeiba,foreignKey[i]),")")
+  }
+  dbExecute(metaCeiba,paste0("CREATE TABLE ",dbQuoteIdentifier(metaCeiba,Id(prepTables[[i]]$nameTable)),"(",paste(quotedCol,types,pk,fk, collapse=","),")"))
+  if(!is.na(foreignKey[i])){
+    dbExecute(metaCeiba,paste0("CREATE INDEX fk_",prepTables[[i]]$nameTable,"_",foreignKey[i],"_",foreignTables[i],"_idx ON ",dbQuoteIdentifier(metaCeiba,Id(table=prepTables[[i]]$nameTable))," (",dbQuoteIdentifier(metaCeiba,foreignKey[i]),");")) 
+  }
+  dbAppendTable(metaCeiba,dbQuoteIdentifier(metaCeiba,Id(prepTables[[i]]$nameTable)),finalTables[[i]])
+}
+```
+
+
+## Particularidad del IPT: registro de archivos
+
+```{r}
+folderBase<-"/home/pem/datadir/resources/"
+baseLength<-length(strsplit(folderBase,"/")[[1]])
+dbExecute(metaCeiba,"CREATE TABLE files(cd_file INT PRIMARY KEY,root_folder TEXT, file TEXT, complete_path TEXT);")
+dbExecute(metaCeiba,"CREATE INDEX files_root_folder_idx ON files(root_folder);")
+dataFiles<-data.frame(
+  cd_file=1:length(result_find),
+  root_folder=sapply(strsplit(result_find,"/"),function(x)x[baseLength+1]),
+  file=basename(result_find),
+  complete_path=result_find
+)
+dbAppendTable(metaCeiba,Id(table="files"),dataFiles)
+```
+
+Reference in the dataset table:
+
+```{r}
+if(!"cd_file" %in% dbListFields(metaCeiba,"dataset")){
+dbExecute(metaCeiba,"ALTER TABLE dataset ADD COLUMN cd_file INT REFERENCES files(cd_file);")
+
+dbWriteTable(metaCeiba,"tmp_corres_dataset_file",
+             data.frame(
+               cd_dataset=1:nrow(addresses_xml),
+               cd_file=match(addresses_xml$file,dataFiles$complete_path)
+             ))
+dbExecute(metaCeiba,"UPDATE dataset AS d
+          SET cd_file=tcdf.cd_file
+          FROM tmp_corres_dataset_file tcdf
+          WHERE tcdf.cd_dataset=d.cd_dataset;")
+dbRemoveTable(metaCeiba,"tmp_corres_dataset_file")
+}
+```
+
+
+
+
+# Export finalTables Excel
+```{r}
+require(openxlsx)
+write.xlsx(finalTables,file="../../../data_metadatos_catalogos/meta_ceiba.xlsx")
+```
+
+
+# Apagar la luz y salir
+
+```{r}
+dbDisconnect(metaCeiba)
+```
 
