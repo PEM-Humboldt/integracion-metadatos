@@ -118,8 +118,6 @@ Then reading the xml code:
 require(XML)
 require(xml2)
 xml_list<-lapply(xml_files,function(x)xmlToList(xmlParse(x)))
-xml_list2<-lapply(xml_files,function(x)xmlToList(xmlParse(x),simplify = F))
-
 ```
 
 I gotta check this part because it does not make sense: this only take the large categories which are:
@@ -441,14 +439,6 @@ corres_leaves[leaves]<-m
 ```
 
 
-```{r}
-NAMES<-apply(un_leaves,1,function(x)paste(na.omit(x),collapse="."))
-nb_byVar<-table(m)
-names(nb_byVar)<-NAMES
-#nb_byVar[order(nb_byVar)]
-#View(un_leaves[do.call("order",as.data.frame(un_leaves)),])
-```
-
 Para cada variable (hoja), necesitamos saber:
 
 * cuantas veces aparece?
@@ -489,6 +479,7 @@ examples<-as.list(by(listStruct,corres_leaves,FUN=function(tab,ls_xml)
   {
     ls_byVar<-apply(tab,1,FUN=function(x,l_x)recPathList(ls_xml,na.omit(x)),l_x=ls_xml)
   },ls_xml=xml_list)[-1])
+NAMES<-apply(un_leaves,1,function(x)paste(na.omit(x),collapse="_"))
 isAttr<-grepl("\\.attr",NAMES)
 ```
 
@@ -505,46 +496,10 @@ un_leaves<-data.frame(id=1:nrow(un_leaves),
                       len_max,
                       subNames
                       )
-un_leaves<-un_leaves[do.call("order",as.list(un_leaves[2:ncol(un_leaves)])),]
 
 write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_un_leaves.csv")
 ```
 
-
-
-
-# Estructura de repetición
-Tenemos 2 objetos principales para entender la estructura de repetición de las variables en los archivos xml:
-
-* repetitions: data.frame que da "id" la referencia a `listStruct` (fila), "name" el nombre del nivel Xn donde está la repetición, "numRep" que cuenta la repetición de una variable en un mismo parent.
-* gplistStructRep: matriz que contiene exactamente en fila los mismos objetos que listStruct. Vale NA cuando el nivel no aplica, 0 cuando no aplica la repetición y el numero de repetición (numRep) cuando aplica una repetición de variable en un mismo parent.
-
-
-```r
-unRep<-unique(allNames[repetitions$id,])
-un_leaves_matNames<-as.matrix(un_leaves[grep("^X",names(un_leaves))])
-lev_rep<-apply(unRep,1,function(x)sum(!is.na(x)))
-inRep<-matrix(NA,nrow=nrow(un_leaves),ncol=length(unique(lev_rep)),dimnames=list(NULL,unique(lev_rep)))
-for(i in unique(lev_rep))
-{
-  inRep[,as.character(i)]<-which(lev_rep==i)[match(split(un_leaves_matNames[,1:i],row(un_leaves_matNames[,1:i])),split(unRep[lev_rep==i,1:i,drop=F],row(unRep[lev_rep==i,1:i,drop=F])))]
-}
-inGp<-apply(inRep,1,function(x)
-  {
-    A<-na.omit(x)
-    if(length(A)==0)
-    {return(0)}else{
-      return(A[length(A)])
-    }
-  })
-gpInGp<-Reduce(rbind,apply(unique(inRep[apply(inRep,1,function(x)sum(!is.na(x))>1),,drop=F]),1,
-              function(x){
-                A<-na.omit(x)
-                return(data.frame(gp=A[length(A)],
-                                  inGp=A[length(A)-1]))
-              }))
-
-```
 
 ## Managing names without repetitions in gp
 
@@ -552,13 +507,13 @@ Tenemos que dar nombres a los grupos, a las variables, que no se repiten en los 
 
 ```{r}
 nameGp <- apply(unRep_allNames,1,function(x){A<-na.omit(x);A[length(A)]})
-gp_var_info<-data.frame(type="gp",
+gp_info<-data.frame(
                         refUn=1:nrow(unRep_allNames),
                         name=nameGp,
                         varPath=apply(unRep_allNames,1,function(x)paste(na.omit(x),collapse="|")),
                         inGp=0
                         )
-gp_var_info[match(gpInGp$gp,gp_var_info$refUn),"inGp"]<-gpInGp$inGp
+gp_info[match(gpInGp$gp,gp_info$refUn),"inGp"]<-gpInGp$inGp
 ```
 
 
@@ -568,29 +523,27 @@ namesVar<-apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)
   {A<-na.omit(x)
   A[length(A)]
   })
-gp_var_info<-rbind(gp_var_info,
-                   data.frame(
-                     type="var",
-                     refUn=un_leaves$id,
-                     name=namesVar,
-                     varPath=apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)paste(na.omit(x),collapse="|")),
-                     inGp=inGp
-                   )
+var_info<-data.frame(
+  refUn=un_leaves$id,
+  name=namesVar,
+  varPath=apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)paste(na.omit(x),collapse="|")),
+  inGp=inGp,
+  subNames=un_leaves$subNames
                    )
 ```
 
 ```{r}
-repeatedNames<-by(gp_var_info,gp_var_info$inGp,function(x)
+repeatedNames_var<-by(var_info,var_info$inGp,function(x)
 {
   dupliNames<-x$name[duplicated(x$name)]
-  res<-x[x$name%in%dupliNames,c("type","refUn","name","varPath")]
+  res<-x[x$name%in%dupliNames,c("refUn","name","varPath")]
 })
-repeatedNames<-repeatedNames[sapply(repeatedNames,nrow)>0]
+repeatedNames_var<-repeatedNames_var[sapply(repeatedNames_var,nrow)>0]
 nbNamesToTake<-1
-while((length(repeatedNames)>0 & nbNamesToTake < ldepth(xml_list)) && (sum(sapply(repeatedNames,length))>0 ))
+while((length(repeatedNames_var)>0 & nbNamesToTake < ldepth(xml_list)) && (sum(sapply(repeatedNames_var,length))>0 ))
 {
 nbNamesToTake<-nbNamesToTake + 1
-toModif<-Reduce(rbind,lapply(repeatedNames,function(x,n){
+toModif<-Reduce(rbind,lapply(repeatedNames_var,function(x,n){
   replacement<-lapply(strsplit(x$varPath,"\\|"),function(x,n)
     paste(x[max(length(x)-(n-1),1):length(x)],collapse="_")
   ,n=n)
@@ -600,31 +553,81 @@ toModif<-Reduce(rbind,lapply(repeatedNames,function(x,n){
 ,n=nbNamesToTake))
 for(i in 1:nrow(toModif))
 {
-  gp_var_info$name[gp_var_info$type==toModif$type[i]&gp_var_info$refUn==toModif$refUn[i]]<-toModif$name[i]
+  var_info$name[var_info$refUn==toModif$refUn[i]]<-toModif$name[i]
 }
-repeatedNames<-by(gp_var_info,gp_var_info$inGp,function(x)
+repeatedNames_var<-by(var_info,var_info$inGp,function(x)
 {
   dupliNames<-x$name[duplicated(x$name)]
-  res<-x[x$name%in%dupliNames,c("type","refUn","name","varPath")]
+  res<-x[x$name%in%dupliNames,c("refUn","name","varPath")]
   return(res)
 })
-repeatedNames<-repeatedNames[sapply(repeatedNames,nrow)>0]
+repeatedNames_var<-repeatedNames_var[sapply(repeatedNames_var,nrow)>0]
+}
+```
+
+```{r}
+repeatedNames_gp<-by(gp_info,gp_info$inGp,function(x)
+{
+  dupliNames<-x$name[duplicated(x$name)]
+  res<-x[x$name%in%dupliNames,c("refUn","name","varPath")]
+})
+repeatedNames_gp<-repeatedNames_gp[sapply(repeatedNames_gp,nrow)>0]
+nbNamesToTake<-1
+while((length(repeatedNames_gp)>0 & nbNamesToTake < ldepth(xml_list)) && (sum(sapply(repeatedNames_gp,length))>0 ))
+{
+nbNamesToTake<-nbNamesToTake + 1
+toModif<-Reduce(rbind,lapply(repeatedNames_gp,function(x,n){
+  replacement<-lapply(strsplit(x$varPath,"\\|"),function(x,n)
+    paste(x[max(length(x)-(n-1),1):length(x)],collapse="_")
+  ,n=n)
+  x$name<-unlist(replacement)
+  return(x)
+}
+,n=nbNamesToTake))
+for(i in 1:nrow(toModif))
+{
+  gp_info$name[gp_info$refUn==toModif$refUn[i]]<-toModif$name[i]
+}
+repeatedNames_gp<-by(gp_info,gp_info$inGp,function(x)
+{
+  dupliNames<-x$name[duplicated(x$name)]
+  res<-x[x$name%in%dupliNames,c("refUn","name","varPath")]
+  return(res)
+})
+repeatedNames_gp<-repeatedNames_gp[sapply(repeatedNames_gp,nrow)>0]
 }
 ```
 
 # Representation of the variable structure
 
 ```{r}
+# We changed gp_var_info for gp_info and var_info
+# What we should do now is:
+# 1. manage the gp_path variable in the gp_info table
+# 2. add the gp_path variable in the var_info table from the gp_info gp_path and ingp variable
+# 3. feed the gp_path variable from the var_info table to the data.tree structure (Node)
+# 4. manage the labels in the data.tree (Node) structure from the table gp_info and var_info
+
+
 require(data.tree)
-gp_var_info$gp_var_name<-paste(gp_var_info$type,gp_var_info$refUn,sep="_")
-gp_var_info$pathString<-NA
-gp_var_info$pathString[gp_var_info$inGp==0]<-paste0("gp_0/",gp_var_info$gp_var_name[gp_var_info$inGp==0])
-while(any(is.na(gp_var_info$pathString))){
-  toAdd<-gp_var_info$pathString[match(paste0("gp_",gp_var_info$inGp[is.na(gp_var_info$pathString)]),gp_var_info$gp_var_name)]
-  gp_var_info$pathString[is.na(gp_var_info$pathString)][!is.na(toAdd)]<-paste(toAdd[!is.na(toAdd)],gp_var_info$gp_var_name[is.na(gp_var_info$pathString)][!is.na(toAdd)],sep="/")
+
+gp_info$gp_path<-NA
+gp_info$gp_path[gp_info$inGp==0]<-paste0("gp_0/gp_",gp_info$refUn[gp_info$inGp==0])
+while(any(is.na(gp_info$gp_path))){
+  ref<-which(is.na(gp_info$gp_path))
+  ref<-ref[!is.na(gp_info$gp_path[gp_info$inGp[ref]])]
+  gp_info$gp_path[ref]<-paste0(gp_info$gp_path[gp_info$inGp[ref]],"/gp_",gp_info$refUn[ref])
 }
-gp_var_info$label<-gp_var_info$name
-nodeGpVar<-as.Node(gp_var_info,"pathString","label")
+
+var_info$gp_path<-NA
+var_info$gp_path[var_info$inGp==0]<-paste0("gp_0/var_",var_info$refUn[var_info$inGp==0])
+var_info$gp_path[var_info$inGp!=0]<-paste0(gp_info$gp_path[var_info$inGp[var_info$inGp!=0]],"/var_",var_info$refUn[var_info$inGp!=0])
+  
+dataTreeGpVar<-rbind(
+  data.frame(gp_info[c("refUn","gp_path")],name=paste0("gp_",gp_info$refUn),label=gp_info$name,gp_var="gp",gp_col=gp_info$refUn),
+  data.frame(var_info[c("refUn","gp_path")],name=paste0("var_",var_info$refUn),label=var_info$name,gp_var="var",gp_col=var_info$inGp)
+)
+nodeGpVar<-FromDataFrameTable(dataTreeGpVar,"gp_path")
 print(nodeGpVar,"label",pruneMethod = NULL)
 ```
 
@@ -639,15 +642,17 @@ library(igraph)
 #png("testReprNetwork.pdf",1500,1500)
 ig_gpVar<-as.igraph(nodeGpVar, directed = TRUE, direction = "climb")
 str(ig_gpVar)
-V(ig_gpVar)$inGp<-gp_var_info$inGp[match(names(V(ig_gpVar)),gp_var_info$gp_var_name)]
-V(ig_gpVar)$type<-ifelse(grepl("^gp",names(V(ig_gpVar))),"gp","var")
-gpCol<-rep(NA,length(V(ig_gpVar)))
-gpCol[V(ig_gpVar)$type=="gp"]<-as.integer(gsub("^gp_","",names(V(ig_gpVar))[V(ig_gpVar)$type=="gp"]))+1
-gpCol[V(ig_gpVar)$type=="var"]<-V(ig_gpVar)$inGp[V(ig_gpVar)$type=="var"]+1
-COL<-rainbow(max(gpCol))[gpCol]
+V(ig_gpVar)$gp_col<-dataTreeGpVar$gp_col[match(names(V(ig_gpVar)),dataTreeGpVar$name)]
+V(ig_gpVar)["gp_0"]$gp_col<-0
+V(ig_gpVar)$gp_var<-dataTreeGpVar$gp_var[match(names(V(ig_gpVar)),dataTreeGpVar$name)]
+V(ig_gpVar)["gp_0"]$gp_var<-"var"
+V(ig_gpVar)$label<-dataTreeGpVar$label[match(names(V(ig_gpVar)),dataTreeGpVar$name)]
+V(ig_gpVar)["gp_0"]$label<-"dataset"
+
+COL<-rainbow(max(V(ig_gpVar)$gp_col+1,na.rm = T))[V(ig_gpVar)$gp_col+1]
 
 #gp_var_info[c("gp_var_name","name")][match(names(V(ig_gpVar)),gp_var_info$gp_var_name),]
-plot(ig_gpVar,vertex.label=gp_var_info$name[match(names(V(ig_gpVar)),gp_var_info$gp_var_name)],vertex.size=5,vertex.shape=c(var="circle",gp="square")[V(ig_gpVar)$type], vertex.color=COL)
+plot(ig_gpVar,vertex.label=V(ig_gpVar)$label,vertex.size=5,vertex.shape=c(var="circle",gp="square")[V(ig_gpVar)$gp_var], vertex.color=COL)
 ```
 
 
@@ -723,15 +728,67 @@ Note: we need to decide whether we do it only for leaves or for every row of lis
 
 ```{r}
 #Step 1:for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
-matGp<-matrix(NA,nrow=length(leaves),ncol=sum(gp_var_info$type=="gp")+1,dimnames=list(leaves,c(0,gp_var_info$refUn[gp_var_info$type=="gp"])))
-matGp[,"0"]<- listStruct[leaves,1]
+matGp <- cbind(listStruct[leaves,1],listStructRep[leaves,])
+colnames(matGp)<-c(0,1:ncol(listStructRep))
+gpLeaves <- var_info$inGp[corres_leaves[leaves]]
+varLeaves <- corres_leaves[leaves]
+```
 
-gps<-gp_var_info$refUn[gp_var_info$type=="gp"]
-for(i in 1:length(gps))
+
+```{r}
+#Step 2: prep the matrix
+# Extract colnames for every table
+varGp<-tapply(apply(var_info[c("name","subNames")],1,function(x)
 {
-  curGp<-gps[i]
-  levCurGp<-lev_rep[i]+1
-  cur_var_info<-gp_var_info[gp_var_info$inGp==i]
+  if(x[2]==""){return(x[1])}
+  return(paste(x[1],unlist(strsplit(x[2],"\\|")),sep="_"))
+}),var_info$inGp,unlist)
+# get info to preparing the tables
+prepTables<-list()
+for(i in colnames(matGp)){
+  gp<-as.integer(i)
+  un_gp<-unique(matGp[gpLeaves==gp,])
+  prepTables[[as.name(i)]]<-list(
+    gp=gp,
+    nameTable=gp_info$name[gp_info$refUn==gp],
+    un_gp=un_gp,
+    fields=varGp[[i]]
+  )
+}
+#There is no tableName for the gp0
+prepTables[["0"]]$nameTable<-"dataset"
+
+#Step3 create the matrices and fill their contents
+matData<-list()
+for(i in 1:length(prepTables))
+{
+  gp<-prepTables[[i]]$gp
+  #Create empty matrix
+  matData[[i]]<-matrix(NA,nrow(prepTables[[i]]$un_gp),length(prepTables[[i]]$fields),dimnames=list(NULL,prepTables[[i]]$fields))
+  #extract content of each corresponding leaf for the group
+  content<-apply(listStruct[leaves,][gpLeaves==prepTables[[i]]$gp,],1,function(x)recPathList(xml_list,na.omit(x)),simplify = F)
+  #for each content extraction which row of the matrix corresponds 
+  rowM<-match(split(matGp[gpLeaves==prepTables[[i]]$gp,],row(matGp[gpLeaves==prepTables[[i]]$gp,])),split(prepTables[[i]]$un_gp,row(prepTables[[i]]$un_gp)))
+  # which var correspond (var number)
+  varM<-varLeaves[gpLeaves==gp]
+  # get the name from the var number
+  field_complete<-vector(mode = "list",length=length(varM))
+  hasSubnames<-var_info[varM,]$subNames!=""
+  field_complete[!hasSubnames]<-as.list(var_info[varM,"name"][!hasSubnames])
+  field_complete[hasSubnames]<-mapply(function(x,y){paste(x,names(y),sep="_")},
+                                      x=var_info[varM,"name"][hasSubnames],
+                                      y=content[hasSubnames],SIMPLIFY = F)
+  # Add the subnames
+  #field_complete<-mapply(function(x,y){
+  #  if(length(names(y))){return(paste(x,names(y),sep="_"))}
+  # return(x)
+  #},x=field_part1,y=content)
+  # get the match in a matrix to automatically fill the contents in the matrix
+  matData[[i]][
+    cbind(row=rep(rowM,sapply(content,length)),
+          col=match(unlist(field_complete),colnames(matData[[i]]))
+          )
+    ]<-unlist(content)
 }
 ```
 
@@ -751,7 +808,7 @@ En esa instancia, vamos a crear una base de datos SQLite para el desarrollo, sin
 
 Incluso, para empezar, vamos a utilizar `sqldf`
 
-```{r}
+```r
 require(sqldf)
 sqldf("
       WITH a AS(
