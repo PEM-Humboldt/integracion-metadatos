@@ -1,5 +1,5 @@
 ---
-title: "Estructura y descripción de los metadatos de Ceiba"
+title: "Estructura y descripción de los metadatos de Ceiba: resource.xml files"
 author: "Marius Bottin"
 date: "`r Sys.Date()`"
 output: 
@@ -8,13 +8,14 @@ output:
        toc: true
 ---
 
+
 ```{r setup}
 require(RPostgreSQL)
 require(dm)
 require(png)
 knitr::opts_chunk$set(cache=T,tidy.opts = list(width.cutoff = 70),
                      tidy = TRUE,
-                     max.print=50,fig.path="./Fig/explor_ceiba_",echo=T,
+                     max.print=50,fig.path="./Fig/explor_ceiba_resource",echo=T,
                      collapse=F, echo=T)
 def.chunk.hook  <- knitr::knit_hooks$get("chunk")
 knitr::knit_hooks$set(chunk = function(x, options) {
@@ -22,39 +23,38 @@ knitr::knit_hooks$set(chunk = function(x, options) {
   paste0("\n \\", "footnotesize","\n\n", x, "\n\n \\normalsize\n\n")
 })
 ```
-
 # Datadir en el servidor Ceiba
 
 ## Descripción
-
-Todos los datos de Ceiba están organizados como carpetas en el datadir del servidor. Se maneja después con el sistema Integrated Publishing Toolkit desarrollado por GBIF.
+Todos los datos de Ceiba están organizados como carpetas en el datadir del servidor.
+Se maneja después con el sistema Integrated Publishing Toolkit desarrollado por GBIF.
 
 En cada carpeta (cada juego de datos), podemos encontrar:
 
--   el archivo comprimido que contiene los archivos y los metadatos en formato DarwinCore completo.
--   el archivo `eml.xml` que contiene los metadatos, y todas las versiones del archivo (con los nombres `eml-1.xml`, `eml-2.xml` etc)
--   el archivo `publication.log` que contiene el historial de publicación/modificación del juego de datos
--   archivos de descripción de los juegos de datos en "Rich Text Format" (rtf), tambien para cada versión publicada
--   archivos de administración de datos y metadatos `resource.xml`
--   una carpeta `sources` que contiene los datos (?)
+* el archivo comprimido que contiene los archivos y los metadatos en formato DarwinCore completo.
+* el archivo `eml.xml` que contiene los metadatos, y todas las versiones del archivo (con los nombres `eml-1.xml`, `eml-2.xml` etc)
+* el archivo `publication.log` que contiene el historial de publicación/modificación del juego de datos
+* archivos de descripción de los juegos de datos en "Rich Text Format" (rtf), tambien para cada versión publicada
+* archivos de administración de datos y metadatos `resource.xml`
+* una carpeta `sources` que contiene los datos (?)
 
 ## Extracción de los metadatos
 
 En ssh, accedemos al servidor de ceiba desde la red del instituto:
 
-``` bash
+```bash
 ssh integracion@192.168.11.74
 ```
 
 Extraemos 3 archivos:
 
--   un archivo que tiene las direcciones de los archivos "eml.xml" y sus contenidos
--   un archivo que contiene las direcciones de los archivos "resource.xml" y sus contenidos
--   un catalogo de todos los archivos presentes en la carpeta de datos manejada por el ipt
+* un archivo que tiene las direcciones de los archivos "eml.xml" y sus contenidos
+* un archivo que contiene las direcciones de los archivos "resource.xml" y sus contenidos
+* un catalogo de todos los archivos presentes en la carpeta de datos manejada por el ipt
 
 Esos 2 archivos se pueden obtener con:
 
-``` bash
+```bash
 find /home/pem/datadir/ -name eml.xml -exec bash file_and_content.sh {} \; >file_and_content_result_eml 2> errors_find_file_and_content_eml
 find /home/pem/datadir/ -name resource.xml  -exec bash file_and_content.sh {} \; >file_and_content_result_resource 2> errors_find_file_and_content_resource
 find /home/pem/datadir/ -type f  > result_find
@@ -66,24 +66,24 @@ Los archivos se pueden descargar desde la red del instituto, gracias al applicat
 
 ```{r}
 result_find <- readLines("../../../data_metadatos_catalogos/ceiba/result_find")
-meta_ceiba <- readLines("../../../data_metadatos_catalogos/ceiba/file_and_content_result_eml")
-meta_ceiba<-meta_ceiba[!meta_ceiba==""]
+resource_ceiba <- readLines("../../../data_metadatos_catalogos/ceiba/file_and_content_result_resource")
+resource_ceiba<-resource_ceiba[!resource_ceiba==""]
 ```
 
 Numero de archivos de metadatos
 
 ```{r}
-sum(grepl("---file:.*---",meta_ceiba))
+sum(grepl("---file:.*---",resource_ceiba))
 ```
 
 We search for the names/pathes of the files and we create the tables describing the adresses in the R object
 
 ```{r}
-nameFilesAddr<-grep("---file:.*---",meta_ceiba)
+nameFilesAddr<-grep("---file:.*---",resource_ceiba)
 addresses_xml<-data.frame(
-  file=sub("^---file:(.*)---$","\\1",meta_ceiba[nameFilesAddr]),
+  file=sub("^---file:(.*)---$","\\1",resource_ceiba[nameFilesAddr]),
   beg=nameFilesAddr+1,
-  end=c(nameFilesAddr[2:length(nameFilesAddr)]-1,length(meta_ceiba))
+  end=c(nameFilesAddr[2:length(nameFilesAddr)]-1,length(resource_ceiba))
 )
 ```
 
@@ -93,21 +93,24 @@ Checking integrity and correspondances with the other objects
 any(duplicated(addresses_xml$file))
 match(addresses_xml$file,result_find)
 ```
-
-There might be a problem when there is an empty xml. After manual checking, we realize that this problem creates an end before the beg, so to avoid these lines in the rest of the code, we just suppress these cases in the addresses_xml object:
+There might be a problem when there is an empty xml.
+After manual checking, we realize that this problem creates an end before the beg, so to avoid these lines in the rest of the code, we just suppress these cases in the addresses_xml object:
 
 ```{r}
 w_empty<-which((addresses_xml$beg[1:(nrow(addresses_xml)-1)]+1)==addresses_xml$beg[2:nrow(addresses_xml)])
+if(length(w_empty)){
 addresses_xml[(w_empty-2):(w_empty+2),]
+}
 
 addresses_xml[addresses_xml$beg>addresses_xml$end,]
 addresses_xml<-addresses_xml[addresses_xml$beg<addresses_xml$end,]
 ```
 
+
 Separating by origin files:
 
 ```{r}
-xml_files<-apply(addresses_xml,1,function(a,rl)paste(rl[a[2]:a[3]],sep="\n",collapse="\n"),rl=meta_ceiba)
+xml_files<-apply(addresses_xml,1,function(a,rl)paste(rl[a[2]:a[3]],sep="\n",collapse="\n"),rl=resource_ceiba)
 names(xml_files)<-addresses_xml$file
 ```
 
@@ -121,11 +124,11 @@ xml_list<-lapply(xml_files,function(x)xmlToList(xmlParse(x)))
 
 I gotta check this part because it does not make sense: this only take the large categories which are:
 
--   dataset
--   additionalMetadata
--   .attrs
+* dataset
+* additionalMetadata
+* .attrs
 
-``` r
+```r
 names1<-names(xml_list[[1]])
 names_all<-lapply(xml_list,names) 
 sapply(names_all,function(x,y)!all(y==x),y=names1)
@@ -136,7 +139,7 @@ mostComplete<-which.max(sapply(names_all,function(x,y)sum(y%in%x),y=names_fields
 
 Seems that part is useless as well:
 
-``` r
+```r
 level1<-data.frame(
   name=names_fields,
   hasValue=F
@@ -185,10 +188,12 @@ LENGTH <- DEPTH <- numeric(length=nrow(A_corres))
 # table(unlist(NAMES[A_corres$level1_match==27]),useNA = "ifany")
 ```
 
-Algoritmo que permite navegar en toda la estructura de los xml. Basado en 2 tablas:
 
-1.  tabla que describe la jerarquía de los campos potenciales
-2.  tabla que describe la presencia de los campos para los registros
+Algoritmo que permite navegar en toda la estructura de los xml.
+Basado en 2 tablas:
+
+1. tabla que describe la jerarquía de los campos potenciales
+1. tabla que describe la presencia de los campos para los registros
 
 Note: the following function get the elements from a recursive path
 
@@ -203,7 +208,8 @@ recPathList<-function(listNavig,path)
 # example
 ```
 
-Lo que hacemos primero es crear una matriz que contiene todo los paths, nivel por nivel que existen en la lista representando el XML. Anotar: cuando el nivel siguiente no es una lista, no fila está añadida.
+Lo que hacemos primero es crear una matriz que contiene todo los paths, nivel por nivel que existen en la lista representando el XML.
+Anotar: cuando el nivel siguiente no es una lista, no fila está añadida.
 
 ```{r}
 require(collapse)
@@ -230,6 +236,7 @@ listStruct<-rbind(listStruct,
 )
 }
 ```
+
 
 Now let's apply a function to transform this matrix in a name matrix.
 
@@ -270,6 +277,9 @@ for(i in 2:max(level))
 }
 ```
 
+
+
+
 Cuales son los hijos directos?
 
 ```{r}
@@ -279,6 +289,7 @@ for(i in 1:length(parent))
   directChildren[[i]]<-which(parent==i)
 }
 ```
+
 
 ```{r}
 allChildren<-vector(mode="list",length(directChildren))
@@ -299,6 +310,7 @@ for(i in 1:length(allChildren))
 From the children list, we may see what are the repetitions.
 
 `directChildren` takes all nivels in the `listStruct` object which describes all the hierarchical levels in the xml. For each of these levels (each row of `listStruct`), it gives the children. It results in a list which contains all rows of `listStruct`, without duplication:
+
 
 ```{r}
 length(directChildren)
@@ -330,6 +342,7 @@ numRep<-function(x)
 }
 ```
 
+
 ```{r}
 repetitions<-Reduce(rbind,mapply(function(id_listStruct,name,dupl)
 {
@@ -347,7 +360,9 @@ repetitions<-Reduce(rbind,mapply(function(id_listStruct,name,dupl)
   ,id_listStruct=directChildren[anyDupliNameChildren],name=nameChildren[anyDupliNameChildren],dupl=dupliNameChildren[anyDupliNameChildren],SIMPLIFY = F))
 ```
 
-Now we will create a matrix with the same row as listStruct, the number of column corresponding to the number of variables which are potentially repeated in their parent: for each level from listStruct, it gives us
+
+Now we will create a matrix with the same row as listStruct, the number of column corresponding to the number of variables which are potentially repeated in their parent:
+for each level from listStruct, it gives us 
 
 ```{r}
 repAllNames<-allNames[repetitions$id,]
@@ -380,9 +395,10 @@ for(i in 1:max(gps,na.rm=T))
 }
 ```
 
-Now we will create a matrix of the same dimension as listStruct, with values 0 for the levels which exist, NA when the level does not exist and instead of 0, the number of the repetition when it does apply
 
-``` r
+
+Now we will create a matrix of the same dimension as listStruct, with values 0 for the levels which exist, NA when the level does not exist and instead of 0, the number of the repetition when it does apply
+```r
 listStructRep<-matrix(0L,nrow(listStruct),ncol(listStruct))
 listStructRep[is.na(listStruct)]<-NA
 for(i in 1:nrow(repetitions))
@@ -393,10 +409,9 @@ for(i in 1:nrow(repetitions))
 }
 ```
 
+
 ## Extracting final variables (leaves of the xml tree)
-
 Cuales son los path que contienen una lista
-
 ```{r}
 contList<-apply(listStruct,1,function(x,li)
 {path=na.omit(x);return(is.list(recPathList(li,path)))},li=xml_list)
@@ -425,14 +440,15 @@ corres_leaves<-integer(nrow(listStruct))
 corres_leaves[leaves]<-m
 ```
 
+
 Para cada variable (hoja), necesitamos saber:
 
--   cuantas veces aparece?
--   En cuantos registros aparece?
--   En que grupo (repeticiones) está?
--   cual es el minimo/maximo de la longitud del vector de valores?
--   ejemplos de valores
--   Que es la secuencia de nombre de campos xml?
+* cuantas veces aparece?
+* En cuantos registros aparece?
+* En que grupo (repeticiones) está?
+* cual es el minimo/maximo de la longitud del vector de valores?
+* ejemplos de valores
+* Que es la secuencia de nombre de campos xml?
 
 ```{r}
 # Cuantas veces aparece?
@@ -469,8 +485,8 @@ NAMES<-apply(un_leaves,1,function(x)paste(na.omit(x),collapse="_"))
 isAttr<-grepl("\\.attr",NAMES)
 ```
 
-Now we export a csv file to be able to analyse and name the variables:
 
+Now we export a csv file to be able to analyse and name the variables:
 ```{r}
 un_leaves<-data.frame(id=1:nrow(un_leaves),
                       un_leaves,
@@ -483,8 +499,9 @@ un_leaves<-data.frame(id=1:nrow(un_leaves),
                       subNames
                       )
 
-write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_un_leaves.csv")
+write.csv(un_leaves,file="../../../data_metadatos_catalogos/ceiba_resources_un_leaves.csv")
 ```
+
 
 ## Managing names without repetitions in gp
 
@@ -500,6 +517,8 @@ gp_info<-data.frame(
                         )
 gp_info[match(gpInGp$gp,gp_info$refUn),"inGp"]<-gpInGp$inGp
 ```
+
+
 
 ```{r}
 namesVar<-apply(un_leaves[grep("^X",colnames(un_leaves))],1,function(x)
@@ -614,7 +633,11 @@ nodeGpVar<-FromDataFrameTable(dataTreeGpVar,"gp_path")
 print(nodeGpVar,"label",pruneMethod = NULL)
 ```
 
-`r fig.height=10,fig.width=2 SetGraphStyle(nodeGpVar,rankdir="LR") SetNodeStyle(nodeGpVar,label=function(node)node$label) plot(nodeGpVar)`
+```r fig.height=10,fig.width=2
+SetGraphStyle(nodeGpVar,rankdir="LR")
+SetNodeStyle(nodeGpVar,label=function(node)node$label)
+plot(nodeGpVar)
+```
 
 ```{r fig.height=15,fig.width=15}
 library(igraph)
@@ -634,57 +657,34 @@ COL<-rainbow(max(V(ig_gpVar)$gp_col+1,na.rm = T))[V(ig_gpVar)$gp_col+1]
 plot(ig_gpVar,vertex.label=V(ig_gpVar)$label,vertex.size=5,vertex.shape=c(var="circle",gp="square")[V(ig_gpVar)$gp_var], vertex.color=COL)
 ```
 
+
+
 # Exportation of a table with values and references (dataset and variables)
 
 What we have got is:
 
--   the table `un_leaves` which contains many characteristics of the different variables
--   `listStruct` which contains all the paths in rows
--   `corres_leaves`, which corresponds one on one to listStruct and which gives 0 when the path does not go to a "leaf" and gives the id of the table `un_leaves` when it is a leaf
--   `xml_list` which contains all the info from the xml files, and might be accessed through the function `recPathList` with the path from `listStruct`
--   `parent` which gives, for each of the line of `listStruct` the parent line, in `listStruct` as well
--   `addresses_xml` which contains, in the first column, the system path of the files xml, on the same order as the column 1 from `listStruct`: we can extract the name of the folder from there...
--   `listStructRep` corresponde exactamente a `listStructRep` en terminos de row y columns, vale NA en los levels que no conciernen la fila, 0 cuando no hay repetición (incluso cuando puede haber repetición para la variable), y el numero de repetición dentro de un parent cuando aplique
--   `gp_var_info` contiene toda la información sobre la estructura de tablas y de relaciones entre tablas
+* the table `un_leaves` which contains many characteristics of the different variables
+* `listStruct` which contains all the paths in rows
+* `corres_leaves`, which corresponds one on one to listStruct and which gives 0 when the path does not go to a "leaf" and gives the id of the table `un_leaves` when it is a leaf
+* `xml_list` which contains all the info from the xml files, and might be accessed through the function `recPathList` with the path from `listStruct`
+* `parent` which gives, for each of the line of `listStruct` the parent line, in `listStruct` as well 
+* `addresses_xml` which contains, in the first column, the system path of the files xml, on the same order as the column 1 from `listStruct`: we can extract the name of the folder from there...
+* `listStructRep` corresponde exactamente a `listStructRep` en terminos de row y columns, vale NA en los levels que no conciernen la fila, 0 cuando no hay repetición (incluso cuando puede haber repetición para la variable), y el numero de repetición dentro de un parent cuando aplique
+* `gp_var_info` contiene toda la información sobre la estructura de tablas y de relaciones entre tablas
+
 
 One of the difficulties we could have to extract the table of values is that some leaves (some of the .attr ones only) have more than one value on the leaves
 
-Here is an attempt to extract all leaves in a simple table, in a "dataset-\>var-\>value" schema which do not account for the repeated variables and their groups.
 
-```{r}
-recalculate<-F
-folder <- gsub("^.*/","",dirname(addresses_xml$file))
-if(recalculate){
-res<-Reduce(rbind,lapply(leaves,function(x,f,lS,cl,xl,p,ul)
-  {
-  val <- recPathList(xl,na.omit(lS[x,]))
-  nameVal <- names(val)
-  if(is.null(nameVal)){nameVal<-NA}
-  return(data.frame(
-    ref_struct=x,
-    parent=p[x],
-    folder=f[lS[x,1]],
-    id_var=cl[x],
-    subname=nameVal,
-    value=as.character(val)
-  ))},
-  f=folder,
-  lS=listStruct,
-  cl=corres_leaves,
-  xl=xml_list,
-  p=parent,
-  ul=un_leaves
-  ))
-save(res,file="../../../data_metadatos_catalogos/tab_variable.RData")
-}else{(load(file="../../../data_metadatos_catalogos/tab_variable.RData"))}
-```
 
 Now if we want to account for the repeated variables and their groups, we need to:
 
-1.  for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
-2.  create the table as matrix of character
-3.  go through the leaf table and put the values in the corresponding table
-4.  determine the type of the variables and transform the matrix into data.frame that may be exported in a database
+1. for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
+1. create the table as matrix of character
+1. go through the leaf table and put the values in the corresponding table
+1. determine the type of the variables and transform the matrix into data.frame that may be exported in a database
+
+
 
 ```{r}
 #Step 1:for each leaf give it its `gp` (table) and reference `inGp` in terms of ids
@@ -694,13 +694,37 @@ gpLeaves <- var_info$inGp[corres_leaves[leaves]]
 varLeaves <- corres_leaves[leaves]
 ```
 
+
+**************************************************
+
+
+**BAD FIX**:
+
+it appears that the gp_8 does not have any funcioning leaf... It should not happen, moreover, gp_9 is in gp_8 and has leaves
+
+
+```{r}
+gp_info<-gp_info[!gp_info$refUn%in%c(8,9),]
+var_info<-var_info[!var_info$inGp%in%c(8,9),]
+matGp <- matGp[,!colnames(matGp)%in%c("8","9")]
+leaves<-leaves[!varLeaves%in%c(8,9)]
+corres_leaves[!varLeaves%in%c(8,9)]<-0
+gpLeaves<-gpLeaves[!varLeaves%in%c(8,9)]
+varLeaves<-varLeaves[!varLeaves%in%c(8,9)]
+```
+
+**************************************************
+
+
+
 ```{r}
 #Step 2: prep the matrix
 # Extract colnames for every table
 varGp<-tapply(apply(var_info[c("name","subNames")],1,function(x)
 {
   if(x[2]==""){return(x[1])}
-  return(paste(x[1],unlist(strsplit(x[2],"\\|")),sep="_"))
+  #WE HAD TO CHANGE THAT COMPARED TO THE EML treatment
+  return(c(x[1],paste(x[1],unlist(strsplit(x[2],"\\|")),sep="_")))
 }),var_info$inGp,unlist)
 # get info to preparing the tables
 prepTables<-list()
@@ -732,7 +756,8 @@ for(i in 1:length(prepTables))
   varM<-varLeaves[gpLeaves==gp]
   # get the name from the var number
   field_complete<-vector(mode = "list",length=length(varM))
-  hasSubnames<-var_info[varM,]$subNames!=""
+  #WE HAD TO CHANGE THAT LINE COMPARED TO THE EML treatment
+  hasSubnames<-var_info[varM,]$subNames!=""&sapply(content,function(x)!is.null(names(x)))
   field_complete[!hasSubnames]<-as.list(var_info[varM,"name"][!hasSubnames])
   field_complete[hasSubnames]<-mapply(function(x,y){paste(x,names(y),sep="_")},
                                       x=var_info[varM,"name"][hasSubnames],
@@ -746,7 +771,9 @@ for(i in 1:length(prepTables))
 }
 ```
 
+
 Creating id for each table and hierarchical level:
+
 
 ```{r}
 # What id (primary and foreign key) do need each table
@@ -796,7 +823,7 @@ names(finalTables)<-sapply(prepTables,function(x)x$nameTable)
 
 ```{r}
 require(RSQLite)
-dbFile<-"../../../data_metadatos_catalogos/metadata_ceiba.sqlite"
+dbFile<-"../../../data_metadatos_catalogos/resource_ceiba.sqlite"
 if(file.exists(dbFile)){file.remove(dbFile)}
 metaCeiba<-dbConnect(SQLite(),dbFile)
 ```
@@ -846,7 +873,6 @@ dbExecute(metaCeiba,"CREATE INDEX fk_subvar_info_cd_var_var_info_idx ON subvar_i
 **Inserting the data:**
 
 We start by inserting the 0 level, which is not in the R objects
-
 ```{r}
 tab0<-data.frame(
   refUn=0,
@@ -887,6 +913,7 @@ data.frame(cd_subvar=1:length(unlist(sp)),
 )
 ```
 
+
 ## Crear the metadata tables
 
 ```{r}
@@ -909,6 +936,7 @@ for(i in 1:length(finalTables))
 }
 ```
 
+
 ## Particularidad del IPT: registro de archivos
 
 ```{r}
@@ -916,25 +944,47 @@ folderBase<-"/home/pem/datadir/resources/"
 baseLength<-length(strsplit(folderBase,"/")[[1]])
 dbExecute(metaCeiba,"CREATE TABLE files(cd_file INT PRIMARY KEY,root_folder TEXT, file TEXT, complete_path TEXT);")
 dbExecute(metaCeiba,"CREATE INDEX files_root_folder_idx ON files(root_folder);")
-dbAppendTable(metaCeiba,Id(table="files"),
-data.frame(
+dataFiles<-data.frame(
   cd_file=1:length(result_find),
   root_folder=sapply(strsplit(result_find,"/"),function(x)x[baseLength+1]),
   file=basename(result_find),
   complete_path=result_find
-))
-dbExecute(metaCeiba,"ALTER TABLE dataset ADD COLUMN cd_file INT REFERENCES files(cd_file);")
+)
+dbAppendTable(metaCeiba,Id(table="files"),dataFiles)
 ```
 
-# Export finalTables Excel
+Reference in the dataset table:
 
 ```{r}
-require(openxlsx)
-write.xlsx(finalTables,file="../../../data_metadatos_catalogos/meta_ceiba.xlsx")
+if(!"cd_file" %in% dbListFields(metaCeiba,"dataset")){
+dbExecute(metaCeiba,"ALTER TABLE dataset ADD COLUMN cd_file INT REFERENCES files(cd_file);")
+
+dbWriteTable(metaCeiba,"tmp_corres_dataset_file",
+             data.frame(
+               cd_dataset=1:nrow(addresses_xml),
+               cd_file=match(addresses_xml$file,dataFiles$complete_path)
+             ))
+dbExecute(metaCeiba,"UPDATE dataset AS d
+          SET cd_file=tcdf.cd_file
+          FROM tmp_corres_dataset_file tcdf
+          WHERE tcdf.cd_dataset=d.cd_dataset;")
+dbRemoveTable(metaCeiba,"tmp_corres_dataset_file")
+}
 ```
+
+
+
+
+# Export finalTables Excel
+```{r}
+require(openxlsx)
+write.xlsx(finalTables,file="../../../data_metadatos_catalogos/resource_ceiba.xlsx")
+```
+
 
 # Apagar la luz y salir
 
 ```{r}
 dbDisconnect(metaCeiba)
 ```
+
