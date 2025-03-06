@@ -5,7 +5,7 @@ extractAdressesMultiXml <- function(text_doc_xml,grep_name="^---file:(.*)---$",n
   sepFiles <- grep("---file:.*---",text_doc_xml)
   if(verbose)
   {
-    cat("Number of elements:",sum(sepFiles))
+    cat("Number of elements:",length(sepFiles))
   }
   res<-data.frame(
     name=sub(grep_name,name_part,text_doc_xml[sepFiles]),
@@ -17,7 +17,8 @@ extractAdressesMultiXml <- function(text_doc_xml,grep_name="^---file:(.*)---$",n
   {
     warning("Some xml documents appear to be empty (we will not consider them):", paste(res$name[pbs],collapse="\n"))
   }
-  return(res[-pbs,])
+  if(length(pbs)){return(res[-pbs,])}
+  return(res)
 }
 
 navMetaList <- function(metaList,numpath)
@@ -340,7 +341,9 @@ plotGroupsAndVariables<-function(gpsAndVar,...)
        vertex.color=rainbow(max(V(net)$gpCol+1))[V(net)$gpCol+1],
        ...)
 }
-
+#dat<-xml_list_gn
+#struct<-structGn
+#gpsAndVar<-gnv_gn
 extractTables<-function(dat,struct,gpsAndVar,convertMode=T,noConvert=c("emlVersion","replacedEmlVersion","version"))
 {
 valVar<-lapply(gpsAndVar$varId,
@@ -363,7 +366,7 @@ varTab[as.numeric(names(varInTab))+1]<-varInTab
 pk<-paste0("cd_",c(gpsAndVar$gp0,gpsAndVar$finalGpNames))
 fk<-c(NA,pk[gpsAndVar$gpInGp+1])
 nrow<-sapply(gpsAndVar$gpId,nrow)
-idGp0<-matrix(1:length(dat),ncol=1,dimnames=list(NULL,gp0))
+idGp0<-matrix(1:length(dat),ncol=1,dimnames=list(NULL,gpsAndVar$gp0))
 forPK_FK<-append(gpsAndVar$gpId,list(idGp0),0)
 for(i in 1:length(res$data))
 {
@@ -427,11 +430,9 @@ createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,fore
          ")")
 }
   
-extractedTables<-extractTables(xml_list,extract_struct,gpsAndVar)
-sqlite_file<-"../../../data_metadatos_catalogos/resource_ceiba.sqlite"
 
 exportSQLite<-function(extractedTables,sqlite_file,overwrite=T,saveBAK=NULL,createFKindices=T){
-  fExist<-file.exists(sql_file)
+  fExist<-file.exists(sqlite_file)
   if(fExist){
     if(overwrite){
       if(!is.null(saveBAK)){
@@ -495,11 +496,15 @@ save_in_excel<-function(file,lVar)
   if(!is.list(lVar)){
     listVar<-mget(lVar,envir = .GlobalEnv)
   }else{listVar<-lVar}
+  pbSizeName<-nchar(names(listVar))>31
+  if(any(pbSizeName)){
+    names(listVar)[pbSizeName]<-paste(substr(names(listVar)[pbSizeName],1,12),substr(names(listVar)[pbSizeName],nchar(names(listVar)[pbSizeName])-13,nchar(names(listVar)[pbSizeName])),sep="_..._")
+  }
+  dupesNames<-duplicated(names(listVar))
   wb <- createWorkbook()
   for(i in 1:length(listVar))
   {
     sn<- names(listVar)[i]
-    if(nchar(sn)>31){sn<-substr(sn,1,31)}
     addWorksheet(wb, sheetName = sn)
     hasRownames <- !all(grepl("^[0-9]*$",rownames(listVar[[i]])))
     writeDataTable(wb, sheet =sn, listVar[[i]],rowNames = hasRownames)
@@ -512,7 +517,11 @@ save_in_excel<-function(file,lVar)
 
 exportXL<-function(extractedTables,file,exportInfoTables=T)
 {
+  if(exportInfoTables){
   listExport<-c(extractedTables$info,extractedTables$data)
+  }else{
+    listExport<-extractedTables$info
+  }
   save_in_excel(file,listExport)
 }
 
