@@ -89,6 +89,7 @@ El resultado se puede representar así:
 ```{r fig.width=30,fig.height=30}
 plotGroupsAndVariables(gnv_gn)
 ```
+
 ### Exportación de los metadatos de geonetwork
 ```{r}
 xlFile_gn<-"../../../data_metadatos_catalogos/exportMetaGeonetwork.xlsx"
@@ -199,7 +200,7 @@ tabs_resCeiba<-extractTables(xml_list_resCeiba,structResCeiba,gpsAndVar = gnv_re
 plotGroupsAndVariables(gnv_resCeiba)
 ```
 
-### Exportación de los metadatos EML de Ceiba
+### Exportación de los metadatos "Resources" de Ceiba
 ```{r}
 xlFile_resCeiba<-"../../../data_metadatos_catalogos/export_res_ceiba.xlsx"
 sqlite_resCeiba<-"../../../data_metadatos_catalogos/meta_res_ceiba.sqlite"

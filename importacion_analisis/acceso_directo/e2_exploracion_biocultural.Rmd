@@ -253,6 +253,61 @@ LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
 ```
 
 
+```{sql, connection=biocultural}
+WITH a AS(
+SELECT dft.name, value, identifier
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN datasetversion dver ON df.datasetversion_id=dver.id
+LEFT JOIN dvobject dvo ON dver.dataset_id=dvo.id
+WHERE value IS NOT NULL
+)
+SELECT name, identifier, ARRAY_AGG(value)
+FROM a
+GROUP BY name,identifier
+HAVING count(DISTINCT value)>1
+```
+
+```{sql, connection=biocultural}
+SELECT mdb.name metadatablock, dft.name var
+FROM datasetfieldtype dft
+LEFT JOIN metadatablock mdb ON dft.metadatablock_id=mdb.id
+ORDER BY mdb.id
+```
+Para entender como funcionan los compound value:
+
+```{sql, connection=biocultural}
+SELECT id,name,parentdatasetfieldtype_id,allowMultiples
+FROM datasetfieldtype
+WHERE id BETWEEN 8 AND 12
+```
+
+```{sql, connection=biocultural}
+SELECT value,  datasetfieldtype_id, parentdatasetfieldcompoundvalue_id
+FROM datasetfieldvalue dfv 
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id 
+WHERE datasetfieldtype_id IN (8,9,10,11,12) 
+ORDER BY parentdatasetfieldcompoundvalue_id
+;
+```
+
+```{sql, connection=biocultural}
+SELECT dfcv.*,dft.name
+FROM  datasetfieldcompoundvalue dfcv
+LEFT JOIN datasetfield df ON dfcv.parentdatasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+```
+```{sql, connection=biocultural}
+SELECT dft2.name,ARRAY_AGG(dft.name)
+FROM datasetfieldtype dft
+LEFT JOIN datasetfieldtype dft2 ON dft.parentdatasetfieldtype_id=dft2.id
+WHERE dft.parentdatasetfieldtype_id IS NOT NULL
+GROUP BY dft2.name
+
+```
+
+
 
 
 ```{r}
