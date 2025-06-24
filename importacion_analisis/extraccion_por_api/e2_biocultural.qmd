@@ -34,3 +34,34 @@ for(i in 1:length(vars))
 }
 ```
 
+
+## Pruebas de la Api
+
+```{r}
+require(httr)
+require(jsonlite)
+require(stringi)
+require(xml2)
+baseURL<-"http://ec2-34-238-22-20.compute-1.amazonaws.com:8080"
+searchApi="/api/search"
+res<-GET(paste0(baseURL,searchApi,"?q=*&per_page=1000&type=dataset&metadata_fields=*"), add_headers(`X-Dataverse-key` = token_biocultural),accept_json())
+datasets<-fromJSON(rawToChar(res$content),simplifyVector = F)
+datasets$data$items[[1]]$citationHtml
+textutils::HTMLdecode(datasets$data$items[[1]]$citationHtml)
+```
+
+
+### Estructura de las variables de metadatos extraídos por API
+
+Describir las variables de metadatos de Biocultural (obtenidos por API) de la misma forma que lo que se hizo para los metadatos de Ceiba y Geonetwork nos permitiría hacer un trabajo de integración, desde bases comparables en los 3 catálogos.
+
+```{r}
+source("../funcionesGenerales/analysis_metadatos_xml.R")
+metaBiocultural<-datasets$data$items
+names(metaBiocultural) <- sapply(metaBiocultural,function(x)x$global_id)
+structMBC <- extractStructureListDocuments(metaBiocultural)
+gnv_MBC <-extractStructureListDocuments(structMBC)
+tables_MBC <-extractTables(metaBiocultural, structMBC, gpsAndVar = gnv_MBC)
+plotGroupsAndVariables(gnv_MBC)
+```
+
