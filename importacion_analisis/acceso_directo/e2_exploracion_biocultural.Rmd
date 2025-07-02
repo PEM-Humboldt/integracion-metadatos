@@ -206,7 +206,7 @@ GROUP BY id,title
 ")
 
 mat<-dbTab2mat(db_meta,col_samplingUnits = "id",col_species = "title",col_content = "value")
-write.csv(mat,file="../../data_metadatos_catalogos/export_datasets_biocultural.csv")
+write.csv(mat,file="../../data_metadatos_catalogos/export_datasets_biocultural.csv",overwrite=T)
 
 ```
 
@@ -298,6 +298,7 @@ FROM  datasetfieldcompoundvalue dfcv
 LEFT JOIN datasetfield df ON dfcv.parentdatasetfield_id=df.id
 LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
 ```
+
 ```{sql, connection=biocultural}
 SELECT dft2.name,ARRAY_AGG(dft.name)
 FROM datasetfieldtype dft

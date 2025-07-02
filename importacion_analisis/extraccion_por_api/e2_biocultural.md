@@ -71,3 +71,22 @@ Describir las variables de metadatos de Biocultural (obtenidos por API)
 de la misma forma que lo que se hizo para los metadatos de Ceiba y
 Geonetwork nos permitiría hacer un trabajo de integración, desde bases
 comparables en los 3 catálogos.
+
+Parece que, probablemente por los elementos de la lista enviada en
+`JSON` por la API que no contienen nombres de elementos, no se pueden
+aplicar las funciones que se aplicaron sobre los metadatos en `XML` de
+los catalogos Geonetwork y Ceiba. Por ahora, podría ser más eficiente
+trabajar los metadatos y su estructura desde la base de datos en
+PostgreSQL del catálogo Biocultural
+
+Lo que se intento en R y que no funcionó fue:
+
+``` r
+source("../funcionesGenerales/analysis_metadatos_xml.R")
+metaBiocultural<-datasets$data$items
+names(metaBiocultural) <- sapply(metaBiocultural,function(x)x$global_id)
+structMBC <- extractStructureListDocuments(metaBiocultural)
+gnv_MBC <-extractStructureListDocuments(structMBC)
+tables_MBC <-extractTables(metaBiocultural, structMBC, gpsAndVar = gnv_MBC)
+plotGroupsAndVariables(gnv_MBC)
+```
