@@ -1,7 +1,7 @@
 Extracción de los metadatos de los catalogos
 ================
 Marius Bottin
-2025-03-05
+2025-07-03
 
 - [1 Funciones de tratamiento de los metadatos en
   xml](#1-funciones-de-tratamiento-de-los-metadatos-en-xml)
@@ -18,8 +18,8 @@ Marius Bottin
     - [3.3.1 Exportación de los metadatos EML de
       Ceiba](#331-exportación-de-los-metadatos-eml-de-ceiba)
   - [3.4 Metadatos: Resources](#34-metadatos-resources)
-    - [3.4.1 Exportación de los metadatos EML de
-      Ceiba](#341-exportación-de-los-metadatos-eml-de-ceiba)
+    - [3.4.1 Exportación de los metadatos “Resources” de
+      Ceiba](#341-exportación-de-los-metadatos-resources-de-ceiba)
 
 ``` r
 require(RPostgreSQL)
@@ -329,7 +329,7 @@ plotGroupsAndVariables(gnv_resCeiba)
 
 ![](./Fig/extraction_metadata_unnamed-chunk-17-1.png)<!-- -->
 
-### 3.4.1 Exportación de los metadatos EML de Ceiba
+### 3.4.1 Exportación de los metadatos “Resources” de Ceiba
 
 ``` r
 xlFile_resCeiba <- "../../../data_metadatos_catalogos/export_res_ceiba.xlsx"

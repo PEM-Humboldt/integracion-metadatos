@@ -206,7 +206,7 @@ GROUP BY id,title
 ")
 
 mat<-dbTab2mat(db_meta,col_samplingUnits = "id",col_species = "title",col_content = "value")
-write.csv(mat,file="../../data_metadatos_catalogos/export_datasets_biocultural.csv",overwrite=T)
+write.csv(mat,file="../../../data_metadatos_catalogos/export_datasets_biocultural.csv")
 
 ```
 
@@ -305,7 +305,170 @@ FROM datasetfieldtype dft
 LEFT JOIN datasetfieldtype dft2 ON dft.parentdatasetfieldtype_id=dft2.id
 WHERE dft.parentdatasetfieldtype_id IS NOT NULL
 GROUP BY dft2.name
+```
 
+
+```{sql, connection=biocultural}
+SELECT dft2.id, dft2.parentdatasetfieldtype_id
+FROM datasetfieldtype dft1
+JOIN datasetfieldtype dft2 ON dft1.parentdatasetfieldtype_id=dft2.id
+WHERE dft2.parentdatasetfieldtype_id IS NOT NULL
+```
+```{r}
+analyseVar<-dbGetQuery(biocultural,"
+SELECT dft.id, mdb.name metadatablock, dft.name, fieldtype, allowmultiples,
+  COUNT(dfv.value) FILTER (WHERE value IS NOT NULL) nb_values,
+  COUNT(dfcvv.controlledvocabularyvalues_id) FILTER (WHERE dfcvv.controlledvocabularyvalues_id  IS NOT NULL) nb_controlled_values,
+  dft.parentdatasetfieldtype_id,
+  dft.id IN (SELECT DISTINCT parentdatasetfieldtype_id FROM datasetfieldtype WHERE parentdatasetfieldtype_id IS NOT NULL) is_parent
+FROM datasetfieldtype dft
+LEFT JOIN metadatablock mdb ON dft.metadatablock_id=mdb.id
+LEFT JOIN datasetfield df ON df.datasetfieldtype_id=dft.id
+LEFT JOIN datasetfieldvalue dfv ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfield_controlledvocabularyvalue dfcvv ON dfcvv.datasetfield_id=df.id
+GROUP BY dft.id, mdb.name, dft.name, fieldtype, allowmultiples, dft.id IN (SELECT DISTINCT parentdatasetfieldtype_id FROM datasetfieldtype WHERE parentdatasetfieldtype_id IS NOT NULL), dft.parentdatasetfieldtype_id
+ORDER BY dft.id
+")
+```
+
+Note: todo: add the controlled vocabulary values
+
+
+```{r}
+analyseVar$is_gp<-analyseVar$allowmultiples | analyseVar$is_parent
+table(analyseVar$is_gp)
+```
+
+
+Let's see whether variables have values, or their children variables:
+
+```{r}
+toKeep<-logical(nrow(analyseVar))
+for(i in analyseVar$id)
+{toKeep[analyseVar$id==i]<- as.logical(
+  sum(colSums(analyseVar[analyseVar$id == i | analyseVar$parentdatasetfieldtype_id == i,
+                    c("nb_values","nb_controlled_values")],na.rm = T)))}
+table(toKeep)
+kable(analyseVar<-analyseVar[toKeep,])
+```
+
+******************************
+
+**How much variables are not parents, have multiple values and have parent variables:**
+
+```{r}
+nrow(analyseVar[(!analyseVar$is_parent) & (analyseVar$allowmultiples) & (!is.na(analyseVar$parentdatasetfieldtype_id)),])
+```
+
+This does not happen, it will simplify the export and analyse of metadata, because variables either have parent variable or accept multiple values, not both, to be sure we apply:
+
+```{r}
+if(any((!is.na(analyseVar$parentdatasetfieldtype_id)) & analyseVar$allowmultiples))
+   {stop("The code has been thought for cases where variables either have parent variable or accept multiple values, not both")}
+```
+
+******************************
+
+**How much variables are not parent but have multiple values and have no parents:**
+
+```{r}
+nrow(analyseVar[(!analyseVar$is_parent) & (analyseVar$allowmultiples) & (is.na(analyseVar$parentdatasetfieldtype_id)),])
+```
+
+For these variables we will need to create subtables with only one variable and the repeated references to the dataset.
+
+******************************
+
+**Not parent, no multiple values and not children of a compound variable:**
+
+```{r}
+nrow(analyseVar[(!analyseVar$is_parent) & (!analyseVar$allowmultiples) & (is.na(analyseVar$parentdatasetfieldtype_id)),])
+```
+
+Those are the simplest cases: simple variable for a metadata block
+
+******************************
+
+**Single valies and have parents**:
+
+```{r}
+nrow(analyseVar[(!analyseVar$is_parent) & (!analyseVar$allowmultiples) & (!is.na(analyseVar$parentdatasetfieldtype_id)),])
+```
+
+*******************************
+
+**Is parent and has parent:**
+
+```{r}
+nrow(analyseVar[(analyseVar$is_parent)  & (!is.na(analyseVar$parentdatasetfieldtype_id)),])
+stopifnot(!nrow(analyseVar[(analyseVar$is_parent)  & (!is.na(analyseVar$parentdatasetfieldtype_id)),]))
+```
+
+Other good news, variables have parents or are parents, not both!
+
+*********************************
+
+**Are parents of compound variables with single values**:
+
+```{r}
+# Variables parents, with single values
+nrow(analyseVar[(analyseVar$is_parent) & (!analyseVar$allowmultiples),])
+```
+
+That is weird: what is the need of being a parent variable when all the children are simple variables without repetitions and the group is not repeated in the dataset?
+
+Potentially we could just skip this compound variables and put the children in the main table.
+
+
+*****************************************
+
+**Parents of compound variables with multiple values**:
+
+```{r}
+nrow(analyseVar[(analyseVar$is_parent) & (analyseVar$allowmultiples),])
+```
+
+Make a subtable with all the children and the reference to the dataset.
+
+***************************************
+
+```{r}
+kable(gpTab<-analyseVar[analyseVar$is_gp,])
+listGp<-list()
+for(i in 1:nrow(gpTab))
+{
+  listGp[[gpTab$name[i]]]<-analyseVar[analyseVar$id==gpTab[i,"id"]|(!is.na(analyseVar$parentdatasetfieldtype_id) & analyseVar$parentdatasetfieldtype_id==gpTab[i,"id"]),]
+}
+```
+
+
+```{r fig.width=15, fig.height=15}
+require(data.tree)
+require(igraph)
+
+analyseVar$var_gp<-factor(NA,levels=c("var","gp","gpvar"))
+
+analyseVar$gpHier <- analyseVar$inGp <- NA
+for (i in 1:nrow(analyseVar))
+{
+  prepGpHier<-c("dataverse","dataset","datasetVersion",analyseVar$metadatablock[i])
+  if(analyseVar$is_gp[i])
+  {
+    prepGpHier<-c(prepGpHier,analyseVar$name[i])
+    analyseVar$inGp[i]<-analyseVar$id[i]
+  }
+  if(!is.na(analyseVar$parentdatasetfieldtype_id[i]))
+  {
+    prepGpHier<-c(prepGpHier,analyseVar$name[analyseVar$id==analyseVar$parentdatasetfieldtype_id[i]])
+    analyseVar$inGp[i]<-analyseVar$parentdatasetfieldtype_id[i]
+  }
+  if(!analyseVar$is_gp[i]){
+    prepGpHier<-c(prepGpHier,analyseVar$name[i])
+  }
+  analyseVar$gpHier[i]<-paste(prepGpHier,collapse="/")
+}
+net<-as.igraph(as.Node(analyseVar,pathName="gpHier"))
+plot(net)
 ```
 
 
