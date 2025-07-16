@@ -454,7 +454,7 @@ analyseVar$var_gp[!analyseVar$is_parent & !analyseVar$is_gp & rowSums(analyseVar
 analyseVar$gpHier <- analyseVar$inGp <- NA
 for (i in 1:nrow(analyseVar))
 {
-  prepGpHier<-c("dataverse","dataset","datasetVersion",analyseVar$metadatablock[i])
+  prepGpHier<-c("dataverse","dataset","datasetversion",analyseVar$metadatablock[i])
   if(analyseVar$var_gp[i]=="gp")
   {
     prepGpHier<-c(prepGpHier,analyseVar$name[i])
@@ -479,8 +479,8 @@ for (i in 1:nrow(analyseVar))
 gpTab<-rbind(
   data.frame(
   id=c(1000,1001,1002,1003,1004,1005),
-  name=c("dataverse","dataset","datasetVersion","citation","geospatial","socialscience"),
-  gpHier=c("dataverse","dataverse/dataset","dataverse/dataset/datasetVersion",paste("dataverse/dataset/datasetVersion",c("citation","geospatial","socialscience"),sep="/")),
+  name=c("dataverse","dataset","datasetversion","citation","geospatial","socialscience"),
+  gpHier=c("dataverse","dataverse/dataset","dataverse/dataset/datasetversion",paste("dataverse/dataset/datasetversion",c("citation","geospatial","socialscience"),sep="/")),
   var_gp="gp",
   inGp=c(1000,1001,1002,1003,1004,1005)
   ),
@@ -512,7 +512,269 @@ plot(net, vertex.size=5, vertex.label=V(net)$name, vertex.shape=c(var="circle",g
      vertex.color=rainbow(length(unique(V(net)$inGp)))[V(net)$inGp])
 ```
 
+### Postgres export
 
+#### Main postgres table attributes
+
+Function for name transformation
+
+```{r}
+sqlizeNames <- function(x)
+{
+  gsub("^[-_.0-9]*","",gsub("\\_?([A-Z]{1,3})","_\\L\\1",gsub("^([A-Z]+)","\\L\\1",x,perl=T),perl=T))
+}
+```
+
+
+
+
+```{r}
+mGp<-match(gpTab$id,analyseVar$id)
+pkeys<-character(nrow(gpTab))
+pkeys<-paste(gpTab$name,"id",sep="_")
+pkeys[is.na(mGp)&gpTab$name%in%analyseVar$metadatablock]<-"datasetversion_id"
+pkeys[grep("_$",gpTab$name)]<-paste(gpTab$name[grep("_$",gpTab$name)],"id",sep="")
+fkeys<-rep("datasetversion_id",nrow(gpTab))
+fkeys[gpTab$name=="datasetversion"]<-"dataset_id"
+fkeys[gpTab$name=="dataset"]<-"dataverse_id"
+fkeys[gpTab$name=="dataverse"]<-NA
+pkeys_sql<-sqlizeNames(pkeys)
+fkeys_sql<-sqlizeNames(fkeys)
+existingDBfields<-dbGetQuery(biocultural,"SELECT DISTINCT column_name,data_type FROM information_schema.columns WHERE table_schema='public'")
+#pkeys_sql %in% existingDBfields$column_name
+#fkeys_sql %in% existingDBfields$column_name
+existingDBfields[existingDBfields$column_name %in% pkeys | existingDBfields$column_name %in% fkeys,]
+```
+
+#### variable attributes
+
+```{r}
+(mVarGp<-match(varTab$inGp,gpTab$id))
+mVar<-match(varTab$id,analyseVar$id)
+table(factor(varTab$inGp,levels=gpTab$id,labels = gpTab$name))
+```
+
+#### Creating `create table` statement
+
+##### Organize the structure
+We first create a `tableAttrib` object which will contain information on the variables of each table in the database, in order to create the tables.
+
+```{r}
+tableAttrib<-vector(mode="list",length=nrow(gpTab))
+names(tableAttrib)<-gpTab$name
+```
+
+First we add the rows corresponding to the primary and foreign keys:
+
+```{r}
+types_pkeys <- rep("bigserial",length(pkeys))
+mpkeys<-match(pkeys,existingDBfields$column_name)
+types_pkeys[!is.na(mpkeys)]<-existingDBfields$data_type[mpkeys[!is.na(mpkeys)]]
+for(i in 1:length(tableAttrib))
+{
+  tableAttrib[[i]]<-data.frame(id=NA,metadatablock=NA,name=pkeys[i],sql_name=pkeys_sql[i],type=types_pkeys[i],primarykey=T,reference=ifelse(pkeys[i]=="datasetversion_id"&gpTab$name[i]!="datasetversion","datasetversion(datasetversion_id)",NA))
+  if(!is.na(fkeys[i])&is.na(tableAttrib[[i]][1,"reference"]))
+  {
+    tableAttrib[[i]]<-rbind(tableAttrib[[i]],
+                            data.frame(id=NA,metadatablock=NA,name=fkeys[i],sql_name=fkeys_sql[i],type="bigint",primarykey=F,reference=gsub("^(.*)(_id)$","\\1(\\1\\2)",fkeys[i])))
+  }
+}
+```
+
+##### Add registered variables
+
+Then we add the variables concerning registered metadata variables in the database (those which are in the datasetfieldtype table and the datasetfieldvalue or the datasetfield_controlledvocabularyvalue table)
+
+```{r}
+res<-by(analyseVar[mVar,],mVarGp,function(x)
+  {
+    data.frame(
+      id=x$id,metadatablock=x$metadatablock,name=x$name,
+      sql_name=sqlizeNames(x$name),
+      type=c("TEXT"="text","DATE"="date","EMAIL"="text","INT"="integer","NONE"="text","TEXTBOX"="text","URL"="text")[x$fieldtype],
+      primarykey=F,
+      reference=NA
+      )
+  })
+
+tableAttrib[as.numeric(names(res))]<-mapply(rbind.data.frame,tableAttrib[as.numeric(names(res))],res,SIMPLIFY = F)
+```
+
+
+##### Native variables (dataverse, dataset, datasetversion, datafiles)
+
+###### dataverse
+
+```{r}
+tableAttrib$dataverse<-rbind(tableAttrib$dataverse,
+                             data.frame(id=NA,metadatablock=NA,name="createdate",sql_name="createdate",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="affiliation",sql_name="affiliation",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="alias",sql_name="alias",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="dataversetype",sql_name="dataversetype",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="description",sql_name="description",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="name",sql_name="name",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="dataversecontacts",sql_name="dataversecontacts",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="dataversesubjects",sql_name="dataversesubjects",type="text",primarykey=F,reference=NA)
+                             )
+```
+
+```{sql connection=biocultural}
+SELECT d.id dataverse_id, createdate,affiliation,alias,dataversetype,description,name,  dataversecontacts, dataversesubjects
+FROM dataverse d
+LEFT JOIN dvobject dvo ON d.id=dvo.id
+LEFT JOIN (SELECT dataverse_id,STRING_AGG(contactemail,'|' ORDER BY displayorder) dataversecontacts FROM dataversecontact GROUP BY dataverse_id) dc ON d.id=dc.dataverse_id
+LEFT JOIN (SELECT dataverse_id,  STRING_AGG(DISTINCT strvalue,'|') dataversesubjects FROM dataversesubjects ds LEFT JOIN controlledvocabularyvalue ccv ON ds.controlledvocabularyvalue_id=ccv.id GROUP BY dataverse_id)  ds ON d.id=ds.dataverse_id
+```
+
+
+
+
+
+###### dataset
+
+```{r}
+tableAttrib$dataset<-rbind(tableAttrib$dataset,
+                             data.frame(id=NA,metadatablock=NA,name="createdate",sql_name="createdate",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="globalidcreatetime",sql_name="globalidcreatetime",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="modificationtime",sql_name="modificationtime",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="publicationdate",sql_name="publicationdate",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="doi",sql_name="doi",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="metadatalanguage",sql_name="metadatalanguage",type="text",primarykey=F,reference=NA)
+                             )
+
+```
+
+```{sql, connection=biocultural}
+SELECT id dataset_id, owner_id dataverse_id, createdate, globalidcreatetime, modificationtime, publicationdate, authority || '/' || identifier doi, metadatalanguage 
+FROM dataset
+LEFT JOIN dvobject USING (id)
+ORDER BY dataset_id
+```
+
+
+
+###### datasetversion
+
+```{r}
+tableAttrib$datasetversion<-rbind(tableAttrib$datasetversion,
+                             data.frame(id=NA,metadatablock=NA,name="createtime",sql_name="createtime",type="timestamp",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="versionnumber",sql_name="versionnumber",type="integer",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="minorversionnumber",sql_name="minorversionnumber",type="integer",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="versionnote",sql_name="versionnote",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="versionstate",sql_name="versionstate",type="text",primarykey=F,reference=NA),
+                             )
+```
+
+```{sql connection=biocultural}
+SELECT id datasetversion_id, dataset_id, createtime, versionnumber,minorversionnumber,versionnote,versionstate
+FROM datasetversion
+ORDER BY dataset_id, createtime
+```
+
+
+###### datafiles and subtables with variables, ingest and mapping
+
+```{r}
+tableAttrib$datafile <- rbind(
+  dataframe(id=NA,metadatablock=NA,name="datafile_id",sql_name="createtime",type="timestamp",primarykey=F,reference=NA)
+```
+
+
+
+
+##### function to create the table in a SQL database
+
+```{r}
+createTableStatement<-function(nameTable,tabAttr,dbConnection)
+{
+  isSerial<-grepl("serial",tabAttr$type,ignore.case=T)
+  isDate<-tabAttr$type
+  if(class(dbConnection)=="SQLiteConnection")
+  {
+    if(any(grepl("serial",tabAttr$type)&!tabAttr$primarykey))
+      {stop("In SQLite, there is no simple possibility to use equivalent to serial types when not primary keys")}
+    tabAttr$type <- c(int="integer", bigint="integer", smallint="integer", integer="integer", serial="integer", bigserial="integer", smallserial="integer", date="text", text="text", real="real", `double precision`="real")[tabAttr$type]
+    tabAttr$type[is.na(tabAttr$type)]<-"blob"
+  }
+  paste0("CREATE TABLE IF NOT EXISTS ", nameTable," (\n",
+  paste(tabAttr$sql_name, tabAttr$type, ifelse(tabAttr$primarykey,"PRIMARY KEY",""),
+        ifelse(rep(class(dbConnection)=="SQLiteConnection",nrow(tabAttr))&isSerial,"AUTOINCREMENT",""),
+        ifelse(!is.na(tabAttr$reference),paste("REFERENCES",tabAttr$reference),""),
+  collapse=",\n"),
+  "\n);")
+}
+```
+
+
+##### Applying the functions
+
+```{r}
+require(RSQLite)
+file_meta_biocultural<-"../../../data_metadatos_catalogos/meta_biocultural.sqlite"
+unlink(file_meta_biocultural)
+meta_biocultural<-dbConnect(SQLite(),file_meta_biocultural)
+```
+
+```{r}
+cat(createTableStatement(sqlizeNames(names(tableAttrib))[7],tableAttrib[[7]],meta_biocultural))
+```
+
+```{r}
+for(i in 1:length(tableAttrib)){
+  dbExecute(meta_biocultural,
+            createTableStatement(sqlizeNames(sub("_$","",names(tableAttrib)))[i], tableAttrib[[i]], meta_biocultural))
+}
+```
+
+```{r}
+allValuesBiocultural<-dbGetQuery(biocultural,
+"
+WITH a AS(
+SELECT dft.id,dfv.value,df.parentdatasetfieldcompoundvalue_id,COALESCE(df.datasetversion_id,pdf.datasetversion_id) datasetversion_id
+FROM datasetfieldvalue dfv 
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id 
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id 
+LEFT JOIN datasetfieldcompoundvalue dfcv ON df.parentdatasetfieldcompoundvalue_id=dfcv.id
+LEFT JOIN datasetfield pdf ON dfcv.parentdatasetfield_id=pdf.id
+UNION 
+SELECT dft.id,cvc.strvalue,df.parentdatasetfieldcompoundvalue_id,COALESCE(df.datasetversion_id,pdf.datasetversion_id) 
+FROM datasetfield_controlledvocabularyvalue dfcvv 
+LEFT JOIN datasetfield df ON dfcvv.datasetfield_id=df.id 
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id 
+LEFT JOIN controlledvocabularyvalue cvc ON dfcvv.controlledvocabularyvalues_id=cvc.id  
+LEFT JOIN datasetfieldcompoundvalue dfcv ON df.parentdatasetfieldcompoundvalue_id=dfcv.id
+LEFT JOIN datasetfield pdf ON dfcv.parentdatasetfield_id=pdf.id
+)
+SELECT *
+FROM a 
+WHERE value IS NOT NULL AND value != '' AND datasetversion_id IS NOT NULL"
+)
+un_gp <- unique(allValuesBiocultural[,c("parentdatasetfieldcompoundvalue_id","datasetversion_id")])
+gps <- allValuesBiocultural[,c("parentdatasetfieldcompoundvalue_id","datasetversion_id")]
+allValuesBiocultural$ref_un_gp<-match(split(as.matrix(gps),row(gps)),split(as.matrix(un_gp),row(un_gp)))
+```
+
+```{r}
+extractMetaData <- tableAttrib[ ! names(tableAttrib) %in% c("dataverse","dataset","datasetversion") ]
+extracted<-vector(mode="list",length=length(extractMetaData))
+for(i in 1:length(extractMetaData))
+{
+  tabExtract<-extractMetaData[[i]]
+  val<-allValuesBiocultural[ allValuesBiocultural$id %in% tabExtract$id ,]
+  resMat<-matrix(NA,nrow=length(unique(val$ref_un_gp)),ncol=length(unique(val$id)),dimnames=list(unique(val$ref_un_gp),unique(val$id)))
+  resMat[cbind(row = match(val$ref_un_gp,rownames(resMat)), col = match(val$id,colnames(resMat)))] <- val$value
+  extracted[[i]]<-data.frame(datasetversion_id=un_gp$datasetversion_id[as.numeric(rownames(resMat))],resMat)
+  colnames(extracted[[i]])<-c("datasetversion_id",tabExtract$sql_name[match(as.numeric(colnames(resMat)),tabExtract$id)])
+  extracted[[i]]<-extracted[[i]][order(extracted[[i]]$datasetversion_id),,drop=F]
+}
+names(extracted)<-names(extractMetaData)
+source("../funcionesGenerales/analysis_metadatos_xml.R")
+exportXl_file<-"../../../data_metadatos_catalogos/extractedMetaBiocultural.xlsx"
+unlink(exportXl_file)
+save_in_excel(exportXl_file,extracted)
+```
+
+### Dataset information from direct dataverse database
 
 
 
