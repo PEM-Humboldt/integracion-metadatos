@@ -606,6 +606,13 @@ tableAttrib[as.numeric(names(res))]<-mapply(rbind.data.frame,tableAttrib[as.nume
 ###### dataverse
 
 ```{r}
+extracted<-vector(mode="list",length=length(tableAttrib))
+names(extracted) <- names(tableAttrib)
+```
+
+
+
+```{r}
 tableAttrib$dataverse<-rbind(tableAttrib$dataverse,
                              data.frame(id=NA,metadatablock=NA,name="createdate",sql_name="createdate",type="timestamp",primarykey=F,reference=NA),
                              data.frame(id=NA,metadatablock=NA,name="affiliation",sql_name="affiliation",type="text",primarykey=F,reference=NA),
@@ -618,14 +625,16 @@ tableAttrib$dataverse<-rbind(tableAttrib$dataverse,
                              )
 ```
 
-```{sql connection=biocultural}
-SELECT d.id dataverse_id, createdate,affiliation,alias,dataversetype,description,name,  dataversecontacts, dataversesubjects
+
+```{r}
+(extracted$dataverse=dbGetQuery(conn=biocultural,
+"SELECT d.id dataverse_id, createdate,affiliation,alias,dataversetype,description,name,  dataversecontacts, dataversesubjects
 FROM dataverse d
 LEFT JOIN dvobject dvo ON d.id=dvo.id
 LEFT JOIN (SELECT dataverse_id,STRING_AGG(contactemail,'|' ORDER BY displayorder) dataversecontacts FROM dataversecontact GROUP BY dataverse_id) dc ON d.id=dc.dataverse_id
-LEFT JOIN (SELECT dataverse_id,  STRING_AGG(DISTINCT strvalue,'|') dataversesubjects FROM dataversesubjects ds LEFT JOIN controlledvocabularyvalue ccv ON ds.controlledvocabularyvalue_id=ccv.id GROUP BY dataverse_id)  ds ON d.id=ds.dataverse_id
+LEFT JOIN (SELECT dataverse_id,  STRING_AGG(DISTINCT strvalue,'|') dataversesubjects FROM dataversesubjects ds LEFT JOIN controlledvocabularyvalue ccv ON ds.controlledvocabularyvalue_id=ccv.id GROUP BY dataverse_id)  ds ON d.id=ds.dataverse_id"
+))
 ```
-
 
 
 
@@ -644,11 +653,12 @@ tableAttrib$dataset<-rbind(tableAttrib$dataset,
 
 ```
 
-```{sql, connection=biocultural}
-SELECT id dataset_id, owner_id dataverse_id, createdate, globalidcreatetime, modificationtime, publicationdate, authority || '/' || identifier doi, metadatalanguage 
+```{r}
+(extracted$dataset<-dbGetQuery(conn=biocultural,
+"SELECT id dataset_id, owner_id dataverse_id, createdate, globalidcreatetime, modificationtime, publicationdate, authority || '/' || identifier doi, metadatalanguage 
 FROM dataset
 LEFT JOIN dvobject USING (id)
-ORDER BY dataset_id
+ORDER BY dataset_id"))
 ```
 
 
@@ -661,14 +671,15 @@ tableAttrib$datasetversion<-rbind(tableAttrib$datasetversion,
                              data.frame(id=NA,metadatablock=NA,name="versionnumber",sql_name="versionnumber",type="integer",primarykey=F,reference=NA),
                              data.frame(id=NA,metadatablock=NA,name="minorversionnumber",sql_name="minorversionnumber",type="integer",primarykey=F,reference=NA),
                              data.frame(id=NA,metadatablock=NA,name="versionnote",sql_name="versionnote",type="text",primarykey=F,reference=NA),
-                             data.frame(id=NA,metadatablock=NA,name="versionstate",sql_name="versionstate",type="text",primarykey=F,reference=NA),
+                             data.frame(id=NA,metadatablock=NA,name="versionstate",sql_name="versionstate",type="text",primarykey=F,reference=NA)
                              )
 ```
 
-```{sql connection=biocultural}
-SELECT id datasetversion_id, dataset_id, createtime, versionnumber,minorversionnumber,versionnote,versionstate
+```{r}
+(extracted$datasetversion<-dbGetQuery(conn=biocultural,
+"SELECT id datasetversion_id, dataset_id, createtime, versionnumber,minorversionnumber,versionnote,versionstate
 FROM datasetversion
-ORDER BY dataset_id, createtime
+ORDER BY dataset_id, createtime"))
 ```
 
 
@@ -676,10 +687,87 @@ ORDER BY dataset_id, createtime
 
 ```{r}
 tableAttrib$datafile <- rbind(
-  dataframe(id=NA,metadatablock=NA,name="datafile_id",sql_name="createtime",type="timestamp",primarykey=F,reference=NA)
+  data.frame(id=NA,metadatablock=NA,name="datafile_id",sql_name="datafile_id",type="bigint",primarykey=T,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="dataset_id",sql_name="dataset_id",type="bigint",primarykey=F,reference="dataset(dataset_id)"),
+  data.frame(id=NA,metadatablock=NA,name="createdate",sql_name="createdate",type="timestamp",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="modificationtime",sql_name="modificationtime",type="timestamp",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="publicationdate",sql_name="publicationdate",type="timestamp",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="storageidentifier",sql_name="storageidentifier",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="checksumtype",sql_name="checksumtype",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="checksumvalue",sql_name="checksumvalue",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="contenttype",sql_name="contenttype",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="filesize",sql_name="filesize",type="bigint",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="restricted",sql_name="restricted",type="boolean",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="previousdatafileid",sql_name="previousdatafileid",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
+  data.frame(id=NA,metadatablock=NA,name="rootdatafileid",sql_name="rootdatafileid",type="bigint",primarykey=F,reference="datafile(datafile_id)")
+) 
 ```
 
 
+```{r}
+(extracted$datafile<-dbGetQuery(conn=biocultural,
+"SELECT id datafile_id, owner_id dataset_id, createdate, modificationtime, publicationdate, storageidentifier, checksumtype, checksumvalue, contenttype, filesize,  restricted,  CASE WHEN previousdatafileid IS NULL THEN id ELSE previousdatafileid END previousdatafileid, CASE WHEN rootdatafileid=-1 THEN id ELSE id END rootdatafileid
+FROM datafile df
+LEFT JOIN dvobject dvo USING (id)"))
+```
+
+```{r}
+tableAttrib$filedescription <- rbind(
+  data.frame(id=NA,metadatablock=NA,name="filedescription_id",sql_name="filedescription_id",type="bigserial",primarykey=T,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="datafile_id",sql_name="datafile_id",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
+  data.frame(id=NA,metadatablock=NA,name="datasetversion_id",sql_name="datasetversion_id",type="bigint",primarykey=F,reference="datasetversion_id(datasetversion_id)"),
+  data.frame(id=NA,metadatablock=NA,name="version",sql_name="version",type="bigint",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="label",sql_name="label",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="description",sql_name="description",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="restricted",sql_name="restricted",type="boolean",primarykey=F,reference=NA)
+)
+```
+
+```{r}
+(extracted$filedescription<-dbGetQuery(conn=biocultural,
+"SELECT datafile_id, datasetversion_id, version, label, description, restricted
+FROM filemetadata"))
+```
+
+
+```{r}
+tableAttrib$ingest <- rbind(
+  data.frame(id=NA,metadatablock=NA,name="ingest_id",sql_name="ingest_id",type="bigserial",primarykey=T,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="datafile_id",sql_name="datafile_id",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
+  data.frame(id=NA,metadatablock=NA,name="ingeststatus",sql_name="ingeststatus",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="ingestreport",sql_name="ingestreport",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="status",sql_name="status",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="casequantity",sql_name="casequantity",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="varquantity",sql_name="varquantity",type="text",primarykey=F,reference=NA)
+);
+```
+
+```{r}
+(extracted$ingest<-dbGetQuery(conn=biocultural,"
+SELECT df.id datafile_id, ingeststatus, report,status,casequantity,varquantity
+FROM datafile df
+LEFT JOIN ingestreport ir ON df.id=ir.datafile_id
+LEFT JOIN datatable dt ON df.id=dt.datafile_id"))
+```
+
+
+```{r}
+tableAttrib$variable <- rbind(
+  data.frame(id=NA,metadatablock=NA,name="variable_id",sql_name="variable_id",type="bigserial",primarykey=T,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="datafile_id",sql_name="datafile_id",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
+  data.frame(id=NA,metadatablock=NA,name="name",sql_name="name",type="text",primarykey=F,reference=NA),
+  data.frame(id=NA,metadatablock=NA,name="fileorder",sql_name="fileorder",type="int",primarykey=F,reference=NA)
+);
+```
+
+
+```{r}
+(extracted$variable<-dbGetQuery(conn=biocultural,"
+SELECT datafile_id, name, fileorder
+FROM datavariable dv
+LEFT JOIN datatable dt ON dv.datatable_id=dt.id
+LEFT JOIN datafile df ON dt.datafile_id=df.id"))
+```
 
 
 ##### function to create the table in a SQL database
@@ -693,7 +781,7 @@ createTableStatement<-function(nameTable,tabAttr,dbConnection)
   {
     if(any(grepl("serial",tabAttr$type)&!tabAttr$primarykey))
       {stop("In SQLite, there is no simple possibility to use equivalent to serial types when not primary keys")}
-    tabAttr$type <- c(int="integer", bigint="integer", smallint="integer", integer="integer", serial="integer", bigserial="integer", smallserial="integer", date="text", text="text", real="real", `double precision`="real")[tabAttr$type]
+    tabAttr$type <- c(int="integer", bigint="integer", smallint="integer", integer="integer", serial="integer", bigserial="integer", smallserial="integer", boolean="integer", date="text", timestamp="text", text="text", real="real", `double precision`="real")[tabAttr$type]
     tabAttr$type[is.na(tabAttr$type)]<-"blob"
   }
   paste0("CREATE TABLE IF NOT EXISTS ", nameTable," (\n",
@@ -755,9 +843,10 @@ allValuesBiocultural$ref_un_gp<-match(split(as.matrix(gps),row(gps)),split(as.ma
 ```
 
 ```{r}
-extractMetaData <- tableAttrib[ ! names(tableAttrib) %in% c("dataverse","dataset","datasetversion") ]
-extracted<-vector(mode="list",length=length(extractMetaData))
-for(i in 1:length(extractMetaData))
+extractMetaData <- tableAttrib[ sapply(tableAttrib,function(tab) sum(!is.na(tab$id)) > 0) ]
+names(extractMetaData) <- names(tableAttrib) [ sapply(tableAttrib,function(tab) sum(!is.na(tab$id)) > 0) ]
+
+for(i in names(extractMetaData))
 {
   tabExtract<-extractMetaData[[i]]
   val<-allValuesBiocultural[ allValuesBiocultural$id %in% tabExtract$id ,]
@@ -767,14 +856,15 @@ for(i in 1:length(extractMetaData))
   colnames(extracted[[i]])<-c("datasetversion_id",tabExtract$sql_name[match(as.numeric(colnames(resMat)),tabExtract$id)])
   extracted[[i]]<-extracted[[i]][order(extracted[[i]]$datasetversion_id),,drop=F]
 }
-names(extracted)<-names(extractMetaData)
 source("../funcionesGenerales/analysis_metadatos_xml.R")
 exportXl_file<-"../../../data_metadatos_catalogos/extractedMetaBiocultural.xlsx"
 unlink(exportXl_file)
-save_in_excel(exportXl_file,extracted)
+save_in_excel(exportXl_file,extracted[!sapply(extracted,is.null)])
 ```
 
-### Dataset information from direct dataverse database
+```{r}
+
+```
 
 
 
