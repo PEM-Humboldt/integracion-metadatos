@@ -429,7 +429,16 @@ createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,fore
          collapse=","),additionalConstraints,
          ")")
 }
-  
+
+
+
+###################
+#extractedTables<-tabs_gn
+#sqlite_file<-sqlite_gn
+#overwrite=T
+#saveBAK=NULL
+#createFKindices=T
+########################
 
 exportSQLite<-function(extractedTables,sqlite_file,overwrite=T,saveBAK=NULL,createFKindices=T){
   fExist<-file.exists(sqlite_file)
