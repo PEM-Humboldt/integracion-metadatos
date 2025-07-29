@@ -439,7 +439,8 @@ createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,fore
 #saveBAK=NULL
 #createFKindices=T
 ########################
-
+exportPosgres<-function(extractedTables,conn,overwrite=T,createFKindices=T)
+{NA}
 exportSQLite<-function(extractedTables,sqlite_file,overwrite=T,saveBAK=NULL,createFKindices=T){
   fExist<-file.exists(sqlite_file)
   if(fExist){
