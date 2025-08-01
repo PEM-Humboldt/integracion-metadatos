@@ -871,7 +871,8 @@ for(i in names(extractMetaData))
 source("../funcionesGenerales/analysis_metadatos_xml.R")
 exportXl_file<-"../../../data_metadatos_catalogos/extractedMetaBiocultural.xlsx"
 unlink(exportXl_file)
-save_in_excel(exportXl_file,extracted[!sapply(extracted,is.null)])
+allTableAttrib<-data.frame(tablename=rep(sqlizeNames(gsub("_$","",names(tableAttrib))), sapply(tableAttrib,nrow)),Reduce(rbind,tableAttrib))
+save_in_excel(exportXl_file,c(list(var=allTableAttrib),extracted[!sapply(extracted,is.null)]))
 ```
 
 #### Export in SQLite

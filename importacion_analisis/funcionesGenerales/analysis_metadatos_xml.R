@@ -411,17 +411,19 @@ return(res)
 
 require(RSQLite)
 
-createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,foreignRef,listConstraint=list())
+createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,foreignRef,listConstraint=list(),schema=NULL)
 {
   foreignExpression<-rep(NA,length(fields))
   okForeign<-(!is.na(foreignTable)&!is.na(foreignRef))
   if(any(okForeign)){
-  foreignExpression[okForeign]<-paste0("REFERENCES ",dbQuoteIdentifier(conn,foreignTable[okForeign]),"(",dbQuoteIdentifier(conn,foreignRef[okForeign]),")")}
+  foreignExpression[okForeign]<-paste0("REFERENCES ", dbQuoteIdentifier(conn,Id(schema=schema,table=foreignTable[okForeign]))
+                                              ,"(",dbQuoteIdentifier(conn,foreignRef[okForeign]),")")
+  }
   additionalConstraints<-""
   if(length(listConstraint)){
     additionalConstraints=paste(",",listConstraint,collapse=", ")
   }
-  paste0("CREATE TABLE ",dbQuoteIdentifier(conn,tabName)," (",
+  paste0("CREATE TABLE ",dbQuoteIdentifier(conn,Id(schema=schema,table=tabName))," (",
          paste0(
          dbQuoteIdentifier(conn,fields), " " , types, " ", 
          ifelse(okForeign,foreignExpression,""),
@@ -433,14 +435,136 @@ createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,fore
 
 
 ###################
-#extractedTables<-tabs_gn
-#sqlite_file<-sqlite_gn
-#overwrite=T
-#saveBAK=NULL
-#createFKindices=T
+# meta_i2d<-dbConnect(Postgres(),dbname="meta_i2d")
+# conn<-meta_i2d
+# schema<-"geonetwork"
+# db<-conn
+# extractedTables<-tabs_gn
+# sqlite_file<-sqlite_gn
+# overwrite=T
+# saveBAK=NULL
+# createFKindices=T
 ########################
-exportPosgres<-function(extractedTables,conn,overwrite=T,createFKindices=T)
-{NA}
+sqlizeNames<-function(x,maxBytes=55)
+{
+  s1 <- gsub("^[-_.0-9]*","",gsub("\\_?([A-Z]{1,3})","_\\L\\1",gsub("^([A-Z]+)","\\L\\1",x,perl=T),perl=T))
+  s2 <- gsub("\\.","",s1,perl=T)
+  s3 <- strsplit(s2,'_')
+  ctBytes<-lapply(lapply(s3,nchar,type='bytes'),function(x)cumsum(x[length(x):1]+1)[length(x):1])
+  return(mapply(function(x,y)paste(x[y],collapse="_"),s3,lapply(ctBytes,function(x,m)x<m,m=maxBytes)))
+}
+
+sqlize_extractedTables <- function(extractedTables)
+{
+  newTabNames<-sqlizeNames(extractedTables$info$tab$tabname)
+  nr<-numRep(newTabNames)
+  newTabNames[newTabNames %in% newTabNames[duplicated(newTabNames)]]<-paste(newTabNames,nr,sep="_")[newTabNames %in% newTabNames[duplicated(newTabNames)]]
+  tabnames<-data.frame(old=extractedTables$info$tab$tabname,new=newTabNames)
+  names(extractedTables$data)<-extractedTables$info$tab$tabname<-newTabNames
+  
+  m<-match(extractedTables$info$var$tabname,tabnames$old)
+  extractedTables$info$var$tabname<-tabnames$new[m]
+  m<-match(extractedTables$info$tab$foreigntable,tabnames$old)
+  extractedTables$info$tab$foreigntable<-tabnames$new[m]
+  extractedTables$info$tab$foreignref[!is.na(extractedTables$info$tab$foreigntable)]<-paste("cd",extractedTables$info$tab$foreigntable[!is.na(extractedTables$info$tab$foreigntable)],sep="_")
+  extractedTables$info$tab$primarykey<-paste("cd",extractedTables$info$tab$tabname,sep="_")
+  
+  TABS<-extractedTables$info$tab$tabname
+  for(i in 1:length(TABS))
+  {
+    tab<-TABS[i]
+    newVarNames<-sqlizeNames(extractedTables$info$var$varname[extractedTables$info$var$tabname==tab])
+    nr<-numRep(newVarNames)
+    newVarNames[newVarNames %in% newVarNames[duplicated(newVarNames)]]<-paste(newVarNames,nr,sep="_")[newVarNames %in% newVarNames[duplicated(newVarNames)]]
+    varnames<-data.frame(old=extractedTables$info$var$varname[extractedTables$info$var$tabname==tab],
+                         new=newVarNames)
+    m<-match(extractedTables$info$var$varname[extractedTables$info$var$tabname==tab],varnames$old)
+    extractedTables$info$var$varname[extractedTables$info$var$tabname==tab]<-varnames$new[m]
+    m<-match(colnames(extractedTables$data[[tab]]),varnames$old)
+    if(sum(is.na(m))==1 & is.na(extractedTables$info$tab$foreigntable[extractedTables$info$tab$tabname==tab]))
+    {
+      colnames(extractedTables$data[[tab]])<-c(extractedTables$info$tab$primarykey[extractedTables$info$tab$tabname==tab],varnames$new[m[!is.na(m)]])
+    }else {
+      if(sum(is.na(m))==2 &!is.na(extractedTables$info$tab$foreigntable[extractedTables$info$tab$tabname==tab]))
+      {
+        colnames(extractedTables$data[[tab]])<-c(extractedTables$info$tab$primarykey[extractedTables$info$tab$tabname==tab],extractedTables$info$tab$foreignref[extractedTables$info$tab$tabname==tab], varnames$new[m[!is.na(m)]])
+      } else {
+      stop("Unexpected case in terms of variables and primary/foreign keys")
+      }
+    }
+  }
+  return(extractedTables)
+  
+}
+
+
+exportPostgres<-function(extractedTables,conn,schema=NULL,overwrite=T,createFKindices=T)
+{
+  dbBegin(conn)
+  #Does the schema exist
+  schemaExists <- schema %in% dbGetQuery(conn,"SELECT schema_name FROM information_schema.schemata")$schema_name
+  if(schemaExists)
+  {
+    if(overwrite)
+    {
+      dbExecute(conn,paste0("DROP SCHEMA ", schema, " CASCADE"))
+    }else{
+      stop("The schema ",schema, "already exists, and the parameter overwrite is set to FALSE")
+    }
+  }
+  dbExecute(conn,paste0("CREATE SCHEMA ",schema))
+  # Create info Tables
+  ## tabInfo
+  stat<-createTableFK_statement(conn,tabName = "tabinfo",
+                                fields=colnames(extractedTables$info$tab),
+                                types=dbDataType(conn,extractedTables$info$tab),
+                                pk=(colnames(extractedTables$info$tab)=="tabname"),
+                                foreignTable=ifelse(colnames(extractedTables$info$tab)=="foreigntable","tabinfo",NA),
+                                foreignRef=ifelse(colnames(extractedTables$info$tab)=="foreigntable","tabname",NA),
+                                schema=schema
+  )
+  dbExecute(conn,stat)
+  ## varinfo
+  stat<-createTableFK_statement(conn,tabName="varinfo",                        
+                                fields=colnames(extractedTables$info$var),
+                                types=dbDataType(conn,extractedTables$info$var),
+                                pk=rep(FALSE,ncol(extractedTables$info$var)),
+                                foreignTable=ifelse(colnames(extractedTables$info$var)=="tabname","tabinfo",NA),
+                                foreignRef=ifelse(colnames(extractedTables$info$var)=="tabname","tabname",NA),
+                                listConstraint=list("PRIMARY KEY (tabname, varname)"),
+                                schema=schema
+  )
+  dbExecute(conn,stat)
+  # Add info
+  dbAppendTable(conn,Id(schema=schema,table="tabinfo"),extractedTables$info$tab)
+  dbAppendTable(conn,Id(schema=schema,table="varinfo"),extractedTables$info$var)
+  # Create metadata tables
+  for(i in 1:nrow(extractedTables$info$tab))
+  {
+    tab<-extractedTables$info$tab$tabname[i]
+    vars<-extractedTables$info$var$varname[extractedTables$info$var$tabname==tab]
+    pkey<-extractedTables$info$tab$primarykey[i]
+    ft<-extractedTables$info$tab$foreigntable[i]
+    fkey<-extractedTables$info$tab$foreignref[i]
+    fields<-c(pkey,na.omit(fkey),vars)
+    stopifnot(fields==colnames(extractedTables$data[[tab]]))
+    stat<-createTableFK_statement(conn,
+                                  tabName=tab,
+                                  fields=fields,
+                                  types=dbDataType(conn,extractedTables$data[[tab]]),
+                                  pk=(fields==pkey),
+                                  foreignTable=ifelse(fields==fkey,ft,NA),
+                                  foreignRef=ifelse(fields==fkey,fkey,NA),
+                                  schema=schema
+    )
+    dbExecute(conn,stat)
+    dbAppendTable(conn,Id(schema=schema,table=tab),value=extractedTables$data[[tab]])
+    if(createFKindices&sum(fields==fkey,na.rm = T)>0){
+      dbExecute(conn,paste0("CREATE INDEX fk_",tab,"_",ft,"_idx ON ",dbQuoteIdentifier(conn,Id(schema=schema,table=tab)),"(",na.omit(fields[fields==fkey]),")",collapse=" ; "))}
+  }
+  return(dbCommit(conn))
+}
+
 exportSQLite<-function(extractedTables,sqlite_file,overwrite=T,saveBAK=NULL,createFKindices=T){
   fExist<-file.exists(sqlite_file)
   if(fExist){

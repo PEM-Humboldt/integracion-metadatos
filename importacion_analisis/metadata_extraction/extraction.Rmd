@@ -26,6 +26,14 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 })
 ```
 
+
+# Connexión a la base de datos `meta_i2d`
+
+```{r}
+require(RPostgres)
+meta_i2d <- dbConnect(Postgres(),dbname = 'meta_i2d')
+```
+
 # Funciones de tratamiento de los metadatos en xml
 
 En el archivo [`analysis_metadatos_xml.R`](../funcionesGenerales/analysis_metadatos_xml.R), se escribieron las funciones para manejar las estructuras complejas de metadatos que se pueden obtener desde los archivos (o objetos) XML que contienen los metadatos en los catálogos de Ceiba y Geonetwork.
@@ -94,7 +102,9 @@ plotGroupsAndVariables(gnv_gn)
 ```{r}
 xlFile_gn<-"../../../data_metadatos_catalogos/exportMetaGeonetwork.xlsx"
 sqlite_gn<-"../../../data_metadatos_catalogos/meta_geonetwork.sqlite"
+tabs_gn<-sqlize_extractedTables(tabs_gn)
 dbgn<-exportSQLite(tabs_gn,sqlite_file = sqlite_gn)
+exportPostgres(tabs_gn,meta_i2d,schema='geonetwork')
 exportXL(tabs_gn,file=xlFile_gn)
 ```
 
@@ -169,7 +179,9 @@ plotGroupsAndVariables(gnv_emlCeiba)
 ```{r}
 xlFile_emlCeiba<-"../../../data_metadatos_catalogos/export_eml_ceiba.xlsx"
 sqlite_emlCeiba<-"../../../data_metadatos_catalogos/meta_eml_ceiba.sqlite"
+tabs_emlCeiba<-sqlize_extractedTables(tabs_emlCeiba)
 dbEmlCeiba<-exportSQLite(tabs_emlCeiba,sqlite_file = sqlite_emlCeiba)
+exportPostgres(tabs_emlCeiba,meta_i2d,schema='ceiba_eml')
 exportXL(tabs_emlCeiba,file=xlFile_emlCeiba)
 ```
 
@@ -201,14 +213,40 @@ plotGroupsAndVariables(gnv_resCeiba)
 ```
 
 ### Exportación de los metadatos "Resources" de Ceiba
+
 ```{r}
 xlFile_resCeiba<-"../../../data_metadatos_catalogos/export_res_ceiba.xlsx"
 sqlite_resCeiba<-"../../../data_metadatos_catalogos/meta_res_ceiba.sqlite"
+tabs_resCeiba<-sqlize_extractedTables(tabs_resCeiba)
 dbResCeiba<-exportSQLite(tabs_resCeiba,sqlite_file = sqlite_resCeiba)
+exportPostgres(tabs_resCeiba,meta_i2d,schema='ceiba_struct')
 exportXL(tabs_resCeiba,file=xlFile_resCeiba)
 ```
 
+## Estructura de la base de datos completas de metadatos
 
+```{r complete_db_struct, fig.height=30, fig.width=15}
+tablestosupp<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('ceiba_eml','ceiba_struct','geonetwork','biocultural')")
+tablesBiocultural<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='biocultural'")
+tablesGeonetwork<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='geonetwork'")
+tablesCeibaEml<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='ceiba_eml'")
+tablesCeibaStruct<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='ceiba_struct'")
+
+dm_object<-dm_from_con(con=meta_i2d,learn_keys = T,schema=c('ceiba_eml','ceiba_struct','geonetwork','biocultural'),.names = "{.schema}.{.table}")
+dm_object<-dm_object[names(dm_object)[!names(dm_object)%in%tablestosupp$table_name]]
+A<-dm_object %>%
+  dm_set_colors("red"=all_of(names(dm_object)[names(dm_object)%in%tablesBiocultural$table_name]))%>%
+  dm_set_colors("blue"=all_of(names(dm_object)[names(dm_object)%in%tablesGeonetwork$table_name]))%>%
+  dm_set_colors("green"=all_of(names(dm_object)[names(dm_object)%in%tablesCeibaEml$table_name]))%>%
+  dm_set_colors("turquoise"=all_of(names(dm_object)[names(dm_object)%in%tablesCeibaStruct$table_name]))%>%
+  dm_draw(view_type = "all")
+t_file<-tempfile(fileext = ".png")
+DiagrammeRsvg::export_svg(A) %>% charToRaw %>% rsvg_png(file = t_file)
+plot(0, xaxt = 'n', yaxt = 'n', bty = 'n', pch = '', ylab = '', xlab = '',xlim=c(0,1),ylim=c(0,1))
+png <- readPNG(t_file)
+rasterImage(png,0,0,1,1)
+legend("topleft",fill=c("red","blue","green","turquoise"),legend=c("biocultural","geonetwork","ceiba (eml)","ceiba (estructura)"),title="Source")
+```
 
 
 
@@ -218,5 +256,6 @@ dbDisconnect(dbEmlCeiba)
 dbDisconnect(dbResCeiba)
 dbDisconnect(dbgn)
 dbDisconnect(geonetwork)
+dbDisconnect(meta_i2d)
 ```
 

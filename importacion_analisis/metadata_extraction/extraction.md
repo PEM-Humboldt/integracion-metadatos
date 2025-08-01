@@ -1,25 +1,27 @@
 Extracción de los metadatos de los catalogos
 ================
 Marius Bottin
-2025-07-03
+2025-07-30
 
-- [1 Funciones de tratamiento de los metadatos en
-  xml](#1-funciones-de-tratamiento-de-los-metadatos-en-xml)
-- [2 Geonetwork](#2-geonetwork)
-  - [2.1 Importación](#21-importación)
-  - [2.2 XML representation and
-    analyses](#22-xml-representation-and-analyses)
-    - [2.2.1 Exportación de los metadatos de
-      geonetwork](#221-exportación-de-los-metadatos-de-geonetwork)
-- [3 Ceiba](#3-ceiba)
-  - [3.1 Descripción](#31-descripción)
-  - [3.2 Extracción de los metadatos](#32-extracción-de-los-metadatos)
-  - [3.3 Metadatos: EML](#33-metadatos-eml)
-    - [3.3.1 Exportación de los metadatos EML de
-      Ceiba](#331-exportación-de-los-metadatos-eml-de-ceiba)
-  - [3.4 Metadatos: Resources](#34-metadatos-resources)
-    - [3.4.1 Exportación de los metadatos “Resources” de
-      Ceiba](#341-exportación-de-los-metadatos-resources-de-ceiba)
+- [1 Connexión a la base de datos
+  `meta_i2d`](#1-connexión-a-la-base-de-datos-meta_i2d)
+- [2 Funciones de tratamiento de los metadatos en
+  xml](#2-funciones-de-tratamiento-de-los-metadatos-en-xml)
+- [3 Geonetwork](#3-geonetwork)
+  - [3.1 Importación](#31-importación)
+  - [3.2 XML representation and
+    analyses](#32-xml-representation-and-analyses)
+    - [3.2.1 Exportación de los metadatos de
+      geonetwork](#321-exportación-de-los-metadatos-de-geonetwork)
+- [4 Ceiba](#4-ceiba)
+  - [4.1 Descripción](#41-descripción)
+  - [4.2 Extracción de los metadatos](#42-extracción-de-los-metadatos)
+  - [4.3 Metadatos: EML](#43-metadatos-eml)
+    - [4.3.1 Exportación de los metadatos EML de
+      Ceiba](#431-exportación-de-los-metadatos-eml-de-ceiba)
+  - [4.4 Metadatos: Resources](#44-metadatos-resources)
+    - [4.4.1 Exportación de los metadatos “Resources” de
+      Ceiba](#441-exportación-de-los-metadatos-resources-de-ceiba)
 
 ``` r
 require(RPostgreSQL)
@@ -74,7 +76,19 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 })
 ```
 
-# 1 Funciones de tratamiento de los metadatos en xml
+# 1 Connexión a la base de datos `meta_i2d`
+
+``` r
+require(RPostgres)
+```
+
+    ## Loading required package: RPostgres
+
+``` r
+meta_i2d <- dbConnect(Postgres(), dbname = "meta_i2d")
+```
+
+# 2 Funciones de tratamiento de los metadatos en xml
 
 En el archivo
 [`analysis_metadatos_xml.R`](../funcionesGenerales/analysis_metadatos_xml.R),
@@ -105,9 +119,9 @@ source("../funcionesGenerales/analysis_metadatos_xml.R")
 
     ## Loading required package: openxlsx
 
-# 2 Geonetwork
+# 3 Geonetwork
 
-## 2.1 Importación
+## 3.1 Importación
 
 Desde un archivo dump de la base de datos de geonetwork extraído
 directamente en el servidor, utilizamos los comandos siguientes para
@@ -141,7 +155,7 @@ knitr::include_graphics("Fig/explor_geonetwork_structureDB.png")
 
 <img src="Fig/explor_geonetwork_structureDB.png" width="3380" />
 
-## 2.2 XML representation and analyses
+## 3.2 XML representation and analyses
 
 It seems that most of the data is in an xml form in the field `data` of
 the `metadata` table.
@@ -180,20 +194,47 @@ El resultado se puede representar así:
 plotGroupsAndVariables(gnv_gn)
 ```
 
-![](./Fig/extraction_metadata_unnamed-chunk-7-1.png)<!-- -->
+![](./Fig/extraction_metadata_unnamed-chunk-8-1.png)<!-- -->
 
-### 2.2.1 Exportación de los metadatos de geonetwork
+### 3.2.1 Exportación de los metadatos de geonetwork
 
 ``` r
 xlFile_gn <- "../../../data_metadatos_catalogos/exportMetaGeonetwork.xlsx"
 sqlite_gn <- "../../../data_metadatos_catalogos/meta_geonetwork.sqlite"
+tabs_gn <- sqlize_extractedTables(tabs_gn)
 dbgn <- exportSQLite(tabs_gn, sqlite_file = sqlite_gn)
+exportPostgres(tabs_gn, meta_i2d, schema = "geonetwork")
+```
+
+    ## NOTICE:  identifier "fk_md_georectified_axis_dimension_properties_spatial_representation_info_idx" will be truncated to "fk_md_georectified_axis_dimension_properties_spatial_representa"
+
+    ## NOTICE:  identifier "fk_grid_spatial_representation_axis_dimension_properties_spatial_representation_info_idx" will be truncated to "fk_grid_spatial_representation_axis_dimension_properties_spatia"
+
+    ## NOTICE:  identifier "fk_transfer_options_md_digital_transfer_options_on_line_1_xml_doc_idx" will be truncated to "fk_transfer_options_md_digital_transfer_options_on_line_1_xml_d"
+
+    ## NOTICE:  identifier "fk_descriptive_keywords_md_keywords_keyword_1_md_data_identification_descriptive_keywords_idx" will be truncated to "fk_descriptive_keywords_md_keywords_keyword_1_md_data_identific"
+
+    ## NOTICE:  identifier "fk_transfer_options_md_digital_transfer_options_on_line_2_transfer_options_idx" will be truncated to "fk_transfer_options_md_digital_transfer_options_on_line_2_trans"
+
+    ## NOTICE:  identifier "fk_descriptive_keywords_md_keywords_keyword_2_sv_service_identification_descriptive_keywords_idx" will be truncated to "fk_descriptive_keywords_md_keywords_keyword_2_sv_service_identi"
+
+    ## NOTICE:  identifier "fk_ci_contact_address_ci_address_electronic_mail_address_1_contact_idx" will be truncated to "fk_ci_contact_address_ci_address_electronic_mail_address_1_cont"
+
+    ## NOTICE:  identifier "fk_ci_contact_address_ci_address_electronic_mail_address_2_point_of_contact_idx" will be truncated to "fk_ci_contact_address_ci_address_electronic_mail_address_2_poin"
+
+    ## NOTICE:  identifier "fk_info_ci_contact_address_ci_address_delivery_point_1_point_of_contact_idx" will be truncated to "fk_info_ci_contact_address_ci_address_delivery_point_1_point_of"
+
+    ## NOTICE:  identifier "fk_ci_contact_address_ci_address_electronic_mail_address_3_citation_ci_citation_cited_responsible_party_1_idx" will be truncated to "fk_ci_contact_address_ci_address_electronic_mail_address_3_cita"
+
+    ## NOTICE:  identifier "fk_info_ci_contact_address_ci_address_delivery_point_2_citation_ci_citation_cited_responsible_party_1_idx" will be truncated to "fk_info_ci_contact_address_ci_address_delivery_point_2_citation"
+
+``` r
 exportXL(tabs_gn, file = xlFile_gn)
 ```
 
-# 3 Ceiba
+# 4 Ceiba
 
-## 3.1 Descripción
+## 4.1 Descripción
 
 Todos los datos de Ceiba están organizados como carpetas en el datadir
 del servidor. Se maneja después con el sistema Integrated Publishing
@@ -212,7 +253,7 @@ En cada carpeta (cada juego de datos), podemos encontrar:
 - archivos de administración de datos y metadatos `resource.xml`
 - una carpeta `sources` que contiene los datos (?)
 
-## 3.2 Extracción de los metadatos
+## 4.2 Extracción de los metadatos
 
 En ssh, accedemos al servidor de ceiba desde la red del instituto:
 
@@ -240,7 +281,7 @@ find /home/pem/datadir/ -type f  > result_find
 Los archivos se pueden descargar desde la red del instituto, gracias al
 applicativo scp, que funciona a través de ssh.
 
-## 3.3 Metadatos: EML
+## 4.3 Metadatos: EML
 
 ``` r
 result_find <- readLines("../../../data_metadatos_catalogos/ceiba/result_find")
@@ -275,21 +316,23 @@ tabs_emlCeiba <- extractTables(xml_list_emlCeiba, structEmlCeiba, gpsAndVar = gn
 plotGroupsAndVariables(gnv_emlCeiba)
 ```
 
-![](./Fig/extraction_metadata_unnamed-chunk-12-1.png)<!-- -->
+![](./Fig/extraction_metadata_unnamed-chunk-13-1.png)<!-- -->
 
-### 3.3.1 Exportación de los metadatos EML de Ceiba
+### 4.3.1 Exportación de los metadatos EML de Ceiba
 
 ``` r
 xlFile_emlCeiba <- "../../../data_metadatos_catalogos/export_eml_ceiba.xlsx"
 sqlite_emlCeiba <- "../../../data_metadatos_catalogos/meta_eml_ceiba.sqlite"
+tabs_emlCeiba <- sqlize_extractedTables(tabs_emlCeiba)
 dbEmlCeiba <- exportSQLite(tabs_emlCeiba, sqlite_file = sqlite_emlCeiba)
+exportPostgres(tabs_emlCeiba, meta_i2d, schema = "ceiba_eml")
 exportXL(tabs_emlCeiba, file = xlFile_emlCeiba)
 ```
 
     ## Warning in wb$writeData(df = x, colNames = TRUE, sheet = sheet, startRow = startRow, : ), Tiempo atmosf ... to del Casanare. is truncated. 
     ## Number of characters exeed the limit of 32767.
 
-## 3.4 Metadatos: Resources
+## 4.4 Metadatos: Resources
 
 ``` r
 resource_ceiba <- readLines("../../../data_metadatos_catalogos/ceiba/file_and_content_result_resource")
@@ -327,16 +370,84 @@ tabs_resCeiba <- extractTables(xml_list_resCeiba, structResCeiba, gpsAndVar = gn
 plotGroupsAndVariables(gnv_resCeiba)
 ```
 
-![](./Fig/extraction_metadata_unnamed-chunk-17-1.png)<!-- -->
+![](./Fig/extraction_metadata_unnamed-chunk-18-1.png)<!-- -->
 
-### 3.4.1 Exportación de los metadatos “Resources” de Ceiba
+### 4.4.1 Exportación de los metadatos “Resources” de Ceiba
 
 ``` r
 xlFile_resCeiba <- "../../../data_metadatos_catalogos/export_res_ceiba.xlsx"
 sqlite_resCeiba <- "../../../data_metadatos_catalogos/meta_res_ceiba.sqlite"
+tabs_resCeiba <- sqlize_extractedTables(tabs_resCeiba)
 dbResCeiba <- exportSQLite(tabs_resCeiba, sqlite_file = sqlite_resCeiba)
+exportPostgres(tabs_resCeiba, meta_i2d, schema = "ceiba_struct")
+```
+
+    ## NOTICE:  drop cascades to 12 other objects
+    ## DETAIL:  drop cascades to table ceiba_struct.tabinfo
+    ## drop cascades to table ceiba_struct.varinfo
+    ## drop cascades to table ceiba_struct.xml_doc
+    ## drop cascades to table ceiba_struct."user"
+    ## drop cascades to table ceiba_struct.versionhistory
+    ## drop cascades to table ceiba_struct.records_by_extension_entry
+    ## drop cascades to table ceiba_struct.mapping
+    ## drop cascades to table ceiba_struct.filesource
+    ## drop cascades to table ceiba_struct.field
+    ## drop cascades to table ceiba_struct.versionhistory_records_by_extension_entry
+    ## drop cascades to table ceiba_struct.translation_entry
+    ## drop cascades to table ceiba_struct.entry_string
+
+``` r
 exportXL(tabs_resCeiba, file = xlFile_resCeiba)
 ```
+
+``` r
+tablestosupp <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('ceiba_eml','ceiba_struct','geonetwork','biocultural')")
+tablesBiocultural <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='biocultural'")
+tablesGeonetwork <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='geonetwork'")
+tablesCeibaEml <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='ceiba_eml'")
+tablesCeibaStruct <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='ceiba_struct'")
+
+dm_object <- dm_from_con(con = meta_i2d, learn_keys = T, schema = c("ceiba_eml",
+    "ceiba_struct", "geonetwork", "biocultural"), .names = "{.schema}.{.table}")
+```
+
+    ## New names:
+    ## • `tabinfo` -> `tabinfo...1`
+    ## • `varinfo` -> `varinfo...2`
+    ## • `xml_doc` -> `xml_doc...3`
+    ## • `contact` -> `contact...8`
+    ## • `tabinfo` -> `tabinfo...25`
+    ## • `varinfo` -> `varinfo...26`
+    ## • `xml_doc` -> `xml_doc...27`
+    ## • `tabinfo` -> `tabinfo...40`
+    ## • `varinfo` -> `varinfo...42`
+    ## • `xml_doc` -> `xml_doc...43`
+    ## • `contact` -> `contact...44`
+
+``` r
+dm_object <- dm_object[names(dm_object)[!names(dm_object) %in% tablestosupp$table_name]]
+A <- dm_object %>%
+    dm_set_colors(red = all_of(names(dm_object)[names(dm_object) %in% tablesBiocultural$table_name])) %>%
+    dm_set_colors(blue = all_of(names(dm_object)[names(dm_object) %in%
+        tablesGeonetwork$table_name])) %>%
+    dm_set_colors(green = all_of(names(dm_object)[names(dm_object) %in%
+        tablesCeibaEml$table_name])) %>%
+    dm_set_colors(turquoise = all_of(names(dm_object)[names(dm_object) %in%
+        tablesCeibaStruct$table_name])) %>%
+    dm_draw(view_type = "all")
+t_file <- tempfile(fileext = ".png")
+DiagrammeRsvg::export_svg(A) %>%
+    charToRaw %>%
+    rsvg_png(file = t_file)
+plot(0, xaxt = "n", yaxt = "n", bty = "n", pch = "", ylab = "", xlab = "",
+    xlim = c(0, 1), ylim = c(0, 1))
+png <- readPNG(t_file)
+rasterImage(png, 0, 0, 1, 1)
+legend("topleft", fill = c("red", "blue", "green", "turquoise"), legend = c("biocultural",
+    "geonetwork", "ceiba (eml)", "ceiba (estructura)"), title = "Source")
+```
+
+![](./Fig/extraction_metadata_complete_db_struct-1.png)<!-- -->
 
 ``` r
 dbDisconnect(dbEmlCeiba)
@@ -346,3 +457,7 @@ dbDisconnect(geonetwork)
 ```
 
     ## [1] TRUE
+
+``` r
+dbDisconnect(meta_i2d)
+```
