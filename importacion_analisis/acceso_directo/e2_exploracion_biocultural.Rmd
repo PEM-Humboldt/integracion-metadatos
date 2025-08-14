@@ -849,18 +849,18 @@ allValuesBiocultural$ref_un_gp<-match(split(as.matrix(gps),row(gps)),split(as.ma
 
 
 ```{r}
-extractMetaData <- tableAttrib[ sapply(tableAttrib,function(tab) sum(!is.na(tab$id)) > 0) ]
-names(extractMetaData) <- names(tableAttrib) [ sapply(tableAttrib,function(tab) sum(!is.na(tab$id)) > 0) ]
+extractmetadata <- tableattrib[ sapply(tableattrib,function(tab) sum(!is.na(tab$id)) > 0) ]
+names(extractmetadata) <- names(tableattrib) [ sapply(tableattrib,function(tab) sum(!is.na(tab$id)) > 0) ]
 
-for(i in names(extractMetaData))
+for(i in names(extractmetadata))
 {
-  tabExtract<-extractMetaData[[i]]
-  val<-allValuesBiocultural[ allValuesBiocultural$id %in% tabExtract$id ,]
-  resMat<-matrix(NA,nrow=length(unique(val$ref_un_gp)),ncol=length(unique(val$id)),dimnames=list(unique(val$ref_un_gp),unique(val$id)))
-  resMat[cbind(row = match(val$ref_un_gp,rownames(resMat)), col = match(val$id,colnames(resMat)))] <- val$value
-  extracted[[i]]<-data.frame(datasetversion_id=un_gp$datasetversion_id[as.numeric(rownames(resMat))],resMat)
-  colnames(extracted[[i]])<-c("datasetversion_id",tabExtract$sql_name[match(as.numeric(colnames(resMat)),tabExtract$id)])
-  extracted[[i]]<-extracted[[i]][order(extracted[[i]]$datasetversion_id),,drop=F]
+  tabextract<-extractmetadata[[i]]
+  val<-allvaluesbiocultural[ allvaluesbiocultural$id %in% tabextract$id ,]
+  resmat<-matrix(na,nrow=length(unique(val$ref_un_gp)),ncol=length(unique(val$id)),dimnames=list(unique(val$ref_un_gp),unique(val$id)))
+  resmat[cbind(row = match(val$ref_un_gp,rownames(resmat)), col = match(val$id,colnames(resmat)))] <- val$value
+  extracted[[i]]<-data.frame(datasetversion_id=un_gp$datasetversion_id[as.numeric(rownames(resmat))],resmat)
+  colnames(extracted[[i]])<-c("datasetversion_id",tabextract$sql_name[match(as.numeric(colnames(resmat)),tabextract$id)])
+  extracted[[i]]<-extracted[[i]][order(extracted[[i]]$datasetversion_id),,drop=f]
 }
 ```
 

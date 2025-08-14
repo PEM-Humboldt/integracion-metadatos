@@ -1,7 +1,7 @@
 Extracción de los metadatos de los catalogos
 ================
 Marius Bottin
-2025-07-30
+2025-08-13
 
 - [1 Connexión a la base de datos
   `meta_i2d`](#1-connexión-a-la-base-de-datos-meta_i2d)
@@ -22,6 +22,9 @@ Marius Bottin
   - [4.4 Metadatos: Resources](#44-metadatos-resources)
     - [4.4.1 Exportación de los metadatos “Resources” de
       Ceiba](#441-exportación-de-los-metadatos-resources-de-ceiba)
+- [5 Biocultural](#5-biocultural)
+- [6 Estructura de la base de datos completas de
+  metadatos](#6-estructura-de-la-base-de-datos-completas-de-metadatos)
 
 ``` r
 require(RPostgreSQL)
@@ -400,6 +403,137 @@ exportPostgres(tabs_resCeiba, meta_i2d, schema = "ceiba_struct")
 exportXL(tabs_resCeiba, file = xlFile_resCeiba)
 ```
 
+# 5 Biocultural
+
+``` r
+source("../funcionesGenerales/analysis_metadata_dataverse.R")
+biocultural <- dbConnect(PostgreSQL(), dbname = "biocultural", user = "marius")
+analysisBC <- dvAnalyseVar(biocultural)
+```
+
+``` r
+dv_plot_variables(analysisBC)
+```
+
+![](./Fig/extraction_metadata_unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+descriTables <- dvPrepareTableDescription(analysisBC, biocultural)
+```
+
+``` r
+dbExecute(meta_i2d, "DROP SCHEMA IF EXISTS biocultural CASCADE")
+```
+
+    ## [1] 0
+
+``` r
+dbExecute(meta_i2d, "CREATE SCHEMA biocultural")
+```
+
+    ## [1] 0
+
+``` r
+createPostgresTableStatement <- mapply(function(x, y) createTableStatement(nameTable = x,
+    tabAttr = y, dbConnection = meta_i2d, schema = "biocultural"), x = names(descriTables),
+    y = descriTables)
+lapply(createPostgresTableStatement, dbExecute, conn = meta_i2d)
+```
+
+    ## $dataverse
+    ## [1] 0
+    ## 
+    ## $dataset
+    ## [1] 0
+    ## 
+    ## $datasetversion
+    ## [1] 0
+    ## 
+    ## $citation
+    ## [1] 0
+    ## 
+    ## $geospatial
+    ## [1] 0
+    ## 
+    ## $socialscience
+    ## [1] 0
+    ## 
+    ## $author
+    ## [1] 0
+    ## 
+    ## $datasetContact
+    ## [1] 0
+    ## 
+    ## $dsDescription
+    ## [1] 0
+    ## 
+    ## $subject
+    ## [1] 0
+    ## 
+    ## $keyword
+    ## [1] 0
+    ## 
+    ## $publication
+    ## [1] 0
+    ## 
+    ## $producer
+    ## [1] 0
+    ## 
+    ## $contributor
+    ## [1] 0
+    ## 
+    ## $grantNumber
+    ## [1] 0
+    ## 
+    ## $distributor
+    ## [1] 0
+    ## 
+    ## $dateOfCollection
+    ## [1] 0
+    ## 
+    ## $kindOfData
+    ## [1] 0
+    ## 
+    ## $geographicCoverage
+    ## [1] 0
+    ## 
+    ## $geographicUnit
+    ## [1] 0
+    ## 
+    ## $geographicBoundingBox
+    ## [1] 0
+    ## 
+    ## $unitOfAnalysis
+    ## [1] 0
+    ## 
+    ## $universe
+    ## [1] 0
+    ## 
+    ## $targetSampleSize
+    ## [1] 0
+    ## 
+    ## $collectionMode
+    ## [1] 0
+    ## 
+    ## $datafile
+    ## [1] 0
+    ## 
+    ## $filedescription
+    ## [1] 0
+    ## 
+    ## $ingest
+    ## [1] 0
+    ## 
+    ## $variable
+    ## [1] 0
+
+``` r
+extractedBiocultural <- extractValues(descriTables, biocultural)
+insertTables(extractedBiocultural, meta_i2d, descriTables, "biocultural")
+```
+
+# 6 Estructura de la base de datos completas de metadatos
+
 ``` r
 tablestosupp <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('ceiba_eml','ceiba_struct','geonetwork','biocultural')")
 tablesBiocultural <- dbGetQuery(meta_i2d, "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='biocultural'")
@@ -415,14 +549,20 @@ dm_object <- dm_from_con(con = meta_i2d, learn_keys = T, schema = c("ceiba_eml",
     ## • `tabinfo` -> `tabinfo...1`
     ## • `varinfo` -> `varinfo...2`
     ## • `xml_doc` -> `xml_doc...3`
-    ## • `contact` -> `contact...8`
-    ## • `tabinfo` -> `tabinfo...25`
-    ## • `varinfo` -> `varinfo...26`
-    ## • `xml_doc` -> `xml_doc...27`
-    ## • `tabinfo` -> `tabinfo...40`
-    ## • `varinfo` -> `varinfo...42`
-    ## • `xml_doc` -> `xml_doc...43`
-    ## • `contact` -> `contact...44`
+    ## • `contact` -> `contact...4`
+    ## • `tabinfo` -> `tabinfo...6`
+    ## • `varinfo` -> `varinfo...10`
+    ## • `distributor` -> `distributor...15`
+    ## • `xml_doc` -> `xml_doc...23`
+    ## • `distributor` -> `distributor...29`
+    ## • `contact` -> `contact...40`
+    ## • `keyword` -> `keyword...44`
+    ## • `citation` -> `citation...63`
+    ## • `tabinfo` -> `tabinfo...64`
+    ## • `varinfo` -> `varinfo...65`
+    ## • `xml_doc` -> `xml_doc...66`
+    ## • `citation` -> `citation...79`
+    ## • `keyword` -> `keyword...84`
 
 ``` r
 dm_object <- dm_object[names(dm_object)[!names(dm_object) %in% tablestosupp$table_name]]

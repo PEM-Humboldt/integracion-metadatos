@@ -223,7 +223,35 @@ exportPostgres(tabs_resCeiba,meta_i2d,schema='ceiba_struct')
 exportXL(tabs_resCeiba,file=xlFile_resCeiba)
 ```
 
-## Estructura de la base de datos completas de metadatos
+# Biocultural
+```{r}
+source("../funcionesGenerales/analysis_metadata_dataverse.R")
+biocultural<-dbConnect(PostgreSQL(),dbname="biocultural",user="marius")
+analysisBC<-dvAnalyseVar(biocultural)
+```
+
+```{r}
+dv_plot_variables(analysisBC)
+```
+
+```{r}
+descriTables<-dvPrepareTableDescription(analysisBC, biocultural)
+```
+
+
+```{r}
+dbExecute(meta_i2d,"DROP SCHEMA IF EXISTS biocultural CASCADE")
+dbExecute(meta_i2d,"CREATE SCHEMA biocultural")
+createPostgresTableStatement<-mapply(function(x,y)createTableStatement(nameTable=x, tabAttr=y,dbConnection=meta_i2d,schema="biocultural"),x=names(descriTables),y=descriTables)
+lapply(createPostgresTableStatement, dbExecute,conn=meta_i2d)
+```
+
+```{r}
+extractedBiocultural <- extractValues(descriTables, biocultural)
+insertTables(extractedBiocultural, meta_i2d, descriTables, "biocultural")
+```
+
+# Estructura de la base de datos completas de metadatos
 
 ```{r complete_db_struct, fig.height=30, fig.width=15}
 tablestosupp<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('ceiba_eml','ceiba_struct','geonetwork','biocultural')")
@@ -247,8 +275,6 @@ png <- readPNG(t_file)
 rasterImage(png,0,0,1,1)
 legend("topleft",fill=c("red","blue","green","turquoise"),legend=c("biocultural","geonetwork","ceiba (eml)","ceiba (estructura)"),title="Source")
 ```
-
-
 
 
 ```{r}
