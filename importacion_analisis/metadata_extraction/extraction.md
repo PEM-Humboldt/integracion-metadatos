@@ -1,7 +1,7 @@
 Extracción de los metadatos de los catalogos
 ================
 Marius Bottin
-2025-08-13
+2025-08-20
 
 - [1 Connexión a la base de datos
   `meta_i2d`](#1-connexión-a-la-base-de-datos-meta_i2d)
@@ -296,7 +296,7 @@ meta_ceiba <- meta_ceiba[!meta_ceiba == ""]
 adressesXML_emlCeiba <- extractAdressesMultiXml(meta_ceiba)
 ```
 
-    ## Number of elements: 1051
+    ## Number of elements: 1050
 
     ## Warning in extractAdressesMultiXml(meta_ceiba): Some xml documents appear to be
     ## empty (we will not consider
@@ -354,7 +354,7 @@ resource_ceiba <- resource_ceiba[!resource_ceiba == ""]
 adressesXML_resCeiba <- extractAdressesMultiXml(resource_ceiba)
 ```
 
-    ## Number of elements: 1054
+    ## Number of elements: 1052
 
 ``` r
 xml_files_resCeiba <- apply(adressesXML_resCeiba, 1, function(a, rl) paste(rl[a[2]:a[3]],
@@ -549,20 +549,20 @@ dm_object <- dm_from_con(con = meta_i2d, learn_keys = T, schema = c("ceiba_eml",
     ## • `tabinfo` -> `tabinfo...1`
     ## • `varinfo` -> `varinfo...2`
     ## • `xml_doc` -> `xml_doc...3`
-    ## • `contact` -> `contact...4`
-    ## • `tabinfo` -> `tabinfo...6`
+    ## • `tabinfo` -> `tabinfo...8`
     ## • `varinfo` -> `varinfo...10`
-    ## • `distributor` -> `distributor...15`
-    ## • `xml_doc` -> `xml_doc...23`
-    ## • `distributor` -> `distributor...29`
-    ## • `contact` -> `contact...40`
-    ## • `keyword` -> `keyword...44`
-    ## • `citation` -> `citation...63`
-    ## • `tabinfo` -> `tabinfo...64`
-    ## • `varinfo` -> `varinfo...65`
-    ## • `xml_doc` -> `xml_doc...66`
-    ## • `citation` -> `citation...79`
-    ## • `keyword` -> `keyword...84`
+    ## • `contact` -> `contact...11`
+    ## • `xml_doc` -> `xml_doc...12`
+    ## • `contact` -> `contact...14`
+    ## • `keyword` -> `keyword...16`
+    ## • `distributor` -> `distributor...33`
+    ## • `citation` -> `citation...45`
+    ## • `tabinfo` -> `tabinfo...50`
+    ## • `varinfo` -> `varinfo...51`
+    ## • `xml_doc` -> `xml_doc...52`
+    ## • `citation` -> `citation...82`
+    ## • `keyword` -> `keyword...90`
+    ## • `distributor` -> `distributor...96`
 
 ``` r
 dm_object <- dm_object[names(dm_object)[!names(dm_object) %in% tablestosupp$table_name]]

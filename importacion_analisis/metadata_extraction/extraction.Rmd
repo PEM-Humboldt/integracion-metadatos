@@ -230,7 +230,7 @@ biocultural<-dbConnect(PostgreSQL(),dbname="biocultural",user="marius")
 analysisBC<-dvAnalyseVar(biocultural)
 ```
 
-```{r}
+```{r fig.height=20, fig.width=20}
 dv_plot_variables(analysisBC)
 ```
 
@@ -253,7 +253,7 @@ insertTables(extractedBiocultural, meta_i2d, descriTables, "biocultural")
 
 # Estructura de la base de datos completas de metadatos
 
-```{r complete_db_struct, fig.height=30, fig.width=15}
+```{r complete_db_struct, fig.height=60, fig.width=40}
 tablestosupp<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('ceiba_eml','ceiba_struct','geonetwork','biocultural')")
 tablesBiocultural<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='biocultural'")
 tablesGeonetwork<-dbGetQuery(meta_i2d,"SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema ='geonetwork'")
