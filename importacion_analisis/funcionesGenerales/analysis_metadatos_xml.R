@@ -31,7 +31,7 @@ navMetaList <- function(metaList,numpath)
 nextLevelLength <- function(metaList,numpath)
 {
   length(navMetaList(metaList,numpath))
-}  
+}
 nextLevelNames <- function(metaList,numpath)
 {
   names(navMetaList(metaList,numpath))
@@ -50,7 +50,7 @@ childrenPath <- function(path,l)
 }
 
 numRep<-function(x)
-{ 
+{
   x<-factor(x)
   un<-levels(x)
   m<-match(x,un)
@@ -108,10 +108,10 @@ extractStructureListDocuments<-function(listDocument,goFurther=c("list","XMLAttr
     ##Correcting it: when there is a name in the element, we keep going
     keepGoing[!keepGoing][!sapply(lapply(currentList[!keepGoing],names),is.null)]<-T
     nChildren[!keepGoing]<-0
-    
+
     if(length(currentClasses))
     {classes<-c(classes,currentClasses)}
-    
+
     levStruct<-c(levStruct,rep(LEV,length(currentList)))
     directChildren<-c(directChildren,
                       mapply(function(nC,x,y,s){
@@ -184,7 +184,7 @@ groupsAndVariables<-function(extract_struct,uniqueGpNames=T,gp0="xml_doc",simpli
   num_rep_final<-extract_struct$num_rep
   num_rep_final[is.na(num_rep_final)&!is.na(gps)]<-1
   # gives the groups to all children of not NA num_rep (but maybe wait to give the hierarchy (to every case which is a leaf only) as name of group + enumeration)
-  
+
   #Relationships between gps and var
   levGp<-unique(sapply(gpNames,length))
   levGp<-levGp[order(levGp)]
@@ -208,7 +208,7 @@ groupsAndVariables<-function(extract_struct,uniqueGpNames=T,gp0="xml_doc",simpli
   #names of variables and groups
   finalGpNames<-listWord2finalNames(gpNames,if(uniqueGpNames)rep(1,length(gpNames)) else ging)
   finalVarNames<-listWord2finalNames(varNames,ving)
-  
+
   # Creating gp Ids
   idGpParentsGp<-vector(mode="list",sum(!is.na(gps)))
   idGpParentsVar<-vector(mode="list",length(extract_struct$val))
@@ -266,7 +266,7 @@ groupsAndVariables<-function(extract_struct,uniqueGpNames=T,gp0="xml_doc",simpli
   vl<-varLeaves[extract_struct$val]
   for(i in 1:length(finalVarNames))
   {
-    
+
     listVarId[[i]]<-Reduce(rbind,idGpParentsVar[vl==i],simplify = F)
     if(sum(vl==i)==1&!is.matrix(listVarId[[i]])){listVarId[[i]]<-matrix(listVarId[[i]],nrow=1,dimnames=list(NULL,names(listVarId[[i]])))}
     rownames(listVarId[[i]])<-which(varLeaves==i)
@@ -313,10 +313,10 @@ plotGroupsAndVariables<-function(gpsAndVar,...)
 {
   dfPath<-rbind(
     data.frame(pathString=as.character(gpsAndVar$gpHier_un), label=gpsAndVar$finalGpNames, gpVar="gp",
-               un_names=paste0("gp_",1:length(gpsAndVar$gpHier_un)), inGp=gpsAndVar$gpInGp, 
+               un_names=paste0("gp_",1:length(gpsAndVar$gpHier_un)), inGp=gpsAndVar$gpInGp,
                gpCol=1:length(gpsAndVar$gpHier_un)),
     data.frame(pathString=as.character(gpsAndVar$varHier_un),label=gpsAndVar$finalVarNames,gpVar="var",
-               un_names=paste0("var_",1:length(gpsAndVar$varHier_un)), inGp=gpsAndVar$varInGp, 
+               un_names=paste0("var_",1:length(gpsAndVar$varHier_un)), inGp=gpsAndVar$varInGp,
                gpCol=gpsAndVar$varInGp)
   )
   if(any(dfPath$label%in%NODE_RESERVED_NAMES_CONST))
@@ -335,7 +335,7 @@ plotGroupsAndVariables<-function(gpsAndVar,...)
   V(net)$gpVar<-NA
   V(net)$gpVar[1]<-"gp"
   V(net)$gpVar[!is.na(m)]<-dfPath$gpVar[na.omit(m)]
-  
+
   plot(net,vertex.label=V(net)$label,vertex.size=5,
        vertex.shape=c(var="circle",gp="square")[V(net)$gpVar],
        vertex.color=rainbow(max(V(net)$gpCol+1))[V(net)$gpCol+1],
@@ -354,7 +354,7 @@ valVar<-lapply(gpsAndVar$varId,
 if(convertMode){
   nC<-names(valVar)%in%noConvert
   valVar[!nC]<-type.convert(valVar[!nC],as.is=T)
-  
+
   }
 res<-list(data=NULL,info=NULL)
 res$data<-varTab<-listTab<-vector(mode="list",length=length(gpsAndVar$finalGpNames)+1)
@@ -425,7 +425,7 @@ createTableFK_statement<-function(conn,tabName,fields,types,pk,foreignTable,fore
   }
   paste0("CREATE TABLE ",dbQuoteIdentifier(conn,Id(schema=schema,table=tabName))," (",
          paste0(
-         dbQuoteIdentifier(conn,fields), " " , types, " ", 
+         dbQuoteIdentifier(conn,fields), " " , types, " ",
          ifelse(okForeign,foreignExpression,""),
          ifelse(pk," PRIMARY KEY",""),
          collapse=","),additionalConstraints,
@@ -461,14 +461,14 @@ sqlize_extractedTables <- function(extractedTables)
   newTabNames[newTabNames %in% newTabNames[duplicated(newTabNames)]]<-paste(newTabNames,nr,sep="_")[newTabNames %in% newTabNames[duplicated(newTabNames)]]
   tabnames<-data.frame(old=extractedTables$info$tab$tabname,new=newTabNames)
   names(extractedTables$data)<-extractedTables$info$tab$tabname<-newTabNames
-  
+
   m<-match(extractedTables$info$var$tabname,tabnames$old)
   extractedTables$info$var$tabname<-tabnames$new[m]
   m<-match(extractedTables$info$tab$foreigntable,tabnames$old)
   extractedTables$info$tab$foreigntable<-tabnames$new[m]
   extractedTables$info$tab$foreignref[!is.na(extractedTables$info$tab$foreigntable)]<-paste("cd",extractedTables$info$tab$foreigntable[!is.na(extractedTables$info$tab$foreigntable)],sep="_")
   extractedTables$info$tab$primarykey<-paste("cd",extractedTables$info$tab$tabname,sep="_")
-  
+
   TABS<-extractedTables$info$tab$tabname
   for(i in 1:length(TABS))
   {
@@ -494,7 +494,7 @@ sqlize_extractedTables <- function(extractedTables)
     }
   }
   return(extractedTables)
-  
+
 }
 
 
@@ -525,7 +525,7 @@ exportPostgres<-function(extractedTables,conn,schema=NULL,overwrite=T,createFKin
   )
   dbExecute(conn,stat)
   ## varinfo
-  stat<-createTableFK_statement(conn,tabName="varinfo",                        
+  stat<-createTableFK_statement(conn,tabName="varinfo",
                                 fields=colnames(extractedTables$info$var),
                                 types=dbDataType(conn,extractedTables$info$var),
                                 pk=rep(FALSE,ncol(extractedTables$info$var)),
@@ -586,7 +586,7 @@ exportSQLite<-function(extractedTables,sqlite_file,overwrite=T,saveBAK=NULL,crea
   )
   dbExecute(db,stat)
   ## varinfo
-  stat<-createTableFK_statement(db,tabName="varInfo",                        
+  stat<-createTableFK_statement(db,tabName="varInfo",
                           fields=colnames(extractedTables$info$var),
                           types=dbDataType(db,extractedTables$info$var),
                           pk=rep(FALSE,ncol(extractedTables$info$var)),
