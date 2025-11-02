@@ -1,0 +1,46 @@
+---
+title: "Tables con elementos comunes para los tres catálogos"
+author: "Marius Bottin"
+lang: es
+format: 
+  gfm:
+    df-print: kable
+knitr: 
+  opts_chunk: 
+    fig.path: "./Fig/commontable_"
+execute: 
+  tidy: true
+  tidy-opts:
+    - width-cutoff: 60
+---
+
+
+
+```{r}
+library(RPostgres)
+host<-"localhost"
+meta_i2d<-dbConnect(Postgres(),dbname="meta_i2d",host=host)
+```
+
+
+
+## Elementos comunes basicos
+
+```{sql}
+#| connection=meta_i2d
+SELECT 'biocultural' AS "source_catalog",
+  title
+FROM biocultural.citation
+UNION ALL
+SELECT  'geonetwork', 
+  citation_ci_citation_title_character_string_1
+FROM geonetwork.xml_doc
+UNION ALL
+SELECT 'ceiba',
+  title
+FROM ceiba_eml.xml_doc
+  
+```
+
+
+
