@@ -1,0 +1,211 @@
+---
+title: "Roles y personas en los catalogos institucionales"
+author: "Marius Bottin"
+lang: es
+format: 
+  gfm:
+    df-print: kable
+knitr: 
+  opts_chunk: 
+    fig.path: "./Fig/rol_pers_"
+execute: 
+  tidy: true
+  tidy-opts:
+    - width-cutoff: 60
+---
+
+## Conección base de datos
+
+```{r}
+library(RPostgres)
+host<-"localhost"
+meta_i2d<-dbConnect(Postgres(),dbname="meta_i2d",host=host)
+```
+
+## Dataverse
+
+```{sql}
+#| connection=meta_i2d
+
+SELECT datasetversion_id,'author' AS role, NULL AS type, author_name, author_affiliation, author_identifier_scheme, author_identifier, NULL AS abbreviation, NULL AS url, NULL AS email
+FROM biocultural.author a
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id,'contributor' AS role, contributor_type, contributor_name, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.contributor c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'depositor' AS role, NULL AS type, depositor, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.citation c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'producer' AS role, NULL AS type, producer_name, producer_affiliation, NULL, NULL, producer_abbreviation, producer_url, NULL
+FROM biocultural.producer p
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'contact' AS role, NULL AS type, dataset_contact_name, dataset_contact_affiliation, NULL, NULL, NULL, NULL, dataset_contact_email
+FROM biocultural.dataset_contact dc
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+
+```
+```{r}
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW biocultural.pers_role AS(
+SELECT datasetversion_id,'author' AS role, NULL AS type, author_name AS name, author_affiliation AS affiliation, author_identifier_scheme, author_identifier, NULL AS abbreviation, NULL AS url, NULL AS email
+FROM biocultural.author a
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id,'contributor' AS role, contributor_type, contributor_name, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.contributor c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'depositor' AS role, NULL AS type, depositor, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.citation c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'producer' AS role, NULL AS type, producer_name, producer_affiliation, NULL, NULL, producer_abbreviation, producer_url, NULL
+FROM biocultural.producer p
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'contact' AS role, NULL AS type, dataset_contact_name, dataset_contact_affiliation, NULL, NULL, NULL, NULL, dataset_contact_email
+FROM biocultural.dataset_contact dc
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+)")
+```
+
+
+## Ceiba
+
+
+```{sql}
+#| connection=meta_i2d
+WITH a AS(
+SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.contact
+UNION ALL
+SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.associated_party
+UNION ALL
+SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.creator
+UNION ALL
+SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.metadata_provider
+)
+SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
+FROM ceiba_eml.personnel p
+FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
+ORDER BY cd_xml_doc
+```
+
+
+```{r}
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW ceiba_eml.pers_role AS(
+WITH a AS(
+SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.contact
+UNION ALL
+SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.associated_party
+UNION ALL
+SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.creator
+UNION ALL
+SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.metadata_provider
+)
+SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
+FROM ceiba_eml.personnel p
+FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
+ORDER BY cd_xml_doc
+)
+")
+```
+
+
+## Geonetwork
+
+
+```{sql}
+#| connection=meta_i2d
+SELECT cd_xml_doc, 'responsible_party_1' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, STRING_AGG(p.character_string,'|') phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_1
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_3 m USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_2 a USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.voice p USING (cd_citation_ci_citation_cited_responsible_party_1)
+GROUP BY cd_xml_doc, individual_name_character_string, organisation_name_character_string, position_name_character_string, ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url
+UNION ALL
+SELECT cd_xml_doc, 'responsible_party_2' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, code_list_value AS role, city_character_string AS city, country_character_string AS country, NULL AS administrative_area, NULL AS url, electronic_mail_address_character_string mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_2
+UNION ALL
+SELECT cd_xml_doc, 'contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_1 m USING (cd_contact)
+GROUP BY cd_xml_doc,individual_name_character_string , organisation_name_character_string , position_name_character_string , ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url, delivery_point_character_string , voice_character_string 
+UNION ALL
+SELECT cd_xml_doc, 'distributor' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL url, electronic_mail_address_character_string AS mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.distributor
+UNION ALL
+SELECT cd_xml_doc, 'point_of_contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL AS url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, voice_character_string phones
+FROM geonetwork.point_of_contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_2 m USING (cd_point_of_contact)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_1 a USING (cd_point_of_contact)
+GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_character_string , position_name_character_string, ci_role_code_code_list_value, city_character_string, country_character_string, administrative_area_character_string, voice_character_string  
+```
+
+
+```{r}
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW geonetwork.pers_role AS(
+SELECT cd_xml_doc, 'responsible_party_1' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, STRING_AGG(p.character_string,'|') phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_1
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_3 m USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_2 a USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.voice p USING (cd_citation_ci_citation_cited_responsible_party_1)
+GROUP BY cd_xml_doc, individual_name_character_string, organisation_name_character_string, position_name_character_string, ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url
+UNION ALL
+SELECT cd_xml_doc, 'responsible_party_2' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, code_list_value AS role, city_character_string AS city, country_character_string AS country, NULL AS administrative_area, NULL AS url, electronic_mail_address_character_string mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_2
+UNION ALL
+SELECT cd_xml_doc, 'contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_1 m USING (cd_contact)
+GROUP BY cd_xml_doc,individual_name_character_string , organisation_name_character_string , position_name_character_string , ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url, delivery_point_character_string , voice_character_string 
+UNION ALL
+SELECT cd_xml_doc, 'distributor' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL url, electronic_mail_address_character_string AS mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.distributor
+UNION ALL
+SELECT cd_xml_doc, 'point_of_contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL AS url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, voice_character_string phones
+FROM geonetwork.point_of_contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_2 m USING (cd_point_of_contact)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_1 a USING (cd_point_of_contact)
+GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_character_string , position_name_character_string, ci_role_code_code_list_value, city_character_string, country_character_string, administrative_area_character_string, voice_character_string  
+)")
+```
+
+
+# Exportación Excel
+
+```{r}
+allContacts<-list()
+allContacts$biocultural<-dbReadTable(meta_i2d,Id(schema="biocultural","pers_role"))
+allContacts$ceiba<-dbReadTable(meta_i2d,Id(schema="ceiba_eml","pers_role"))
+allContacts$geonetwork<-dbReadTable(meta_i2d,Id(schema="geonetwork","pers_role"))
+require(rdsTaxVal)
+saveInExcel("../../../data_metadatos_catalogos/pers_role.xlsx",allContacts)
+```
+
+```sql
+SELECT p.*, x.title_text
+FROM ceiba_eml.pers_role p
+LEFT JOIN ceiba_eml.xml_doc x USING (cd_xml_doc)
+```
+

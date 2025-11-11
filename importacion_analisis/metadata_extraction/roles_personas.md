@@ -1,0 +1,220 @@
+# Roles y personas en los catalogos institucionales
+Marius Bottin
+
+## Conección base de datos
+
+``` r
+library(RPostgres)
+host<-"localhost"
+meta_i2d<-dbConnect(Postgres(),dbname="meta_i2d",host=host)
+```
+
+## Dataverse
+
+``` sql
+SELECT datasetversion_id,'author' AS role, NULL AS type, author_name, author_affiliation, author_identifier_scheme, author_identifier, NULL AS abbreviation, NULL AS url, NULL AS email
+FROM biocultural.author a
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id,'contributor' AS role, contributor_type, contributor_name, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.contributor c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'depositor' AS role, NULL AS type, depositor, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.citation c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'producer' AS role, NULL AS type, producer_name, producer_affiliation, NULL, NULL, producer_abbreviation, producer_url, NULL
+FROM biocultural.producer p
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'contact' AS role, NULL AS type, dataset_contact_name, dataset_contact_affiliation, NULL, NULL, NULL, NULL, dataset_contact_email
+FROM biocultural.dataset_contact dc
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+```
+
+| datasetversion_id | role | type | author_name | author_affiliation | author_identifier_scheme | author_identifier | abbreviation | url | email |
+|---:|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+| 6 | author | NA | Pachón, Luis Felipe | Contratista Instituto Humboldt | NA | NA | NA | NA | NA |
+| 9 | author | NA | Instituto Humboldt | IAvH | NA | NA | NA | NA | NA |
+| 13 | author | NA | Instituto Humboldt | IAvH | NA | NA | NA | NA | NA |
+| 15 | author | NA | Instituto Humboldt | Programa de Ciencias Básicas de la Biodiversidad | NA | NA | NA | NA | NA |
+| 17 | author | NA | Instituto Humboldt | IAvH | NA | NA | NA | NA | NA |
+| 18 | author | NA | Instituto Humboldt | IAvH | NA | NA | NA | NA | NA |
+| 19 | author | NA | Lizeth Paola, Ortiz Guengue | Contratista Instituto Humboldt | NA | NA | NA | NA | NA |
+| 24 | author | NA | Garzón, Camilo | Investigador Instituto Humboldt | NA | NA | NA | NA | NA |
+| 24 | author | NA | Hernández, María Cristina | Contratista Instituto Humboldt | NA | NA | NA | NA | NA |
+| 24 | author | NA | Pérez, Diego Randolf | Investigador Instituto Humboldt | NA | NA | NA | NA | NA |
+
+Displaying records 1 - 10
+
+``` r
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW biocultural.pers_role AS(
+SELECT datasetversion_id,'author' AS role, NULL AS type, author_name AS name, author_affiliation AS affiliation, author_identifier_scheme, author_identifier, NULL AS abbreviation, NULL AS url, NULL AS email
+FROM biocultural.author a
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id,'contributor' AS role, contributor_type, contributor_name, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.contributor c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'depositor' AS role, NULL AS type, depositor, NULL, NULL, NULL, NULL, NULL, NULL
+FROM biocultural.citation c
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'producer' AS role, NULL AS type, producer_name, producer_affiliation, NULL, NULL, producer_abbreviation, producer_url, NULL
+FROM biocultural.producer p
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+UNION ALL
+SELECT datasetversion_id, 'contact' AS role, NULL AS type, dataset_contact_name, dataset_contact_affiliation, NULL, NULL, NULL, NULL, dataset_contact_email
+FROM biocultural.dataset_contact dc
+LEFT JOIN biocultural.datasetversion dv USING (datasetversion_id)
+WHERE dv.lastversion
+)")
+```
+
+    [1] 0
+
+## Ceiba
+
+``` sql
+WITH a AS(
+SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.contact
+UNION ALL
+SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.associated_party
+UNION ALL
+SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.creator
+UNION ALL
+SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.metadata_provider
+)
+SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
+FROM ceiba_eml.personnel p
+FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
+ORDER BY cd_xml_doc
+```
+
+| cd_xml_doc | orig | affiliation | type | phone | email | online_url | given_name | sur_name | delivery_point | city | administrative_area | country | postal_code | other_id | id_type | role | id_other | id_other_type |
+|---:|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+| 1 | contact | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Adjunta | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | principalInvestigator | NA | NA |
+| 1 | creator | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Adjunta | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | principalInvestigator | NA | NA |
+| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora | NA | lnova@humboldt.org.co | NA | Laura Johanna | Nova | Av. Paseo de Bolívar \# 16-20 | Bogotá, D.C. | NA | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | Reserva Agroecológica Los Monos | Investigador local | NA | NA | NA | Alejandro | Cárdenas Escobar | NA | San Francisco | Antioquia | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | NA | Investigadora local | NA | NA | NA | Deice | Galeano | Vereda Santo Domingo | Sonsón | Antioquia | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | NA | Investigadora local | NA | NA | NA | Isabel | Sotelo | Vereda Santo Domingo | Sonsón | Antioquia | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | Fundación Grupo Argos | NA | NA | mvillegas@grupoargos.com | https://www.grupoargos.com/sostenibilidad/fundacion-grupo-argos/ | NA | Fundación Grupo Argos | Carrera 43a \# 1aSur-143 | Medellín | Antioquia | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | NA | CO | NA | NA | NA | principalInvestigator | NA | NA |
+| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Titular | NA | camedina@humboldt.org.co | http://www.humboldt.org.co | Claudia Alejandra | Medina Uribe | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | NA | NA | NA |
+| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Contratista | 3202767 | calondono@unal.edu.co | http://www.humboldt.org.co | Carlos | Londoño | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | NA | NA | NA |
+
+Displaying records 1 - 10
+
+``` r
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW ceiba_eml.pers_role AS(
+WITH a AS(
+SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.contact
+UNION ALL
+SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.associated_party
+UNION ALL
+SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.creator
+UNION ALL
+SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
+FROM ceiba_eml.metadata_provider
+)
+SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
+FROM ceiba_eml.personnel p
+FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
+ORDER BY cd_xml_doc
+)
+")
+```
+
+    [1] 0
+
+## Geonetwork
+
+``` sql
+SELECT cd_xml_doc, 'responsible_party_1' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, STRING_AGG(p.character_string,'|') phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_1
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_3 m USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_2 a USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.voice p USING (cd_citation_ci_citation_cited_responsible_party_1)
+GROUP BY cd_xml_doc, individual_name_character_string, organisation_name_character_string, position_name_character_string, ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url
+UNION ALL
+SELECT cd_xml_doc, 'responsible_party_2' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, code_list_value AS role, city_character_string AS city, country_character_string AS country, NULL AS administrative_area, NULL AS url, electronic_mail_address_character_string mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_2
+UNION ALL
+SELECT cd_xml_doc, 'contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_1 m USING (cd_contact)
+GROUP BY cd_xml_doc,individual_name_character_string , organisation_name_character_string , position_name_character_string , ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url, delivery_point_character_string , voice_character_string 
+UNION ALL
+SELECT cd_xml_doc, 'distributor' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL url, electronic_mail_address_character_string AS mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.distributor
+UNION ALL
+SELECT cd_xml_doc, 'point_of_contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL AS url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, voice_character_string phones
+FROM geonetwork.point_of_contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_2 m USING (cd_point_of_contact)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_1 a USING (cd_point_of_contact)
+GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_character_string , position_name_character_string, ci_role_code_code_list_value, city_character_string, country_character_string, administrative_area_character_string, voice_character_string  
+```
+
+| cd_xml_doc | orig | name | organization | position_name | role | city | country | administrative_area | url | mails | adresses | phones |
+|---:|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+| 1 | responsible_party_1 | Adriana Mayorquin | Parques Nacionales Naturales De Colombia | Profesional Investigación y Monitoreo DTAO | author | Bogotá D.C. | Colombia | NA | NA | @parquesnacionales.gov.co | Cl. 74 \#11-81 | +57 1 3532400 |
+| 1 | responsible_party_1 | Alvaro Cogollo | Jardín Botánico Joaquín Antonio Uribe | Director Científico | author | Medellin | Colombia | NA | NA | comunicaciones@botanicomedellin.org | Calle 73 N.51D-14 | +57 4 4445500 |
+| 1 | responsible_party_1 | Ana Maria Castaño | Sociedad Antioqueña de Ornitología-SAO | Presidente Junta Directita | author | Medellin | Colombia | NA | NA | sao@sao.org.co | Cra 52 N. 73 - 298 | +57 4 211 54 61 |
+| 1 | responsible_party_1 | Andrea Morales Rozo | Sociedad Antioqueña de Ornitología-SAO | Directora Ejecutiva | author | Medellin | Colombia | NA | NA | sao@sao.org.co | Cra 52 N. 73 - 298 | +57 4 211 54 61 |
+| 1 | responsible_party_1 | Carolina Sanin Acevedo | Corporación Parque Explora | Jefe Biodiversidad y Conservación | author | Medellin | Colombia | NA | NA | info@parqueexplora.org | Carrera 52 Nº 73 - 75 | 57 4 516 83 00 |
+| 1 | responsible_party_1 | Claudia Maria Villa Garcia | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Coordinadora de Comunicciones | pointOfContact | Bogotá D.C. | NA | NA | NA | cmvilla@humboldt.org.co | Avenida Paseo Bolivar (Circunvalar) 16-20 Sede Venado | +57 1 3202767 |
+| 1 | responsible_party_1 | Claudia Patricia Aguirre | Corporación Parque Explora | Directora Educación y Contenidos | author | Medellin | Colombia | NA | NA | info@parqueexplora.org | Carrera 52 Nº 73 - 75 | 57 4 516 83 00 |
+| 1 | responsible_party_1 | Daniel Castañeda | Parques Nacionales Naturales De Colombia | Profesional Especializado DTAO | author | Bogotá D.C. | NA | NA | NA | @parquesnacionales.gov.co | Cl. 74 \#11-81 | +57 1 3532400 |
+| 1 | responsible_party_1 | Esteban Alvarez | Jardín Botánico Joaquín Antonio Uribe | Director Grupo de Investigación | author | Medellin | Colombia | NA | NA | comunicaciones@botanicomedellin.org | Calle 73 N.51D-14 | +57 4 211 54 61 |
+| 1 | responsible_party_1 | Luisa Fernanda Cardon Leon | Parques Nacionales Naturales De Colombia | Profesional Recurso Hídrico | author | Bogotá D.C. | Colombia | NA | NA | @parquesnacionales.gov.co | Cl. 74 \#11-81 | +57 1 3532400 |
+
+Displaying records 1 - 10
+
+``` r
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW geonetwork.pers_role AS(
+SELECT cd_xml_doc, 'responsible_party_1' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, STRING_AGG(p.character_string,'|') phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_1
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_3 m USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_2 a USING (cd_citation_ci_citation_cited_responsible_party_1)
+LEFT JOIN geonetwork.voice p USING (cd_citation_ci_citation_cited_responsible_party_1)
+GROUP BY cd_xml_doc, individual_name_character_string, organisation_name_character_string, position_name_character_string, ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url
+UNION ALL
+SELECT cd_xml_doc, 'responsible_party_2' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, code_list_value AS role, city_character_string AS city, country_character_string AS country, NULL AS administrative_area, NULL AS url, electronic_mail_address_character_string mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.citation_ci_citation_cited_responsible_party_2
+UNION ALL
+SELECT cd_xml_doc, 'contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, url, STRING_AGG(m.character_string,'|') mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_1 m USING (cd_contact)
+GROUP BY cd_xml_doc,individual_name_character_string , organisation_name_character_string , position_name_character_string , ci_role_code_code_list_value , city_character_string , country_character_string , administrative_area_character_string, url, delivery_point_character_string , voice_character_string 
+UNION ALL
+SELECT cd_xml_doc, 'distributor' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL url, electronic_mail_address_character_string AS mails, delivery_point_character_string AS adresses, voice_character_string phones
+FROM geonetwork.distributor
+UNION ALL
+SELECT cd_xml_doc, 'point_of_contact' AS orig, individual_name_character_string AS name, organisation_name_character_string AS organization, position_name_character_string AS position_name, ci_role_code_code_list_value AS role, city_character_string AS city, country_character_string AS country, administrative_area_character_string AS administrative_area, NULL AS url, STRING_AGG(m.character_string,'|') mails, STRING_AGG(a.character_string, '|') AS adresses, voice_character_string phones
+FROM geonetwork.point_of_contact
+LEFT JOIN geonetwork.ci_contact_address_ci_address_electronic_mail_address_2 m USING (cd_point_of_contact)
+LEFT JOIN geonetwork.info_ci_contact_address_ci_address_delivery_point_1 a USING (cd_point_of_contact)
+GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_character_string , position_name_character_string, ci_role_code_code_list_value, city_character_string, country_character_string, administrative_area_character_string, voice_character_string  
+)")
+```
+
+    [1] 0

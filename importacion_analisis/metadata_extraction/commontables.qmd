@@ -43,4 +43,23 @@ FROM ceiba_eml.xml_doc
 ```
 
 
+## Biocultural: last versions of the datasets
+
+```{sql}
+#| connection=meta_i2d
+SELECT DISTINCT ON (dataset_id) *
+FROM biocultural.datasetversion
+WHERE versionstate='RELEASED'
+ORDER BY dataset_id, createtime DESC
+```
+
+We add a column in the datasetversion table which helps us to determine which is the last version for each released dataset
+
+```{r}
+dbExecute(meta_i2d,"ALTER TABLE biocultural.datasetversion ADD COLUMN IF NOT EXISTS lastversion boolean default false;")
+dbExecute(meta_i2d,"WITH a AS(SELECT DISTINCT ON (dataset_id) * FROM biocultural.datasetversion WHERE versionstate='RELEASED' ORDER BY dataset_id, createtime DESC) UPDATE biocultural.datasetversion AS dv
+SET lastversion=true 
+FROM a
+WHERE a.datasetversion_id=dv.datasetversion_id")
+```
 
