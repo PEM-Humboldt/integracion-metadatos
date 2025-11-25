@@ -209,3 +209,59 @@ FROM ceiba_eml.pers_role p
 LEFT JOIN ceiba_eml.xml_doc x USING (cd_xml_doc)
 ```
 
+## Analysis
+### Geonetwork
+
+```{sql}
+#| connection: meta_i2d
+SELECT name,count(*)
+FROM geonetwork.pers_role
+WHERE 
+  name ~* 'administrador' OR 
+  name ~* 'direc' OR 
+  name ~* 'gesti' OR 
+  name ~* 'superv' OR
+  name ~* 'univers' OR
+  name ~* 'instit' OR
+  name ~* 'servic' OR
+  name ~* 'nombre' OR
+  name ~* 'corpor' OR
+  name ~* 'i2d' OR
+  name ~* 'transformando'
+GROUP BY name
+ORDER BY name
+  
+```
+
+```{sql}
+#| connection: meta_i2d
+SELECT name,count(*),ARRAY_AGG(DISTINCT organization) organizations,ARRAY_AGG(DISTINCT position_name) positions
+FROM geonetwork.pers_role
+GROUP BY name
+ORDER BY count(*) DESC
+```
+### Biocultural
+
+```{sql}
+#| connection: meta_i2d
+SELECT name, count(*), ARRAY_AGG(DISTINCT affiliation)
+FROM biocultural.pers_role
+GROUP BY name
+ORDER BY count(*) DESC
+```
+
+### Ceiba
+
+```{sql}
+#| connection: meta_i2d
+SELECT given_name, sur_name, count(*), ARRAY_AGG(DISTINCT affiliation) affiliations, ARRAY_AGG(DISTINCT role) roles
+FROM ceiba_eml.pers_role
+GROUP BY given_name, sur_name
+ORDER BY count(*) DESC
+```
+
+```{r}
+dbDisconnect(meta_i2d)
+```
+
+

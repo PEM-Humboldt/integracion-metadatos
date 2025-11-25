@@ -218,3 +218,58 @@ GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_charac
 ```
 
     [1] 0
+
+# Exportación Excel
+
+``` r
+allContacts<-list()
+allContacts$biocultural<-dbReadTable(meta_i2d,Id(schema="biocultural","pers_role"))
+allContacts$ceiba<-dbReadTable(meta_i2d,Id(schema="ceiba_eml","pers_role"))
+allContacts$geonetwork<-dbReadTable(meta_i2d,Id(schema="geonetwork","pers_role"))
+require(rdsTaxVal)
+```
+
+    Loading required package: rdsTaxVal
+
+``` r
+saveInExcel("../../../data_metadatos_catalogos/pers_role.xlsx",allContacts)
+```
+
+    Writing sheets: biocultural ceiba geonetwork
+    into file:/home/marius/Travail/traitementDonnees/2024_metadatos_catalogos/data_metadatos_catalogos/pers_role.xlsx
+
+``` sql
+SELECT p.*, x.title_text
+FROM ceiba_eml.pers_role p
+LEFT JOIN ceiba_eml.xml_doc x USING (cd_xml_doc)
+```
+
+## Analysis
+
+### Geonetwork
+
+``` sql
+SELECT name,count(*),ARRAY_AGG(DISTINCT organization) organizations,ARRAY_AGG(DISTINCT position_name) positions
+FROM geonetwork.pers_role
+GROUP BY name
+ORDER BY count(*) DESC
+```
+
+| name | count | organizations | positions |
+|:---|---:|:---|:---|
+| Administrador información geoespacial | 1914 | {“Administrador información geoespacial”,“Instituto de Hidrología Meteorología y Estudios Ambientales IDEAM - Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,“instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,“Instituto de Investigación de Recursos Biológicos Alexander Von Humboldt”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt IAvH”,“Instituto de Investigaciones de Recursos Biológicos Alexander Von Humboldt”} | {Contratista,“Infraestructura Institucional de Datos - I2D”,“Infraestructura Institucional de Datos-I2D”,“Insfraestructura Institucional de Datos I2D”,NULL} |
+| Infraestructura Institucional de Datos | 88 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {“Infraestructura Institucional de Datos - I2D”} |
+| NA | 87 | {“Administrador información geoespacial”,“Corporación Autónoma Regional de Caldas - Corpocaldas”,“Corporación Autónoma Regional de la Frontera Nororiental - Corponor”,“Corporación Autónoma Regional del Cauca - CRC”,“Corporación Autónoma Regional del Cesar - Corpocesar”,“Corporación Autónoma Regional del Magdalena - Corpamag”,“Corporación Autónoma Regional Del Quindío - CRQ”,“Corporación Autónoma Regional del Tolima - Cortolima”,“Corporación Autónoma Regional del Valle del Cauca”,“Corporación Autónoma Regional del Valle del Cauca - CVC”,“Corporación Autónoma Regional de Santander - CAS”,“Corporación para el Desarrollo Sostenible del Urabá - Corpourabá”,“Fundacion Biocolombia”,“Fundación Biocolombia”,“Fundación Ecológica Las Mellizas”,“Fundación Pro-Sierra Nevada de Santa Marta”,“Instituto de Hidrología, Meteorología y Estudios Ambientales - IDEAM”,“Instituto de Hidrología, Meteorología y Estudios Ambientales - IDEAM”,“Instituto de Hidrología, Meteorología y Estudios Ambientales - IDEAM, Subdireccion de Hidrologia Grupo de Modelacion”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} | {Contrastista,Contratista,“Infraestructura Institucional de Datos - I2D”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,“Investigador asistente II”,“Programa GIC”,NULL} |
+| Peña Ocampo, William | 66 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {“Infraestructura Institucional de Datos - I2D”} |
+| Paola Avilán Rey | 63 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {Supervisor,NULL} |
+| Andrés Felipe Carvajal Vanegas | 62 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {Contratista,“Seleccionar entre el rol de Investigador o Contratista”} |
+| William Alexander Peña Ocampo | 47 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {“Infraestructura Institucional de Datos-I2D”,Investigador,“Investigador asistente II”,“Seleccionar entre el rol de Investigador o Contratista”} |
+| Carlos Pedraza | 42 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} | {Contratista,“Grupo Técnico”,NULL} |
+| Dolors Armenteras | 33 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {“Comité operativo proyecto”,“Coordinadora Nacional”} |
+| Edwin Tamayo | 33 | {“Edwin Tamayo”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {Contratista,“Infraestructura Institucional de Datos - I2D”,NULL} |
+
+Displaying records 1 - 10
+
+``` r
+dbDisconnect(meta_i2d)
+```
