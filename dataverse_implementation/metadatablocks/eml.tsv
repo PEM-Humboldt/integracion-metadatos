@@ -1,0 +1,32 @@
+#metadataBlock	name	dataverseAlias	displayName													
+	emldn	eml	Ecological Metadata Language													
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	emlGeographicCoverage	Geographic Coverage	Geographic Coverage is a container for spatial information about a project, a resource, or an entity within a resource. It allows a bounding box for the overall coverage (in lat long)		none	0		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		emldn	https://eml.ecoinformatics.org/schema/eml-coverage_xsd.html#GeographicCoverage
+	emlGeographicCoverageDescription	Geographic coverage description	Short text description of the geographic areal domain of the data set		textbox	1		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlGeographicCoverage	emldn	https://eml.ecoinformatics.org/schema/eml-coverage_xsd.html#GeographicCoverage_GeographicCoverage_boundingCoordinates_eastBoundingCoordinate
+	emlGeographicBoundingCoordinates	Geographic Bounding Coordinates	The four margins (N, S, E, W) of a bounding box on the earth's surface, or when considered in lat-lon pairs, the corners of the box. To define a single point, use the same value in each lat or lon pair. These elements are meant to convey general information and are not for accurate mapping		none	2		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		emldn	
+	emlWestBoundingCoordinate	West bounding coordinate	Western-most limit of a bounding box, expressed in degrees of longitude		float	3		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlGeographicBoundingCoordinates	emldn	
+	emlEastBoundingCoordinate	East bounding coordinate	Eastern-most limit of a bounding box, expressed in degrees of longitude		float	4		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlGeographicBoundingCoordinates	emldn	
+	emlNorthBoundingCoordinate	North bounding coordinate	Northern-most lilmit of a bounding box expressed in latitude		float	5		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlGeographicBoundingCoordinates	emldn	
+	emlSouthBoundingCoordinate	South bounding coordinate	Southern-most limit of the bounding box expressed in latitude		float	6		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlGeographicBoundingCoordinates	emldn	
+	emlTemporalCoverage	Temporal Coverage	This field specifies temporal coverage, and allows coverages to be a single point in time, multiple points in time, or a range of dates. Dates can be expressed in terms of both calendar dates and geologic dating systems		none	7		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		emldn	
+	emlTemporalCoverageBeginDate	Begin Date	A single time stamp signifying the beginning of some time period	YYYY-MM-DD	date	8		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlTemporalCoverage	emldn	
+	emlTemporalCoverageEndDate	End Date	A single time stamp signifying the end of some time period	YYYY-MM-DD	date	9		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	emlTemporalCoverage	emldn	
+	emlTaxonomicCoverage	Taxonomic Coverage	Taxonomic Coverage is a container for Taxonomic information about a project, a resource, or an entity within a resource. It includes a list of species names (or higher level ranks) from one or more classification systems		none	10		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		emldn	
+	emlTaxonomicCoverageDescription	Taxonomic Coverage description	A description of the range of taxa addressed in the data set or collection		textbox	11		TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	emlTaxonomicCoverage	emldn	
+	emlTaxonomicCoverageClassification	Taxonomic Classification	Information about the range of taxa addressed in the data set or collection		none	12		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		emldn	
+	emlTaxonomicCoverageTaxonRankName	Taxon rank name	The name of the taxonomic rank for which the Taxon rank value is provided		text	13		TRUE	TRUE	FALSE	TRUE	FALSE	FALSE	emlTaxonomicCoverageClassification	emldn	
+	emlTaxonomicCoverageTaxonRankValue	Scientific name	The taxonomic rank name being described		text	14		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlTaxonomicCoverageClassification	emldn	
+	emlTaxonomicCoverageCommonName	Common name	Specification of applicable common names. These common names may be general descriptions of a group of organisms if appropriate		text	15		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlTaxonomicCoverageClassification	emldn	
+	emlTaxonomicCoverageTaxonId	Taxonomic Identifier	The identifier for this taxon from an authority, such as ITIS or USDA Plant Database. Using an external system identifer allows referencing of additional information about a taxon, e.g., authoritative names, historical synonyms, published descriptions or rank hierarchies		text	16		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlTaxonomicCoverageClassification	emldn	
+	emlMethods	Methods	The methods field documents scientific methods used in the collection of this dataset.  It includes information on items such as tools, instrument calibration and software		none	17		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		emldn	
+	emlMethodsSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	18		TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	emlMethods	emldn	
+	emlMethodsCitation	Citation	Literature citation relating to the sampling procedures used		text	19		TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	emlMethods	emldn	
+#controlledVocabulary	DatasetField	Value	identifier	displayOrder												
+	emlTaxonomicCoverageTaxonRankName	kingdom		0												
+	emlTaxonomicCoverageTaxonRankName	phylum		1												
+	emlTaxonomicCoverageTaxonRankName	class		2												
+	emlTaxonomicCoverageTaxonRankName	order		3												
+	emlTaxonomicCoverageTaxonRankName	family		4												
+	emlTaxonomicCoverageTaxonRankName	genus		5												
+	emlTaxonomicCoverageTaxonRankName	subgenus		6												
+	emlTaxonomicCoverageTaxonRankName	species		7												
