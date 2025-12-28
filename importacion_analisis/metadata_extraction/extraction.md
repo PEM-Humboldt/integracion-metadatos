@@ -1,7 +1,7 @@
 Extracción de los metadatos de los catalogos
 ================
 Marius Bottin
-2025-08-20
+2025-12-23
 
 - [1 Connexión a la base de datos
   `meta_i2d`](#1-connexión-a-la-base-de-datos-meta_i2d)
@@ -59,7 +59,7 @@ require(rsvg)
 
     ## Loading required package: rsvg
 
-    ## Linking to librsvg 2.54.4
+    ## Linking to librsvg 2.60.0
 
 ``` r
 require(png)
@@ -146,6 +146,14 @@ dm_object <- dm_from_con(geonetwork, learn_keys = T)
     ## Warning: <PostgreSQLConnection> uses an old dbplyr interface
     ## ℹ Please install a newer version of the package or contact the maintainer
     ## This warning is displayed once every 8 hours.
+
+    ## Warning: The `father` argument of `dfs()` is deprecated as of igraph 2.2.0.
+    ## ℹ Please use the `parent` argument instead.
+    ## ℹ The deprecated feature was likely used in the dm package.
+    ##   Please report the issue at <https://github.com/cynkra/dm/issues>.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ``` r
 A <- dm_object %>%
@@ -546,23 +554,23 @@ dm_object <- dm_from_con(con = meta_i2d, learn_keys = T, schema = c("ceiba_eml",
 ```
 
     ## New names:
-    ## • `tabinfo` -> `tabinfo...1`
-    ## • `varinfo` -> `varinfo...2`
-    ## • `xml_doc` -> `xml_doc...3`
-    ## • `tabinfo` -> `tabinfo...8`
-    ## • `varinfo` -> `varinfo...10`
-    ## • `contact` -> `contact...11`
+    ## • `xml_doc` -> `xml_doc...1`
+    ## • `contact` -> `contact...2`
+    ## • `tabinfo` -> `tabinfo...3`
+    ## • `varinfo` -> `varinfo...4`
+    ## • `tabinfo` -> `tabinfo...5`
+    ## • `varinfo` -> `varinfo...7`
     ## • `xml_doc` -> `xml_doc...12`
-    ## • `contact` -> `contact...14`
-    ## • `keyword` -> `keyword...16`
-    ## • `distributor` -> `distributor...33`
-    ## • `citation` -> `citation...45`
-    ## • `tabinfo` -> `tabinfo...50`
-    ## • `varinfo` -> `varinfo...51`
-    ## • `xml_doc` -> `xml_doc...52`
-    ## • `citation` -> `citation...82`
-    ## • `keyword` -> `keyword...90`
-    ## • `distributor` -> `distributor...96`
+    ## • `contact` -> `contact...19`
+    ## • `keyword` -> `keyword...21`
+    ## • `distributor` -> `distributor...24`
+    ## • `citation` -> `citation...44`
+    ## • `tabinfo` -> `tabinfo...47`
+    ## • `varinfo` -> `varinfo...48`
+    ## • `xml_doc` -> `xml_doc...49`
+    ## • `citation` -> `citation...65`
+    ## • `keyword` -> `keyword...74`
+    ## • `distributor` -> `distributor...79`
 
 ``` r
 dm_object <- dm_object[names(dm_object)[!names(dm_object) %in% tablestosupp$table_name]]

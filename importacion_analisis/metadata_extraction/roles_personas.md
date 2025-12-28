@@ -87,60 +87,87 @@ WHERE dv.lastversion
 ## Ceiba
 
 ``` sql
-WITH a AS(
+WITH
+prep1 AS(
+SELECT cd_contact,STRING_AGG(DISTINCT delivery_point, '|') delivery_point
+FROM ceiba.delivery_point
+GROUP BY cd_contact
+),
+prep2 AS(
+SELECT cd_creator, STRING_AGG(DISTINCT electronic_mail_address,'|') electronic_mail_address, STRING_AGG(DISTINCT position_name, '|') position_name
+FROM ceiba.electronic_mail_address
+FULL JOIN ceiba.position_name USING (cd_creator)
+GROUP BY cd_creator
+),
+a AS(
 SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.contact
+FROM ceiba.contact
+LEFT JOIN prep1 USING (cd_contact)
 UNION ALL
 SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.associated_party
+FROM ceiba.associated_party
 UNION ALL
 SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.creator
+FROM ceiba.creator
+LEFT JOIN prep2 USING (cd_creator)
 UNION ALL
 SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.metadata_provider
+FROM ceiba.metadata_provider
 )
 SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
-FROM ceiba_eml.personnel p
+FROM ceiba.personnel p
 FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
 ORDER BY cd_xml_doc
 ```
 
 | cd_xml_doc | orig | affiliation | type | phone | email | online_url | given_name | sur_name | delivery_point | city | administrative_area | country | postal_code | other_id | id_type | role | id_other | id_other_type |
 |---:|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| 1 | contact | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Adjunta | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | principalInvestigator | NA | NA |
-| 1 | creator | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Adjunta | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | principalInvestigator | NA | NA |
-| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora | NA | lnova@humboldt.org.co | NA | Laura Johanna | Nova | Av. Paseo de Bolívar \# 16-20 | Bogotá, D.C. | NA | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | Reserva Agroecológica Los Monos | Investigador local | NA | NA | NA | Alejandro | Cárdenas Escobar | NA | San Francisco | Antioquia | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | NA | Investigadora local | NA | NA | NA | Deice | Galeano | Vereda Santo Domingo | Sonsón | Antioquia | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | NA | Investigadora local | NA | NA | NA | Isabel | Sotelo | Vereda Santo Domingo | Sonsón | Antioquia | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | Fundación Grupo Argos | NA | NA | mvillegas@grupoargos.com | https://www.grupoargos.com/sostenibilidad/fundacion-grupo-argos/ | NA | Fundación Grupo Argos | Carrera 43a \# 1aSur-143 | Medellín | Antioquia | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora | 3202767 | lgarcia@humboldt.org.co | NA | Lina Marcela | García Loaiza | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | NA | CO | NA | NA | NA | principalInvestigator | NA | NA |
-| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Investigadora Titular | NA | camedina@humboldt.org.co | http://www.humboldt.org.co | Claudia Alejandra | Medina Uribe | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | NA | NA | NA |
-| 1 | associated_party | Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | Contratista | 3202767 | calondono@unal.edu.co | http://www.humboldt.org.co | Carlos | Londoño | Avenida Paseo Bolívar \# 16-20 | Bogotá, D.C. | Bogotá, D.C. | CO | NA | NA | NA | NA | NA | NA |
+| 1 | creator | UNISANGIL | INVESTIGADOR PRINCIPAL | 3213492214 | jaysonsierra@unisangil.edu.co | NA | JAYSON JEFFRE | SIERRA HERNANDEZ | CALLE 3A \# 7-38 | SAN GIL | SANTANDER | CO | NA | NA | NA | NA | NA | NA |
+| 1 | contact | UNISANGIL | INVESTIGADOR PRINCIPAL | 3213492214 | jaysonsierra@unisangil.edu.co | NA | JAYSON JEFFRE | SIERRA HERNANDEZ | CALLE 3A \# 7-38 | SAN GIL | SANTANDER | CO | NA | NA | NA | NA | NA | NA |
+| 1 | metadata_provider | UNISANGIL | INVESTIGADOR PRINCIPAL | 3213492214 | jaysonsierra@unisangil.edu.co | NA | JAYSON JEFFRE | SIERRA HERNANDEZ | CALLE 3A \# 7-38 | SAN GIL | SANTANDER | CO | NA | NA | NA | NA | NA | NA |
+| 2 | metadata_provider | GEOTEC INGENIERIA LTDA | investigadora principal | 2574469 | jfaljure@geotecingenieria.com | NA | Mery Helen Tijaro Orejuela | Tijaro Orejuela | CALLE 92 15 62 OF 301 | Bogota | Cundinamarca | CO | NA | NA | NA | NA | NA | NA |
+| 2 | associated_party | GEOTEC INGENIERIA LTDA | investigadora principal | 2574469 | jfaljure@geotecingenieria.com | NA | Mery Helen Tijaro Orejuela | Tijaro Orejuela | CALLE 92 15 62 OF 301 | Bogota | Cundinamarca | CO | NA | NA | NA | NA | NA | NA |
+| 2 | contact | GEOTEC INGENIERIA LTDA | investigadora principal | 2574469 | jfaljure@geotecingenieria.com | NA | Mery Helen Tijaro Orejuela | Tijaro Orejuela | CALLE 92 15 62 OF 301 | Bogota | Cundinamarca | CO | NA | NA | NA | NA | NA | NA |
+| 2 | creator | GEOTEC INGENIERIA LTDA | Representante Legal | 2574469 | jfaljure@geotecingenieria.com | NA | Jose Fernando | Aljure | CALLE 92 15 62 OF 301 | Bogota | Cundinamarca | CO | NA | NA | NA | NA | NA | NA |
+| 3 | creator | Bioasesores de Colombia SAS | Gerente | 4032837 | bioasesoresdecolombia@gmail.com | NA | Gilbert | Acevedo | Calle 72J \# Transv 28G-104 | Cali | Valle | CO | NA | NA | NA | NA | NA | NA |
+| 3 | associated_party | Bioasesores de Colombia SAS | Bióloga consultora | 3146466599 | paula2177@hotmail.com | NA | Paula Andrea | Bonilla | Calle 72J No. Trans 28G-104 | Cali | Valle | CO | NA | NA | NA | NA | NA | NA |
+| 3 | contact | Bioasesores de Colombia SAS | Directora Administrativa | 4032837 | natalialsr@yahoo.es | NA | Natalia | Santos | Calle 72J \# Transv 28G-104 | Cali | Valle | CO | NA | NA | NA | NA | NA | NA |
 
 Displaying records 1 - 10
 
 ``` r
-dbExecute(meta_i2d,"CREATE OR REPLACE VIEW ceiba_eml.pers_role AS(
-WITH a AS(
+dbExecute(meta_i2d,"CREATE OR REPLACE VIEW ceiba.pers_role AS(
+WITH
+prep1 AS(
+SELECT cd_contact,STRING_AGG(DISTINCT delivery_point, '|') delivery_point
+FROM ceiba.delivery_point
+GROUP BY cd_contact
+),
+prep2 AS(
+SELECT cd_creator, STRING_AGG(DISTINCT electronic_mail_address,'|') electronic_mail_address, STRING_AGG(DISTINCT position_name, '|') position_name
+FROM ceiba.electronic_mail_address
+FULL JOIN ceiba.position_name USING (cd_creator)
+GROUP BY cd_creator
+),
+a AS(
 SELECT cd_xml_doc,'contact' AS orig,organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.contact
+FROM ceiba.contact
+LEFT JOIN prep1 USING (cd_contact)
 UNION ALL
 SELECT cd_xml_doc,'associated_party', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.associated_party
+FROM ceiba.associated_party
 UNION ALL
 SELECT cd_xml_doc,'creator', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.creator
+FROM ceiba.creator
+LEFT JOIN prep2 USING (cd_creator)
 UNION ALL
 SELECT cd_xml_doc,'metadata_provider', organization_name AS affiliation, position_name AS type,  phone, electronic_mail_address AS email, online_url, given_name, sur_name, delivery_point, city, administrative_area, country, postal_code, user_id_text AS other_id, directory id_type
-FROM ceiba_eml.metadata_provider
+FROM ceiba.metadata_provider
 )
 SELECT a.*,p.role, p.user_id_text AS id_other, p.directory AS id_other_type 
-FROM ceiba_eml.personnel p
+FROM ceiba.personnel p
 FULL JOIN a USING (cd_xml_doc,given_name,sur_name)
-ORDER BY cd_xml_doc
-)
+ORDER BY cd_xml_doc)
 ")
 ```
 
@@ -224,7 +251,7 @@ GROUP BY cd_xml_doc,  individual_name_character_string, organisation_name_charac
 ``` r
 allContacts<-list()
 allContacts$biocultural<-dbReadTable(meta_i2d,Id(schema="biocultural","pers_role"))
-allContacts$ceiba<-dbReadTable(meta_i2d,Id(schema="ceiba_eml","pers_role"))
+allContacts$ceiba<-dbReadTable(meta_i2d,Id(schema="ceiba","pers_role"))
 allContacts$geonetwork<-dbReadTable(meta_i2d,Id(schema="geonetwork","pers_role"))
 require(rdsTaxVal)
 ```
@@ -240,13 +267,48 @@ saveInExcel("../../../data_metadatos_catalogos/pers_role.xlsx",allContacts)
 
 ``` sql
 SELECT p.*, x.title_text
-FROM ceiba_eml.pers_role p
-LEFT JOIN ceiba_eml.xml_doc x USING (cd_xml_doc)
+FROM ceiba.pers_role p
+LEFT JOIN ceiba.xml_doc x USING (cd_xml_doc)
 ```
 
 ## Analysis
 
 ### Geonetwork
+
+``` sql
+SELECT name,count(*)
+FROM geonetwork.pers_role
+WHERE 
+  name ~* 'administrador' OR 
+  name ~* 'direc' OR 
+  name ~* 'gesti' OR 
+  name ~* 'superv' OR
+  name ~* 'univers' OR
+  name ~* 'instit' OR
+  name ~* 'servic' OR
+  name ~* 'nombre' OR
+  name ~* 'corpor' OR
+  name ~* 'i2d' OR
+  name ~* 'transformando'
+GROUP BY name
+ORDER BY name
+  
+```
+
+| name | count |
+|:---|---:|
+| Administrador de información geoespacial | 1 |
+| Administrador de Información geoespacial | 1 |
+| Administrador de la información geoespacial | 1 |
+| Administrador información | 2 |
+| Administrador información geoespacial | 1914 |
+| Administrador Información geoespacial | 1 |
+| Administrador Información Geoespacial | 19 |
+| Administrador información geoespacial de la Infraestructura Institucional de Datos - I2D | 1 |
+| Administrador información geoespacial (Infraestructura Institucional de Datos - I2D) | 7 |
+| Corporación Autónoma Regional de Caldas (Corpocaldas) | 2 |
+
+Displaying records 1 - 10
 
 ``` sql
 SELECT name,count(*),ARRAY_AGG(DISTINCT organization) organizations,ARRAY_AGG(DISTINCT position_name) positions
@@ -267,6 +329,54 @@ ORDER BY count(*) DESC
 | Carlos Pedraza | 42 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} | {Contratista,“Grupo Técnico”,NULL} |
 | Dolors Armenteras | 33 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {“Comité operativo proyecto”,“Coordinadora Nacional”} |
 | Edwin Tamayo | 33 | {“Edwin Tamayo”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} | {Contratista,“Infraestructura Institucional de Datos - I2D”,NULL} |
+
+Displaying records 1 - 10
+
+### Biocultural
+
+``` sql
+SELECT name, count(*), ARRAY_AGG(DISTINCT affiliation)
+FROM biocultural.pers_role
+GROUP BY name
+ORDER BY count(*) DESC
+```
+
+| name | count | array_agg |
+|:---|---:|:---|
+| Admin, Dataverse | 16 | {NULL} |
+| Santamaria, Andres | 12 | {Contratista,NULL} |
+| Pastas, Emmerson | 9 | {“Instituto Alexander von Humboldt”,“Instituto Humboldt”,NULL} |
+| Instituto Humboldt | 9 | {IAvH,“Línea de investigación en Gobernanza y Equidad, Programa de Ciencias Sociales y Saberes de la Biodiversidad”,“Programa de Ciencias Básicas de la Biodiversidad”} |
+| Instituto de Investigación de Recursos Biológicos Alexander von Humboldt | 7 | {IAvH,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”} |
+| Sarmiento García, Martha Liliana | 4 | {“Contratista IAvH”,“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} |
+| Patiño Grajales, Cristian Felipe | 4 | {IAvH,NULL} |
+| María Claudia Torres Romero | 3 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,“Investigador adjunto”} |
+| Alvarez Parales, Juan Felipe Dcaprio | 3 | {“Contratista Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} |
+| Herrera Bustos, Angela María | 3 | {“Instituto de Investigación de Recursos Biológicos Alexander von Humboldt”,NULL} |
+
+Displaying records 1 - 10
+
+### Ceiba
+
+``` sql
+SELECT given_name, sur_name, count(*), ARRAY_AGG(DISTINCT affiliation) affiliations, ARRAY_AGG(DISTINCT role) roles
+FROM ceiba.pers_role
+GROUP BY given_name, sur_name
+ORDER BY count(*) DESC
+```
+
+| given_name | sur_name | count | affiliations | roles |
+|:---|:---|---:|:---|:---|
+| NA | NA | 2242 | {“Asociación Colombiana de Herpetología (ACH)”,“CAF Proambiente LTDA”,“Colección entomológica Forestal”,“Contreebute SAS”,CORANTIOQUIA,“Corporación Centro de Investigación en Palma de Aceite CENIPALMA”,“Frontera Energy Colombia Corp. Sucursal Colombia”,“Fundación para la investigación del Cauca”,“Municipio de Medellín”,“Transportadora de Gas Internacional S.A. E.S.P.”,“Transportadora de Gas Internacional S.A. ESP”,“Universidad del Valle”,NULL} | {author,contentProvider,curator,custodianSteward,distributor,editor,metadataProvider,originator,owner,pointOfContact,principalInvestigator,processor,publisher,reviewer,user,NULL} |
+| Juliana | Cardona-Duque | 325 | {“Universidad CES”} | {author,curator,pointOfContact,principalInvestigator,NULL} |
+| NA | Apellido | 212 | {Organización} | {NULL} |
+| Laura María | Ramírez Hernández | 169 | {“Inerco Consultoría Colombia”,“INERCO Consultoría Colombia”} | {metadataProvider,principalInvestigator,NULL} |
+| Ricardo | Restrepo | 160 | {“VCR Ingeniería Ambiental SAS”} | {author,contentProvider,metadataProvider,owner,principalInvestigator,publisher,NULL} |
+| Lizette Irene | Quan Young | 158 | {354743,“Universidad CES”,“Universidad CES, Facultad de Ciencias y Biotecnología”} | {author,contentProvider,curator,custodianSteward,metadataProvider,owner,principalInvestigator,NULL} |
+| Juan Camilo | Arredondo Salgar | 146 | {“Universidad CES”,“Universidad de Medellín”} | {author,metadataProvider,principalInvestigator,NULL} |
+| SGS | S.A.S | 144 | {“SGS Colombia S.A.S”} | {user,NULL} |
+| Universidad Nacional | de Colombia | 142 | {“de Biología”,“de Colombia”,“Facultad de Ciencias Agraciass”,“Museo Micológico-MMUNM”,UN,Unal,UNAL,“UNAL, sede Medellín”,Universidad,“Universidad Nacional”,“UNIVERSIDAD NACIONAL”,“Universidad Nacional de Colombia”,“UNIVERSIDAD NACIONAL DE COLOMBIA”,“UNIVERSIDAD NACIONAL DE COLOMBIA SEDE AMAZONIA”,“Universidad Nacional de Colombia sede Medellín”,“Universidad Nacional de Colombia, sede Medellín”,“Universidad Nacional de Colombia Sede Orinoquía”,“Universidad Nacional de Colomia”,“Universidad Nacional, Facultad de Ciencias Agrarias”,“Universodad Nacional de Colombia”,NULL} | {principalInvestigator,user,NULL} |
+| Maria Fernanda | Sierra López | 138 | {“Alternativa Ambiental”,“Alternativa Ambiental S.A.S”,“Alternativa Ambiental S.A.S.”,“AM - Alternativa Ambiental S.A.S.”} | {author,metadataProvider,publisher,NULL} |
 
 Displaying records 1 - 10
 

@@ -251,6 +251,43 @@ extractedBiocultural <- extractValues(descriTables, biocultural)
 insertTables(extractedBiocultural, meta_i2d, descriTables, "biocultural")
 ```
 
+
+Para razones de practicidad, es importante poder determinar de manera facil cual es la ultima versión de cada dataset en biocultural.
+
+```{sql, connection=meta_i2d}
+WITH a AS(
+SELECT  *, ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY createtime DESC) version_order
+FROM biocultural.datasetversion
+WHERE versionstate='RELEASED'
+ORDER BY dataset_id, createtime
+)
+SELECT * 
+FROM a
+WHERE version_order=1
+```
+
+```{r}
+dbExecute(meta_i2d,"ALTER TABLE biocultural.datasetversion ADD COLUMN IF NOT EXISTS lastversion boolean default false")
+dbExecute(meta_i2d,"WITH a AS(
+SELECT  *, ROW_NUMBER() OVER (PARTITION BY dataset_id ORDER BY createtime DESC) version_order
+FROM biocultural.datasetversion
+WHERE versionstate='RELEASED'
+ORDER BY dataset_id, createtime
+),b AS(
+SELECT * 
+FROM a
+WHERE version_order=1
+)
+UPDATE biocultural.datasetversion dv
+SET lastversion=true
+FROM b
+WHERE dv.datasetversion_id=b.datasetversion_id
+")
+```
+
+
+
+
 # Estructura de la base de datos completas de metadatos
 
 ```{r complete_db_struct, fig.height=60, fig.width=40}
@@ -275,6 +312,9 @@ png <- readPNG(t_file)
 rasterImage(png,0,0,1,1)
 legend("topleft",fill=c("red","blue","green","turquoise"),legend=c("biocultural","geonetwork","ceiba (eml)","ceiba (estructura)"),title="Source")
 ```
+
+
+
 
 
 ```{r}

@@ -8,11 +8,11 @@ require(data.tree)
 
 dvAnalyseVar<-function(dvcon)
 {
-  
-  # Analyses the variables from a dataverse database, the variables considered 
-  #here are the variables that are defined as part of a metadatablock 
+
+  # Analyses the variables from a dataverse database, the variables considered
+  #here are the variables that are defined as part of a metadatablock
   #("user-defined" variables, even though it might be the default variables
-  # from the default installation of a dataverse instance) 
+  # from the default installation of a dataverse instance)
   analysis<-dbGetQuery(dvcon,"
   SELECT dft.id, mdb.name metadatablock, dft.name, fieldtype, allowmultiples,
     COUNT(dfv.value) FILTER (WHERE value IS NOT NULL) nb_values,
@@ -29,7 +29,7 @@ dvAnalyseVar<-function(dvcon)
   ")
   analysis$is_gp<-analysis$allowmultiples | analysis$is_parent
   # Here we checked whether the defined variables are actually used in the
-  # datasets, but if the variable is a parent, we need to check whether the 
+  # datasets, but if the variable is a parent, we need to check whether the
   # children variables in the group have values
   toKeep<-logical(nrow(analysis))
   for(i in analysis$id)
@@ -52,7 +52,7 @@ dvAnalyseVar<-function(dvcon)
   analysis$var_gp[analysis$is_parent]<-"gp"
   analysis$var_gp[!analysis$is_parent & analysis$is_gp & rowSums(analysis[,c("nb_values","nb_controlled_values")])] <- "gpvar"
   analysis$var_gp[!analysis$is_parent & !analysis$is_gp & rowSums(analysis[,c("nb_values","nb_controlled_values")])] <- "var"
-  
+
   analysis$gpHier <- analysis$inGp <- NA
   for (i in 1:nrow(analysis))
   {
@@ -77,7 +77,7 @@ dvAnalyseVar<-function(dvcon)
     }
     analysis$gpHier[i]<-paste(prepGpHier,collapse="/")
   }
-  
+
   gpTab<-rbind(
     data.frame(
       id=c(1000,1001,1002,1003,1004,1005),
@@ -91,14 +91,14 @@ dvAnalyseVar<-function(dvcon)
   gpTab$name[gpTab$var_gp=="gpvar"]<-paste0(gpTab$name[gpTab$var_gp=="gpvar"],"_")
   gpTab$gpHier<-sub("(^.*_).*$","\\1",gpTab$gpHier)
   gpTab$var_gp="gp"
-  
+
   varTab<-analysis[analysis$var_gp %in% c("gpvar", "var"), c("id", "name", "gpHier", "var_gp", "inGp") ]
   addGp<-is.na(varTab$inGp)
   varTab$inGp[addGp]<-gpTab$id[match(analysis[analysis$var_gp %in% c("gpvar", "var"),"metadatablock"][addGp],gpTab$name)]
   varTab$var_gp<-"var"
-  
+
   varTab$inGp%in%gpTab$id
-  
+
   hierTab<-rbind(gpTab,varTab)
   if(any(hierTab$name%in%NODE_RESERVED_NAMES_CONST))
   {
@@ -114,7 +114,7 @@ dv_plot_variables<-function(res_analysis)
   m<-match(V(net)$name,res_analysis$hierTab$name)
   V(net)$var_gp<-res_analysis$hierTab$var_gp[m]
   V(net)$inGp<-as.numeric(factor(res_analysis$hierTab$inGp))[m]
-  
+
   plot(net, vertex.size=5, vertex.label=V(net)$name, vertex.shape=c(var="circle",gp="square")[V(net)$var_gp],
        vertex.color=rainbow(length(unique(V(net)$inGp)))[V(net)$inGp])
 }
@@ -142,14 +142,14 @@ dvPrepareTableDescription<-function(listAnalysis, dvDb)
   #pkeys_sql %in% existingDBfields$column_name
   #fkeys_sql %in% existingDBfields$column_name
   existingDBfields[existingDBfields$column_name %in% pkeys | existingDBfields$column_name %in% fkeys,]
-  
+
   (mVarGp<-match(listAnalysis$varTab$inGp,listAnalysis$gpTab$id))
   mVar<-match(listAnalysis$varTab$id,listAnalysis$analysis$id)
   table(factor(listAnalysis$varTab$inGp,levels=listAnalysis$gpTab$id,labels = listAnalysis$gpTab$name))
-  
+
   tableAttrib<-vector(mode="list",length=nrow(listAnalysis$gpTab))
   names(tableAttrib)<-listAnalysis$gpTab$name
-  
+
   types_pkeys <- rep("bigserial",length(pkeys))
   mpkeys<-match(pkeys,existingDBfields$column_name)
   types_pkeys[!is.na(mpkeys)]<-existingDBfields$data_type[mpkeys[!is.na(mpkeys)]]
@@ -162,8 +162,8 @@ dvPrepareTableDescription<-function(listAnalysis, dvDb)
                               data.frame(id=NA,metadatablock=NA,name=fkeys[i],sql_name=fkeys_sql[i],type="bigint",primarykey=F,reference=gsub("^(.*)(_id)$","\\1(\\1\\2)",fkeys[i])))
     }
   }
-  
-  
+
+
   res<-by(listAnalysis$analysis[mVar,],mVarGp,function(x)
   {
     data.frame(
@@ -174,11 +174,11 @@ dvPrepareTableDescription<-function(listAnalysis, dvDb)
       reference=NA
     )
   })
-  
-  tableAttrib[as.numeric(names(res))]<-mapply(rbind.data.frame,tableAttrib[as.numeric(names(res))],res,SIMPLIFY = F)
-  
 
-  
+  tableAttrib[as.numeric(names(res))]<-mapply(rbind.data.frame,tableAttrib[as.numeric(names(res))],res,SIMPLIFY = F)
+
+
+
   tableAttrib$dataverse<-rbind(tableAttrib$dataverse,
                                data.frame(id=NA,metadatablock=NA,name="createdate",sql_name="createdate",type="timestamp",primarykey=F,reference=NA),
                                data.frame(id=NA,metadatablock=NA,name="affiliation",sql_name="affiliation",type="text",primarykey=F,reference=NA),
@@ -218,7 +218,7 @@ dvPrepareTableDescription<-function(listAnalysis, dvDb)
     data.frame(id=NA,metadatablock=NA,name="restricted",sql_name="restricted",type="boolean",primarykey=F,reference=NA),
     data.frame(id=NA,metadatablock=NA,name="previousdatafileid",sql_name="previousdatafileid",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
     data.frame(id=NA,metadatablock=NA,name="rootdatafileid",sql_name="rootdatafileid",type="bigint",primarykey=F,reference="datafile(datafile_id)")
-  ) 
+  )
   tableAttrib$filedescription <- rbind(
     data.frame(id=NA,metadatablock=NA,name="filedescription_id",sql_name="filedescription_id",type="bigserial",primarykey=T,reference=NA),
     data.frame(id=NA,metadatablock=NA,name="datafile_id",sql_name="datafile_id",type="bigint",primarykey=F,reference="datafile(datafile_id)"),
@@ -245,8 +245,8 @@ dvPrepareTableDescription<-function(listAnalysis, dvDb)
   )
   names(tableAttrib)<-gsub("_$","",names(tableAttrib))
   return(tableAttrib)
-  
-  
+
+
 }
 
 createTableStatement<-function(nameTable, tabAttr, dbConnection, schema=NULL)
@@ -301,7 +301,7 @@ LEFT JOIN (SELECT dataverse_id,  STRING_AGG(DISTINCT strvalue,'|') dataversesubj
 )
 
 extracted$dataset<-dbGetQuery(conn=dvDb,
-                              "SELECT id dataset_id, owner_id dataverse_id, createdate, globalidcreatetime, modificationtime, publicationdate, authority || '/' || identifier doi, metadatalanguage 
+                              "SELECT id dataset_id, owner_id dataverse_id, createdate, globalidcreatetime, modificationtime, publicationdate, authority || '/' || identifier doi, metadatalanguage
 FROM dataset
 LEFT JOIN dvobject USING (id)
 ORDER BY dataset_id")
@@ -336,22 +336,22 @@ allValuesBiocultural<-dbGetQuery(dvDb,
                                  "
 WITH a AS(
 SELECT dft.id,dfv.value,df.parentdatasetfieldcompoundvalue_id,COALESCE(df.datasetversion_id,pdf.datasetversion_id) datasetversion_id
-FROM datasetfieldvalue dfv 
-LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id 
-LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id 
+FROM datasetfieldvalue dfv
+LEFT JOIN datasetfield df ON dfv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
 LEFT JOIN datasetfieldcompoundvalue dfcv ON df.parentdatasetfieldcompoundvalue_id=dfcv.id
 LEFT JOIN datasetfield pdf ON dfcv.parentdatasetfield_id=pdf.id
-UNION 
-SELECT dft.id,cvc.strvalue,df.parentdatasetfieldcompoundvalue_id,COALESCE(df.datasetversion_id,pdf.datasetversion_id) 
-FROM datasetfield_controlledvocabularyvalue dfcvv 
-LEFT JOIN datasetfield df ON dfcvv.datasetfield_id=df.id 
-LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id 
-LEFT JOIN controlledvocabularyvalue cvc ON dfcvv.controlledvocabularyvalues_id=cvc.id  
+UNION
+SELECT dft.id,cvc.strvalue,df.parentdatasetfieldcompoundvalue_id,COALESCE(df.datasetversion_id,pdf.datasetversion_id)
+FROM datasetfield_controlledvocabularyvalue dfcvv
+LEFT JOIN datasetfield df ON dfcvv.datasetfield_id=df.id
+LEFT JOIN datasetfieldtype dft ON df.datasetfieldtype_id=dft.id
+LEFT JOIN controlledvocabularyvalue cvc ON dfcvv.controlledvocabularyvalues_id=cvc.id
 LEFT JOIN datasetfieldcompoundvalue dfcv ON df.parentdatasetfieldcompoundvalue_id=dfcv.id
 LEFT JOIN datasetfield pdf ON dfcv.parentdatasetfield_id=pdf.id
 )
 SELECT *
-FROM a 
+FROM a
 WHERE value IS NOT NULL AND value != '' AND datasetversion_id IS NOT NULL"
 )
 
