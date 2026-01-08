@@ -1,0 +1,9 @@
+#metadataBlock	name	dataverseAlias	displayName													
+	institutional	institutional	Institutional information													
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	project	Project	Institutional project constituting the framework of the research which resulted in the creation of the dataset		none	0		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		institutional	
+	projectName	Project Name	Official name of the project		text	1		TRUE	FALSE	FALSE	TRUE	FALSE	TRUE	project	institutional	
+	projectID	Project Identifier	Official identifier of the project (please check on GDoc for institutional project identifier)		text	2		TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	project	institutional	
+	projectDescription	Project Description	Textual description of the project		textbox	3		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	project	institutional	
+	projectPurpose	Project Purpose	Textual description of the goals and purpose of the project		textbox	4		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	project	institutional	
+	projectFunding	Project Funding	Source of funding for the project, please include the institution, and potential identifiers of the funding.		text	5		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	project	institutional	

@@ -1,0 +1,16 @@
+#metadataBlock	name	dataverseAlias	displayName													
+	geographic	geographic	Description of geographic/spatial dataset (vector or raster)													
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	illustration	Illustration	Image used to illustrate the dataset		none	0		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geographic	
+	illustrationFile	Illustration File	Url address of the illustrating file		url	1		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	illustrationDescription	Illustration Description	Description of the illustrating image		textbox	2		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	illustrationFormat	Illustration File Format	Format of the file		text	3		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	spatialRepresentationType	spatial representation type			text	4		FALSE	TRUE	FALSE	FALSE	FALSE	FALSE		geographic	
+	referenceSystem	Spatial reference system used in the dataset, identified with a Spatial Reference Identifier (SRID)			none	5		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geographic	
+	sridCodespace	SRID codespace	Spatial Reference Identifier Authority (for example EPSG)		text	6		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	referenceSystem	geographic	
+	sridVersion	SRID version	Spatial Reference Identificator Authority for the identifier		text	7		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	referenceSystem	geographic	
+	srid	SRID 	Spatial Reference Identifier		text	8		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	referenceSystem	geographic	
+#controlledVocabulary	DatasetField	Value	identifier	displayOrder												
+	spatialRepresentationType	raster		0												
+	spatialRepresentationType	vector		1												
+	spatialRepresentationType	other		2												

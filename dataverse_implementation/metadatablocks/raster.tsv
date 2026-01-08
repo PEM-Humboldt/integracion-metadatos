@@ -1,0 +1,14 @@
+#metadataBlock	name	dataverseAlias	displayName													
+	raster	raster	Description of spatial dataset (raster)													
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	resolutionRaster	raster resolution	Resolution of the raster data (e.g 1km)		text	0		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		raster	
+	dimensionNumber		Number of spatio-temporal axes		int	1		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		raster	
+	cellGeometry		Geometry associated with the cell in the raster data		text	2		FALSE	TRUE	FALSE	FALSE	FALSE	FALSE		raster	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CellGeometryCode
+	transformationParameterAvailibility		Indicates whether there is an available transformation parameter between image coordinates and geographic or map coordinates		text	3		FALSE	TRUE	FALSE	FALSE	FALSE	FALSE		raster	
+#controlledVocabulary	DatasetField	Value	identifier	displayOrder												
+	cellGeometry	area		0												
+	cellGeometry	point		1												
+	cellGeometry	stratum		2												
+	cellGeometry	voxel		3												
+	transformationParameterAvailibility	true		0												
+	transformationParameterAvailibility	false		1												

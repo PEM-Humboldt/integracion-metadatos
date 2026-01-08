@@ -1,0 +1,6 @@
+#metadataBlock	name	dataverseAlias	displayName													
+	vectorialData	vectorialData	Description of spatial dataset (vector)													
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	vectorResolution	Vector Resolution	Scale denominator (e.g. if scale is 1/10000, put 10000)		int	0		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		vectorialData	
+	topologicalLevel	Topological level	degree of complexity of the spatial relationships		text	1		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		vectorialData	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
+	geometricObjectType		name of point or vector objects used to locate zero-, one-, two-, or three-dimensional spatial locations in the dataset		text	2		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		vectorialData	https://standards.iso.org/iso/19139/#MD_GeometricObjectTypeCode
