@@ -248,6 +248,7 @@ lapply(createPostgresTableStatement, dbExecute,conn=meta_i2d)
 
 ```{r}
 extractedBiocultural <- extractValues(descriTables, biocultural)
+extractedBiocultural<-lapply(extractedBiocultural,unique) # THAT IS A BAD FIX for a serious problem: everything is duplicated!
 insertTables(extractedBiocultural, meta_i2d, descriTables, "biocultural")
 ```
 
