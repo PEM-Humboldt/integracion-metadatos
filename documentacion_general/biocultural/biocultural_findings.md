@@ -107,6 +107,9 @@ Que para BioCultural se obtiene la plantilla `custom-homepage-dynamic.html`, la 
 
 O bien, se puede también usar como base el homepage del repositorio del github de Harvard (https://github.com/IQSS/dataverse.harvard.edu).
 
+**Nota:** En caso de que se haya modificado el alias del dataverse raíz, se debe configurar adecuadamente en el HTML (que tiene quemado el nombre root)
+![custom_homepage_2](../../images/custom_homepage_2.png)
+
 ## Personalización 
 
 Un administrador podría modificar el archivo que llama la base de datos, y por lo tanto, alterar la homepage. Sin embargo, para personalizarla o modificarla, se debe editar directamente el `.html`  ingresando a la ruta `/var/www/dataverse/branding`, modificando el archivo y guardando los cambios; o desde un IDE, copiando el archivo al host y luego de regreso al contenedor siguiendo los comandos descritos en la sección anterior.
@@ -121,8 +124,38 @@ Es posible realizar una personalización completa del homepage de Dataverse:
 -   Configuración del CSS
 
 Es decir, que no sólo es posible personalizar el contenido, sino que se puede agregar un header y un footer personalizable, que se presentará junto al header y footer propio de dataverse. Adicionalmente, es posible agregar e instalar un stylesheet propio.
+![custom_homepage_1](../../images/custom_homepage_1.png)
 
-#### Secciones personalizables
+**Descarga e instalación del header**
+`sudo wget https://guides.dataverse.org/en/6.6/_downloads/4e2c4e359b641142d3b5d34f979248b0/custom-header.html`
+
+`curl -X PUT -d '/var/www/dataverse/branding/custom-header.html' http://localhost:8080/api/admin/settings/:HeaderCustomizationFile`
+
+**Descarga e instalación del footer**
+
+`sudo wget https://guides.dataverse.org/en/6.6/_downloads/1c9c782c8c0a4b602ad667eb5871203b/custom-footer.html`
+
+`curl -X PUT -d '/var/www/dataverse/branding/custom-footer.html' http://localhost:8080/api/admin/settings/:FooterCustomizationFile`
+
+
+Y se agregan a la carpeta `/var/www/dataverse/branding/`
+
+**Descarga e instalación de un stylesheet**
+`sudo wget https://guides.dataverse.org/en/6.6/_downloads/483ea011831fc72d7f1e923a1898f3a3/custom-stylesheet.css`
+
+`curl -X PUT -d '/var/www/dataverse/branding/custom-stylesheet.css' http://localhost:8080/api/admin/settings/:StyleCustomizationFile`
+
+#### Otras secciones personalizables
+
+#### Cambiar link de la opción Soporte del menu bar:
+
+Para que el link de Soporte del menú de Dataverse se redireccione a la página del Wiki de la I2D.
+`curl -X PUT -d 'https://sites.google.com/humboldt.org.co/i2dwiki/herramientas?authuser=0' http://localhost:8080/api/admin/settings/:NavbarSupportUrl`
+
+#### Cambiar el link de guia de usuario para enlazar con el wiki
+
+`curl -X PUT -d  https://sites.google.com/humboldt.org.co/i2dwiki/incorporaci%C3%B3n/socioecol%C3%B3gica?pli=1 http://localhost:8080/api/admin/settings/:NavbarGuidesUrl`
+
 
 #### API de métricas
 [Documentación]([https://guides.dataverse.org/en/6.6/api/metrics.html](https://guides.dataverse.org/en/6.6/api/metrics.html)).
