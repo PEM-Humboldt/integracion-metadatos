@@ -26,7 +26,7 @@ El archivo de traducciones define traducciones tanto para los atributos del bloq
 	- Nombre (`name`)
 	- Título (`displayName`)
 	- Nombre para las búsquedas (`displayFacet`)
-La estructura a seguir es_
+La estructura a seguir es:
 `metadatablock.[campo_a_traducir]=[traducción]`
 
 - Para cada campo, se traducen los siguientes atributos:
@@ -41,9 +41,9 @@ La estructura a seguir es:
 La estructura a seguir es:
 `controlledvocabulary.[nombre_atributo].[value]=[traduccion]`
 
-		La forma correcta de generar una traducción sobre un vocabulario controlado es, como indica la estructura, asignándola a su campo campo `value`, no a `identifier`. Adicionalmente, el value siempre debe escribirse en minúsculas, independientemente de si el valor del TSV contiene mayúsculas. 
+		La forma correcta de generar una traducción sobre un vocabulario controlado es, como indica la estructura, asignándola a su campo `value`, no a `identifier`. Adicionalmente, el value siempre debe escribirse en minúsculas, independientemente de si el valor del TSV contiene mayúsculas. 
 
-		> Un achivo TSV con el siguiente vocabulario controlado:
+		> Un archivo TSV con el siguiente vocabulario controlado:
 		> 			`#controlledVocabulary DatasetField Value identifier displayOrder
 		> iavhTypeOfInstitution Public Institution iavh_type_inst_public 0` 
 		> 

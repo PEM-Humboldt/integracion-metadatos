@@ -1,5 +1,5 @@
 # Actualización de metadatos en BioCultural
-Para la integración de metadatos de los tres catálogos, se realizó una primera fase de actualización de metadatos. Todos los pasos aquí descritos ya fueron explicados en [esta sección], el objetivo de esta documentación es hecha para mantener una trazabilidad adecuada del proceso de la integración.
+Para la integración de metadatos de los tres catálogos, se realizó una primera fase de actualización de metadatos. Todos los pasos aquí descritos ya fueron explicados en [esta sección](../../dataverse_implementation/customization/custom_metadata.md), el objetivo de esta documentación es mantener una trazabilidad adecuada del proceso de la integración.
 
 Durante la actualización de los nuevos metadatos para la integración de los catálogos me topé con algunos problemas. Esta sección la dividiré en dos: la primera sección será una recopilación de los errores/problemas que tuve que solucionar para el correcto funcionamiento de los datos; la segunda sección será una recopilación de los comandos que seguí, una vez arreglados los errores, para cargar los nuevos metadatos.
 
@@ -39,7 +39,7 @@ Para recuperar los campos originales y arreglar estos errores, tuve que volver a
 2.  Se habilitaron nuevamente (sólo los originales):
 `curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" -d "[\"citation\", \"geospatial\", \"socialscience\"]" http://localhost:8080/api/dataverses/:root/metadatablocks`
 
-3.  Finalmente, se indexarlos a Solr siguiendo los pasos descritos en una sección anterior.
+3.  Finalmente, se indexaron a Solr siguiendo los pasos descritos en una [sección anterior](../../dataverse_implementation/customization/custom_metadata.md).
 
 ### Error #2: El fieldType de tipo String no es válido
 En el `emldn.tsv` se tenían unos datos marcados como `string` en la columna `fieldType`, lo cuál no es válido para la versión de Dataverse que maneja el instituto (`v6.6`). Se modificaron estos campos a `text`.
@@ -80,7 +80,7 @@ Esto pasa porque los vocabularios transforman las keys a `lowercase` y hacen la 
 
 	`curl http://localhost:8080/api/admin/datasetfield/load -H "Content-type: text/tab-separated-values" -X POST --upload-file institutional.tsv`
 
-2.  Se habilitar los nuevos bloques de metadatos (en este caso, no se habilitaron los bloques originales):
+2.  Se habilitaron los nuevos bloques de metadatos (en este caso, no se habilitaron los bloques originales):
     
 	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" -d "[\"citation\", \"emldn\", \"externalReferences\", \"geographic\", \"iavh_geospatial\", \"iavh_socialscience\", \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks`
 

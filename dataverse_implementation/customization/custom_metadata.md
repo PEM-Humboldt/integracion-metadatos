@@ -128,7 +128,7 @@ Dataverse fue desarrollado con la idea de separar la creación de datasets en do
 2. La edición del recurso da al usuario una cantidad adicional de metadatos opcionales a llenar según consideración del investigador.
 
 Para definir qué metadatos se deben mostrar en la primera o en la segunda parte, se hace uso de la columna `displayOnCreate` del TSV. 
-- Si `displayOncreate` es `TRUE` entonces se mostrará al crear.
+- Si `displayOnCreate` es `TRUE` entonces se mostrará al crear.
 - Si `displayOnCreate` es `FALSE` entonces sólo se mostrará en la edición. 
 
 Esta columna puede ser manipulada incluso después de la carga y habilitación inicial de los bloques: una vez editada, simplemente se debe recargar el TSV:
@@ -266,7 +266,8 @@ Dataverse permite la instalación de scripts personalizados externos para realiz
 Cada script debe vincularse con una configuración en la tabla `setting` de la base de datos de Postgresql, cada una de estas configuraciones incluye el disparador que ejecutará el script. Estos scripts deben almacenarse dentro del contenedor, deben ser ejecutables y deben tomar el nombre del archivo que contiene los metadatos en el formato nativo `json` como argumento (la aplicación de Dataverse exporta los metadatos de un dataset en este formato, almacenándolo como un archivo temporal y enviando el nombre de este archivo al validador). Los scripts deben retornar un código de error diferente de 0 si la validación falla, haciendo que el dataset se mantenga como `no publicado` y se muestre un mensaje de error al usuario. Es también importante que el script sea ligero e, idealmente, pueda realizar las validaciones en segundos, puesto que las validaciones se realizan de manera síncrona mientras el usuario espera a la publicación.
 
 Este es un script de ejemplo básico que busca la palabra `spam` en el título del recurso:
-```#!/usr/bin/env python3
+```python
+#!/usr/bin/env python3
 import sys
 import json
 # 1. Get file path argument
