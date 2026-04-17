@@ -78,12 +78,14 @@ Hasta este punto, un administrador podrá ingresar a la opción “Nuevo dataver
   **Nota: Este comando sobreescribe, no añade. Al momento de ejecutarlo se deben añadir todos los bloques de metadatos.**
 
 También se puede hacer usando un archivo `json` que contenga los nombres de todos los bloques y usarlo en el comando:  
-`[  
-citation,
-geospatial,
+```json
+[  
+"citation",
+"geospatial",
 ...,
-institutional
-]`
+"institutional"
+]
+```
 
 `curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" --upload-file metadatablocks.json "http://localhost:8080/api/dataverses/:root/metadatablocks"`
 

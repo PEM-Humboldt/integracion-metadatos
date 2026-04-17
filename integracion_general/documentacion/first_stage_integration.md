@@ -84,7 +84,7 @@ Esto pasa porque los vocabularios transforman las keys a `lowercase` y hacen la 
     
 	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" -d "[\"citation\", \"emldn\", \"externalReferences\", \"geographic\", \"iavh_geospatial\", \"iavh_socialscience\", \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks`
 
-3.  Se indexarlos a Solr siguiendo las instrucciones de la sección anterior.
+3.  Se indexaron a Solr siguiendo los pasos descritos en una [sección anterior](../../dataverse_implementation/customization/custom_metadata.md).
 
 ### Cargar nuevas traducciones
 Para las nuevas traducciones, simplemente copié los archivos correctos a `/home/dataverse/langBundles` dentro del contenedor, y posteriormente lo reinicié:
