@@ -220,7 +220,7 @@ configuración corresponden con lo esperado:
 validaciones_fields<-list()
 validaciones_fields$metadatablock<-list(base=c("name","dataverseAlias","displayName","blockURI"), traducción = c("traducción_displayName","traducción_name","traducción_facetName"), other=NULL)
 validaciones_fields$fields<-list(base=c("name", "title", "description", "watermark", "fieldType", "displayOrder", "displayFormat", "advancedSearchField", "allowControlledVocabulary", "allowmultiples", "facetable", "displayoncreate", "required", "parent", "metadatablock_id", "termURI"),traducción=c("traducción_title","traducción_description","traducción_watermark"),other="Visible")
-validaciones_fields$controlledVocabulary<-list(base="DatasetField","Value","identifier","displayOrder",traducción="traducción_Value",other=NULL)
+validaciones_fields$controlledVocabulary<-list(base=c("DatasetField","Value","identifier","displayOrder"),traducción="traducción_Value",other=NULL)
 
 A<-lapply(validaciones_fields,unlist)
 
@@ -383,27 +383,6 @@ block_pb<-which(!sapply(allConfigs,function(x)all(0:(nrow(x$field)-1) %in% x$fie
 if(length(block_pb)>0)
 {warning("Por favor corregir la variable displayOrder en los bloques siguientes:\n",paste(names(allConfigs)[block_pb],collapse="\n"))}
 
-lapply(allConfigs,function(x)
-  {
-    by(x$ContrVoc,x$ContrVoc$DatasetField,function(tab)tab)
-  })
-```
-
-    $dvmetadatablock_citation
-
-    $dvmetadatablock_geospatial
-
-    $dvmetadatablock_institutional
-
-    $dvmetadatablock_externalReferen
-
-    $dvmetadatablock_geographic
-
-    $dvmetadatablock_eml
-
-    $dvmetadatablock_social_science
-
-``` r
 (checkDO_contrVoc<-lapply(allConfigs,function(x)
   {
     res<-by(x$contrVoc,x$contrVoc$DatasetField,function(tab)
@@ -447,3 +426,177 @@ if(nrow(df_blockPb)>0)
 
     Warning: Por favor corregir la variable displayOrder en las variables de vocabulario controlado siguiente:
     language (bloque dvmetadatablock_citation )
+
+## Tipos de las variables descriptivas de la configuración
+
+``` r
+sapply(allConfigs$dvmetadatablock_citation$field, mode)
+```
+
+                         name                     title               description 
+                  "character"               "character"               "character" 
+                    watermark                 fieldType              displayOrder 
+                  "character"               "character"                 "numeric" 
+                displayFormat       advancedSearchField allowControlledVocabulary 
+                  "character"                 "logical"                 "logical" 
+               allowmultiples                 facetable           displayoncreate 
+                    "logical"                 "logical"                 "logical" 
+                     required                    parent          metadatablock_id 
+                    "logical"               "character"               "character" 
+                      termURI                   Visible          traducción_title 
+                  "character"               "character"               "character" 
+       traducción_description      traducción_watermark 
+                  "character"               "character" 
+
+``` r
+type_fields <- list()
+type_fields$metadatablock <- c(name="character", dataverseAlias="character", displayName="character", blockURI="character", traducción_displayName="character", traducción_name="character",traducción_facetName="character")
+type_fields$field <- c(name="character", title="character", description="character", watermark="character", fieldType="character", displayOrder="numeric", displayFormat="character", advancedSearchField="logical", allowControlledVocabulary="logical", allowmultiples="logical", facetable="logical", displayoncreate="logical", required="logical", parent="character", metadatablock_id="character", termURI="character", traducción_title="character", traducción_description="character", traducción_watermark="character", Visible="character")
+type_fields$controlledVocabulary<-c(DatasetField="character", Value="character", identifier="character", displayOrder="numeric", traducción_Value="character")
+
+for(i in names(allConfigs))
+{
+  for(j in colnames(allConfigs[[i]]$block))
+  {
+    if(!j %in% names(type_fields$metadatablock))
+    {
+      warning("En la configuración de ", i, " la variable ", j, " de la parte metadatablock no se reconoce")
+    }else{
+      if(mode(allConfigs[[i]]$block[[j]]) != type_fields$metadatablock[j] & !all(is.na(allConfigs[[i]]$block[[j]])) )
+      {
+        message("En la configuración de ", i, " la variable ", j, " de la parte metadatablock no tiene el tipo requerido. Si no hay un warning, significa que el cambio de tipo no causa problema")
+        as(allConfigs[[i]]$block[[j]], type_fields$metadatablock[j])
+      }
+    }
+  }
+  for(j in colnames(allConfigs[[i]]$field))
+  {
+    if(!j %in% names(type_fields$field))
+    {
+      warning("En la configuración de ", i, " la variable ", j, " de la parte field no se reconoce")
+    }else{
+      if(mode(allConfigs[[i]]$field[[j]]) != type_fields$field[j] & !all(is.na(allConfigs[[i]]$field[[j]])) )
+      {
+        message("En la configuración de ", i, " la variable ", j, " de la parte field no tiene el tipo requerido. Si no hay un warning, significa que el cambio de tipo no causa problema")
+        as(allConfigs[[i]]$field[[j]], type_fields$field[j])
+      }
+    }
+  }
+  for(j in colnames(allConfigs[[i]]$contrVoc))
+  {
+    if(!j %in% names(type_fields$controlledVocabulary))
+    {
+      warning("En la configuración de ", i, " la variable ", j, " de la parte de vocabulario controlado no se reconoce")
+    }else{
+      if(mode(allConfigs[[i]]$contrVoc[[j]]) != type_fields$controlledVocabulary[j] & !all(is.na(allConfigs[[i]]$contrVoc[[j]])) )
+      {
+        message("En la configuración de ", i, " la variable ", j, " de la parte vocabulario controlado no tiene el tipo requerido. Si no hay un warning, significa que el cambio de tipo no causa problema")
+        as(allConfigs[[i]]$contrVoc[[j]], type_fields$controlledVocabulary[j])
+      }
+    }
+  }
+}
+```
+
+``` r
+lapply(allConfigs,function(x)all(x$field$fieldType %in% c("none","date","email","text","textbox","string","url","int","float")))
+```
+
+    $dvmetadatablock_citation
+    [1] TRUE
+
+    $dvmetadatablock_geospatial
+    [1] TRUE
+
+    $dvmetadatablock_institutional
+    [1] TRUE
+
+    $dvmetadatablock_externalReferen
+    [1] TRUE
+
+    $dvmetadatablock_geographic
+    [1] TRUE
+
+    $dvmetadatablock_eml
+    [1] TRUE
+
+    $dvmetadatablock_social_science
+    [1] TRUE
+
+# Export formatted configuration files
+
+``` r
+format1val<-function(x){if(is.na(x)){return("")};return(stringi::stri_escape_unicode(x))}
+formatValue<-function(x)
+{
+  res<-character(length(x))
+  res[is.na(x)]<-""
+  res[!is.na(x)]<-stringi::stri_escape_unicode(x[!is.na(x)])
+  return(res)
+}
+formatRef<-function(x)
+{tolower(gsub(" ","_",x))}
+exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
+{
+  if(dir.exists(exportDir))
+  {
+    if(overwriteDir)
+    {
+      unlink(exportDir, recursive = TRUE)
+    }else{
+      stop("La carpeta", exportDir, "ya existe y el parametro overwriteDir no es verdadero")
+    }
+  }
+  dir.create(exportDir)
+  dir.create(paste(exportDir,"langBundle",sep="/"))
+  dir.create(paste(exportDir,"metadata_tsv",sep="/"))
+  
+  allConfigs_base <- lapply(allConfigs,function(x)x)
+  allConfigs_base <- lapply(allConfigs,function(x, f)
+  {
+    res<-list()
+    res$block <- x$block[,colnames(x$block)[colnames(x$block) %in% f$metadatablock$base]]
+    res$field <- x$field[,colnames(x$field)[colnames(x$field) %in% f$field$base]]
+    res$contrVoc <- x$contrVoc[,colnames(x$contrVoc)[colnames(x$contrVoc) %in% f$controlledVocabulary$base]]
+    return(res)
+  }, f=fieldList)
+  blockNames<-sapply(allConfigs, function(x)x$block$name)
+  for(i in 1:length(allConfigs))
+  {
+    fileName<-paste(exportDir,"metadata_tsv",paste0(blockNames[i],".tsv"),sep="/")
+    cat(paste(c("#metadataBlock", colnames(allConfigs_base[[i]]$block)), collapse="\t"),file=fileName)
+    cat("\n",file=fileName,append=T)
+    write.table(data.frame(`metadatablock`=NA, allConfigs_base[[i]]$block), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    cat(paste(c("#datasetField", colnames(allConfigs_base[[i]]$field)), collapse="\t"),file=fileName,append=T)
+    cat("\n",file=fileName,append=T)
+    write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$field), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    cat(paste(c("#controlledVocabulary", colnames(allConfigs_base[[i]]$contrVoc)), collapse="\t"),file=fileName,append=T)
+    cat("\n",file=fileName,append=T)
+    write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$contrVoc), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+  }
+  for(i in 1:length(allConfigs))
+  {
+    fileName<-paste(exportDir,"langBundle",paste0(blockNames[i],"_es.properties"),sep="/")
+    cat(fileName,"\n")
+    cat("metadatablock.name=",format1val(allConfigs[[i]]$block$traducción_name),"\n",sep="",file=fileName)
+    cat("metadatablock.displayName=",format1val(allConfigs[[i]]$block$traducción_displayName),"\n",sep="",file=fileName, append=T)
+    cat("metadatablock.displayFacet=",format1val(allConfigs[[i]]$block$traducción_facetName),"\n",sep="",file=fileName, append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",file=fileName,append=T)
+    if(nrow(allConfigs[[i]]$contrVoc)>0)
+    {
+      cat(paste("controlledvocabulary.",allConfigs[[i]]$contrVoc$DatasetField,".",formatRef(allConfigs[[i]]$contrVoc$Value),"=",formatValue(allConfigs[[i]]$contrVoc$traducción_Value),sep="",collapse="\n"),file=fileName,append=T)
+    }
+  }
+}
+exportConfigFiles(allConfigs = allConfigs, exportDir = "../../data_metadatos_catalogos/exportConfig/", fieldList=validaciones_fields)
+```
+
+    ../../data_metadatos_catalogos/exportConfig//langBundle/citation_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/geospatial_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/institutional_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/externalReferences_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/geographic_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/emldn_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/socialscience_es.properties 
