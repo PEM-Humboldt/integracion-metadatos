@@ -96,7 +96,7 @@ Este paso es crucial para garantizar la persistencia, omitir este paso puede oca
 	Acceder al contenedor
 	`docker exec -it dataverse bash`
 	Generar el nuevo esquema de campos con:
-	`docker cp dataverse:/tmp/dv-fields.xml /tmp/`
+	`curl http://localhost:8080/api/admin/index/solr/schema > /tmp/dv-fields.xml`
 	
 * **Desde la máquina host**:
 	Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
