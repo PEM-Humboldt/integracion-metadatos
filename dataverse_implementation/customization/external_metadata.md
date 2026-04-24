@@ -7,7 +7,19 @@ Dataverse soporta vocabularios y PIDs (persistent identifiers) de terceros a tra
   
 ## Consideraciones
 
-Según el repositorio, sólo existe soporte a partir de la versión 6.8 de Dataverse, por lo que para versiones menores podrían verse afectadas por errores inesperados.
+Según el repositorio, para la implementación de la API de ROR, sólo existe soporte a partir de la versión 6.8 de Dataverse, por lo que para versiones menores podrían verse afectadas por errores inesperados.
+
+Actualmente, ya existen scripts que soportan el uso de vocabularios de los siguientes servicios (más sobre esto [aquí](https://guides.dataverse.org/en/latest/admin/metadatacustomization.html#using-external-vocabulary-services)):
+- Protocolo [SKOSMOS](https://skosmos.org/).
+- [ORCID](https://orcid.org/).
+- [ROR](https://ror.org/).
+- Servicios [Ontoportal](https://ontoportal.org/)
+
+Sin embargo, este sistema pueda expandirse e implementarse con cualquier API que:
+- Permita búsquedas (`?q=example`)
+- Sea accesible desde el navegador (por ejemplo, CORS habilitado o endpoints públicos).
+- Retorne respuestas que puedan ser procesadas en JavaScript (preferiblemente JSON).
+- (Opcional) Retorne toda la información necesaria para llenar los campos de Dataverse (por ejemplo, identificadores).
 
 ## Implementación
 
