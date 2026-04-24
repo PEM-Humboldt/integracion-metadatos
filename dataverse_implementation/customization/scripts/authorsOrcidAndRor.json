@@ -1,0 +1,40 @@
+[
+  {
+    "field-name": "authorAffiliation",
+    "term-uri-field": "authorAffiliation",
+    "js-url": ["https://gdcc.github.io/dataverse-external-vocab-support/scripts/ror.js","https://gdcc.github.io/dataverse-external-vocab-support/scripts/cvocutils.js"],
+    "protocol": "ror",
+    "retrieval-uri": "https://api.ror.org/v1/organizations/{0}",
+    "allow-free-text": true,
+    "prefix": "https://ror.org/",
+    "managed-fields": {},
+    "languages":"en",
+    "vocabs": {
+      "rors": {
+        "uriSpace": "https://ror.org/"
+      }
+    },
+    "retrieval-filtering": {}
+  },
+  {
+    "field-name": "author",
+    "term-uri-field": "authorIdentifier",
+    "js-url": ["https://gdcc.github.io/dataverse-external-vocab-support/scripts/people.js","https://gdcc.github.io/dataverse-external-vocab-support/scripts/cvocutils.js"],
+    "protocol": "orcid",
+    "cvoc-url": "https://orcid.org/",
+    "retrieval-uri": "https://pub.orcid.org/v2.1/{0}/person",
+    "allow-free-text": true,
+    "prefix": "https://orcid.org/",
+    "managed-fields": {
+      "personName":"authorName",
+      "idType":"authorIdentifierScheme"
+    },
+    "languages":"en",
+    "vocabs": {
+      "orcid": {
+        "uriSpace": "https://orcid.org/"
+      }
+    },
+    "retrieval-filtering": {}
+  }
+]
