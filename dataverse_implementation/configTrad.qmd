@@ -110,8 +110,8 @@ Por ahora vamos a pasar por una descarga en formato excel...
 ```{r}
 require(openxlsx)
 #wb<-loadWorkbook("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
-wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx"
-sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
+wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx"
+sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx")
 rawCitation<-read.xlsx(wb,sheet="dvmetadatablock_citation",colNames=F)
 blockPartStart<-which(rawCitation[,1]=="#metadataBlock")
 fieldPartStart<-which(rawCitation[,1]=="#datasetField")
@@ -159,9 +159,9 @@ read_configXl<-function(wkbook_config,sheet)
 Now we just need to do:
 
 ```{r}
-citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_citation")
-socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_social_science")
-geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_geospatial")
+citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_citation")
+socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_social_science")
+geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_geospatial")
 ```
 
 
@@ -169,7 +169,7 @@ geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de 
 ## Exportación traducciones en curso (tables)
 
 
-```{r}
+```r
 write.csv(res[fieldPart$name,],file="../../data_metadatos_catalogos/translationsFieldsCitation.csv")
 write.csv(fields_socio[socio_config$field$name,],file="../../data_metadatos_catalogos/translationsFieldsSocio.csv")
 write.csv(fields_geospatial[match(geospatial_config$field$name,rownames(fields_geospatial)),],file="../../data_metadatos_catalogos/translationsFieldsgeospatial.csv")
@@ -185,7 +185,7 @@ matchContVoca_translation_config <- function(contVoca, config)
 ```
 
 
-```{r}
+```r
 write.csv(contVoca_citation[matchContVoca_translation_config(contVoca_citation,citation_config),],file="../../data_metadatos_catalogos/translationVocabCont_citation.csv")
 write.csv(contVoca_geospatial[matchContVoca_translation_config(contVoca_geospatial,geospatial_config),],file="../../data_metadatos_catalogos/translationVocabCont_geospatial.csv")
 ```
@@ -430,9 +430,11 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat(paste(c("#datasetField", colnames(allConfigs_base[[i]]$field)), collapse="\t"),file=fileName,append=T)
     cat("\n",file=fileName,append=T)
     write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$field), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
-    cat(paste(c("#controlledVocabulary", colnames(allConfigs_base[[i]]$contrVoc)), collapse="\t"),file=fileName,append=T)
-    cat("\n",file=fileName,append=T)
-    write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$contrVoc), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    if("contrVoc" %in% names(allConfigs_base[[i]])){
+      cat(paste(c("#controlledVocabulary", colnames(allConfigs_base[[i]]$contrVoc)), collapse="\t"),file=fileName,append=T)
+      cat("\n",file=fileName,append=T)
+      write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$contrVoc), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    }
   }
   for(i in 1:length(allConfigs))
   {
@@ -444,7 +446,7 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",file=fileName,append=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",file=fileName,append=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    if(nrow(allConfigs[[i]]$contrVoc)>0)
+    if("contrVoc" %in% names(allConfigs_base[[i]]) && nrow(allConfigs[[i]]$contrVoc)>0)
     {
       cat(paste("controlledvocabulary.",allConfigs[[i]]$contrVoc$DatasetField,".",formatRef(allConfigs[[i]]$contrVoc$Value),"=",formatValue(allConfigs[[i]]$contrVoc$traducción_Value),sep="",collapse="\n"),file=fileName,append=T)
     }

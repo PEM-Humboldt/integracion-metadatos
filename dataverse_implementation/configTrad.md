@@ -126,8 +126,8 @@ require(openxlsx)
 
 ``` r
 #wb<-loadWorkbook("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
-wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx"
-sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
+wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx"
+sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx")
 rawCitation<-read.xlsx(wb,sheet="dvmetadatablock_citation",colNames=F)
 blockPartStart<-which(rawCitation[,1]=="#metadataBlock")
 fieldPartStart<-which(rawCitation[,1]=="#datasetField")
@@ -174,9 +174,9 @@ read_configXl<-function(wkbook_config,sheet)
 Now we just need to do:
 
 ``` r
-citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_citation")
-socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_social_science")
-geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx", sheet = "dvmetadatablock_geospatial")
+citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_citation")
+socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_social_science")
+geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_geospatial")
 ```
 
 ## Exportación traducciones en curso (tables)
@@ -209,9 +209,9 @@ allConfigs<-lapply(sn[grep("^dvmetadatablock",sn)],FUN=function(sheet,wkbook_con
 ```
 
     [1] "dvmetadatablock_citation"        "dvmetadatablock_geospatial"     
-    [3] "dvmetadatablock_institutional"   "dvmetadatablock_externalReferen"
-    [5] "dvmetadatablock_geographic"      "dvmetadatablock_eml"            
-    [7] "dvmetadatablock_social_science" 
+    [3] "dvmetadatablock_institutional"   "dvmetadatablock_localContext"   
+    [5] "dvmetadatablock_externalReferen" "dvmetadatablock_geographic"     
+    [7] "dvmetadatablock_eml"             "dvmetadatablock_social_science" 
 
 Averiguar que las columnas de cada parte de los archivos de
 configuración corresponden con lo esperado:
@@ -260,6 +260,13 @@ if(length(lack))
 }
 ```
 
+    Warning: En la descripción general del vocabulario controlado "dvmetadatablock_localContext" esas variables no se encuentran:
+    DatasetField
+    Value
+    identifier
+    displayOrder
+    traducción_Value
+
 - averiguar que los nombres de bloques correspondan en todo el archivo
   - en la descripción de las variables (que corresponda a nombre de
     bloque)
@@ -287,38 +294,38 @@ sapply(allConfigs,function(x)is.na(x$block$name))
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
                               FALSE                           FALSE 
-      dvmetadatablock_institutional dvmetadatablock_externalReferen 
+      dvmetadatablock_institutional    dvmetadatablock_localContext 
                               FALSE                           FALSE 
-         dvmetadatablock_geographic             dvmetadatablock_eml 
+    dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
-     dvmetadatablock_social_science 
-                              FALSE 
+                dvmetadatablock_eml  dvmetadatablock_social_science 
+                              FALSE                           FALSE 
 
 ``` r
 sapply(allConfigs,function(x)any(is.na(x$field$metadatablock_id)))
 ```
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
+                              FALSE                            TRUE 
+      dvmetadatablock_institutional    dvmetadatablock_localContext 
                               FALSE                           FALSE 
-      dvmetadatablock_institutional dvmetadatablock_externalReferen 
+    dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
-         dvmetadatablock_geographic             dvmetadatablock_eml 
+                dvmetadatablock_eml  dvmetadatablock_social_science 
                               FALSE                           FALSE 
-     dvmetadatablock_social_science 
-                              FALSE 
 
 ``` r
 sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
 ```
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
+                               TRUE                              NA 
+      dvmetadatablock_institutional    dvmetadatablock_localContext 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional dvmetadatablock_externalReferen 
+    dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-         dvmetadatablock_geographic             dvmetadatablock_eml 
+                dvmetadatablock_eml  dvmetadatablock_social_science 
                                TRUE                            TRUE 
-     dvmetadatablock_social_science 
-                               TRUE 
 
 ## variables
 
@@ -328,12 +335,12 @@ sapply(allConfigs,function(x)all(x$field$parent[!is.na(x$field$parent)] %in% x$f
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional dvmetadatablock_externalReferen 
+      dvmetadatablock_institutional    dvmetadatablock_localContext 
                                TRUE                            TRUE 
-         dvmetadatablock_geographic             dvmetadatablock_eml 
+    dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-     dvmetadatablock_social_science 
-                               TRUE 
+                dvmetadatablock_eml  dvmetadatablock_social_science 
+                               TRUE                            TRUE 
 
 ``` r
 if(any(sapply(allConfigs,function(x)all(x$field$parent[!is.na(x$field$parent)] %in% x$field$name))))
@@ -351,12 +358,12 @@ sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$name))
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional dvmetadatablock_externalReferen 
+      dvmetadatablock_institutional    dvmetadatablock_localContext 
                                TRUE                            TRUE 
-         dvmetadatablock_geographic             dvmetadatablock_eml 
+    dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-     dvmetadatablock_social_science 
-                               TRUE 
+                dvmetadatablock_eml  dvmetadatablock_social_science 
+                               TRUE                            TRUE 
 
 ``` r
 if(any(!sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$name))))
@@ -382,7 +389,13 @@ any(duplicated(unlist(nameVar)))
 block_pb<-which(!sapply(allConfigs,function(x)all(0:(nrow(x$field)-1) %in% x$field$displayOrder)))
 if(length(block_pb)>0)
 {warning("Por favor corregir la variable displayOrder en los bloques siguientes:\n",paste(names(allConfigs)[block_pb],collapse="\n"))}
+```
 
+    Warning: Por favor corregir la variable displayOrder en los bloques siguientes:
+    dvmetadatablock_localContext
+    dvmetadatablock_geographic
+
+``` r
 (checkDO_contrVoc<-lapply(allConfigs,function(x)
   {
     res<-by(x$contrVoc,x$contrVoc$DatasetField,function(tab)
@@ -401,6 +414,9 @@ if(length(block_pb)>0)
 
     $dvmetadatablock_institutional
     character(0)
+
+    $dvmetadatablock_localContext
+    NULL
 
     $dvmetadatablock_externalReferen
     character(0)
@@ -511,6 +527,9 @@ lapply(allConfigs,function(x)all(x$field$fieldType %in% c("none","date","email",
     $dvmetadatablock_institutional
     [1] TRUE
 
+    $dvmetadatablock_localContext
+    [1] TRUE
+
     $dvmetadatablock_externalReferen
     [1] TRUE
 
@@ -570,9 +589,11 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat(paste(c("#datasetField", colnames(allConfigs_base[[i]]$field)), collapse="\t"),file=fileName,append=T)
     cat("\n",file=fileName,append=T)
     write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$field), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
-    cat(paste(c("#controlledVocabulary", colnames(allConfigs_base[[i]]$contrVoc)), collapse="\t"),file=fileName,append=T)
-    cat("\n",file=fileName,append=T)
-    write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$contrVoc), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    if("contrVoc" %in% names(allConfigs_base[[i]])){
+      cat(paste(c("#controlledVocabulary", colnames(allConfigs_base[[i]]$contrVoc)), collapse="\t"),file=fileName,append=T)
+      cat("\n",file=fileName,append=T)
+      write.table(data.frame(`datasetField`=NA, allConfigs_base[[i]]$contrVoc), file=fileName, quote=F, sep="\t", na = "",col.names=F, append=T,row.names = F)
+    }
   }
   for(i in 1:length(allConfigs))
   {
@@ -584,7 +605,7 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",file=fileName,append=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",file=fileName,append=T)
     cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    if(nrow(allConfigs[[i]]$contrVoc)>0)
+    if("contrVoc" %in% names(allConfigs_base[[i]]) && nrow(allConfigs[[i]]$contrVoc)>0)
     {
       cat(paste("controlledvocabulary.",allConfigs[[i]]$contrVoc$DatasetField,".",formatRef(allConfigs[[i]]$contrVoc$Value),"=",formatValue(allConfigs[[i]]$contrVoc$traducción_Value),sep="",collapse="\n"),file=fileName,append=T)
     }
@@ -594,9 +615,10 @@ exportConfigFiles(allConfigs = allConfigs, exportDir = "../../data_metadatos_cat
 ```
 
     ../../data_metadatos_catalogos/exportConfig//langBundle/citation_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/geospatial_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/iavh_geospatial_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/institutional_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/LocalContextsCVoc_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/externalReferences_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/geographic_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/emldn_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/socialscience_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/iavh_socialscience_es.properties 

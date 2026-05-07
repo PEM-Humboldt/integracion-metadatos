@@ -1,0 +1,299 @@
+#metadataBlock	name	dataverseAlias	displayName	blockURI
+	iavh_geospatial		Geospatial Metadata	
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
+	iavh_geographicCoverageDescription	Geographic Coverage Description			textbox	0	#VALUE,	TRUE	FALSE	FALSE	FALSE	TRUE	FALSE			
+	iavh_country	Country / Nation	The country or nation that the Dataset is about.		text	1	#VALUE,	TRUE	TRUE	TRUE	TRUE	TRUE	TRUE		iavh_geospatial	
+	iavh_state	State / Province	The state or province that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	2	#VALUE,	TRUE	TRUE	TRUE	TRUE	TRUE	TRUE		iavh_geospatial	
+	iavh_city	City	The name of the city that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	3	#VALUE,	TRUE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
+	iavh_otherGeographicCoverage	Other	Other information on the geographic coverage of the data.		text	4	#VALUE,	FALSE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
+	iavh_geographicUnit	Geographic Unit	Lowest level of geographic aggregation covered by the Dataset, e.g., village, county, region.		text	5		TRUE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
+	iavh_geographicBoundingBox	Geographic Bounding Box	The fundamental geometric description for any Dataset that models geography is the geographic bounding box. It describes the minimum box, defined by west and east longitudes and north and south latitudes, which includes the largest geographic extent of the  Dataset's geographic coverage. This element is used in the first pass of a coordinate-based search. Inclusion of this element in the codebook is recommended, but is required if the bound polygon box is included.		none	6		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		iavh_geospatial	
+	iavh_westLongitude	Westernmost (Left) Longitude	Westernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -180.0 <= West  Bounding Longitude Value <= 180.0.		text	7		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
+	iavh_eastLongitude	Easternmost (Right) Longitude	Easternmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -180.0 <= East Bounding Longitude Value <= 180.0.		text	8		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
+	iavh_northLatitude	Northernmost (Top) Latitude	Northernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -90.0 <= North Bounding Latitude Value <= 90.0.		text	9		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
+	iavh_southLatitude	Southernmost (Bottom) Latitude	Southernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -90.0 <= South Bounding Latitude Value <= 90.0.		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
+	iavh_wkt	WKT	Well known text specification of the study area		textbox	11		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		iavh_geospatial	
+#controlledVocabulary	DatasetField	Value	identifier	displayOrder
+	iavh_country	Colombia		0
+	iavh_country	Afghanistan		1
+	iavh_country	Albania		2
+	iavh_country	Algeria		3
+	iavh_country	American Samoa		4
+	iavh_country	Andorra		5
+	iavh_country	Angola		6
+	iavh_country	Anguilla		7
+	iavh_country	Antarctica		8
+	iavh_country	Antigua and Barbuda		9
+	iavh_country	Argentina		10
+	iavh_country	Armenia		11
+	iavh_country	Aruba		12
+	iavh_country	Australia		13
+	iavh_country	Austria		14
+	iavh_country	Azerbaijan		15
+	iavh_country	Bahamas		16
+	iavh_country	Bahrain		17
+	iavh_country	Bangladesh		18
+	iavh_country	Barbados		19
+	iavh_country	Belarus		20
+	iavh_country	Belgium		21
+	iavh_country	Belize		22
+	iavh_country	Benin		23
+	iavh_country	Bermuda		24
+	iavh_country	Bhutan		25
+	iavh_country	Bolivia, Plurinational State of		26
+	iavh_country	Bonaire, Sint Eustatius and Saba		27
+	iavh_country	Bosnia and Herzegovina		28
+	iavh_country	Botswana		29
+	iavh_country	Bouvet Island		30
+	iavh_country	Brazil		31
+	iavh_country	British Indian Ocean Territory		32
+	iavh_country	Brunei Darussalam		33
+	iavh_country	Bulgaria		34
+	iavh_country	Burkina Faso		35
+	iavh_country	Burundi		36
+	iavh_country	Cambodia		37
+	iavh_country	Cameroon		38
+	iavh_country	Canada		39
+	iavh_country	Cape Verde		40
+	iavh_country	Cayman Islands		41
+	iavh_country	Central African Republic		42
+	iavh_country	Chad		43
+	iavh_country	Chile		44
+	iavh_country	China		45
+	iavh_country	Christmas Island		46
+	iavh_country	Cocos (Keeling) Islands		47
+	iavh_country	Comoros		48
+	iavh_country	Congo		49
+	iavh_country	Congo, the Democratic Republic of the		50
+	iavh_country	Cook Islands		51
+	iavh_country	Costa Rica		52
+	iavh_country	Croatia		53
+	iavh_country	Cuba		54
+	iavh_country	Curaçao		55
+	iavh_country	Cyprus		56
+	iavh_country	Czech Republic		57
+	iavh_country	Côte d'Ivoire		58
+	iavh_country	Denmark		59
+	iavh_country	Djibouti		60
+	iavh_country	Dominica		61
+	iavh_country	Dominican Republic		62
+	iavh_country	Ecuador		63
+	iavh_country	Egypt		64
+	iavh_country	El Salvador		65
+	iavh_country	Equatorial Guinea		66
+	iavh_country	Eritrea		67
+	iavh_country	Estonia		68
+	iavh_country	Ethiopia		69
+	iavh_country	Falkland Islands (Malvinas)		70
+	iavh_country	Faroe Islands		71
+	iavh_country	Fiji		72
+	iavh_country	Finland		73
+	iavh_country	France		74
+	iavh_country	French Guiana		75
+	iavh_country	French Polynesia		76
+	iavh_country	French Southern Territories		77
+	iavh_country	Gabon		78
+	iavh_country	Gambia		79
+	iavh_country	Georgia		80
+	iavh_country	Germany		81
+	iavh_country	Ghana		82
+	iavh_country	Gibraltar		83
+	iavh_country	Greece		84
+	iavh_country	Greenland		85
+	iavh_country	Grenada		86
+	iavh_country	Guadeloupe		87
+	iavh_country	Guam		88
+	iavh_country	Guatemala		89
+	iavh_country	Guernsey		90
+	iavh_country	Guinea		91
+	iavh_country	Guinea-Bissau		92
+	iavh_country	Guyana		93
+	iavh_country	Haiti		94
+	iavh_country	Heard Island and Mcdonald Islands		95
+	iavh_country	Holy See (Vatican City State)		96
+	iavh_country	Honduras		97
+	iavh_country	Hong Kong		98
+	iavh_country	Hungary		99
+	iavh_country	Iceland		100
+	iavh_country	India		101
+	iavh_country	Indonesia		102
+	iavh_country	Iran, Islamic Republic of		103
+	iavh_country	Iraq		104
+	iavh_country	Ireland		105
+	iavh_country	Isle of Man		106
+	iavh_country	Israel		107
+	iavh_country	Italy		108
+	iavh_country	Jamaica		109
+	iavh_country	Japan		110
+	iavh_country	Jersey		111
+	iavh_country	Jordan		112
+	iavh_country	Kazakhstan		113
+	iavh_country	Kenya		114
+	iavh_country	Kiribati		115
+	iavh_country	Korea, Democratic People's Republic of		116
+	iavh_country	Korea, Republic of		117
+	iavh_country	Kuwait		118
+	iavh_country	Kyrgyzstan		119
+	iavh_country	Lao People's Democratic Republic		120
+	iavh_country	Latvia		121
+	iavh_country	Lebanon		122
+	iavh_country	Lesotho		123
+	iavh_country	Liberia		124
+	iavh_country	Libya		125
+	iavh_country	Liechtenstein		126
+	iavh_country	Lithuania		127
+	iavh_country	Luxembourg		128
+	iavh_country	Macao		129
+	iavh_country	Macedonia, the Former Yugoslav Republic of		130
+	iavh_country	Madagascar		131
+	iavh_country	Malawi		132
+	iavh_country	Malaysia		133
+	iavh_country	Maldives		134
+	iavh_country	Mali		135
+	iavh_country	Malta		136
+	iavh_country	Marshall Islands		137
+	iavh_country	Martinique		138
+	iavh_country	Mauritania		139
+	iavh_country	Mauritius		140
+	iavh_country	Mayotte		141
+	iavh_country	Mexico		142
+	iavh_country	Micronesia, Federated States of		143
+	iavh_country	Moldova, Republic of		144
+	iavh_country	Monaco		145
+	iavh_country	Mongolia		146
+	iavh_country	Montenegro		147
+	iavh_country	Montserrat		148
+	iavh_country	Morocco		149
+	iavh_country	Mozambique		150
+	iavh_country	Myanmar		151
+	iavh_country	Namibia		152
+	iavh_country	Nauru		153
+	iavh_country	Nepal		154
+	iavh_country	Netherlands		155
+	iavh_country	New Caledonia		156
+	iavh_country	New Zealand		157
+	iavh_country	Nicaragua		158
+	iavh_country	Niger		159
+	iavh_country	Nigeria		160
+	iavh_country	Niue		161
+	iavh_country	Norfolk Island		162
+	iavh_country	Northern Mariana Islands		163
+	iavh_country	Norway		164
+	iavh_country	Oman		165
+	iavh_country	Pakistan		166
+	iavh_country	Palau		167
+	iavh_country	Palestine, State of		168
+	iavh_country	Panama		169
+	iavh_country	Papua New Guinea		170
+	iavh_country	Paraguay		171
+	iavh_country	Peru		172
+	iavh_country	Philippines		173
+	iavh_country	Pitcairn		174
+	iavh_country	Poland		175
+	iavh_country	Portugal		176
+	iavh_country	Puerto Rico		177
+	iavh_country	Qatar		178
+	iavh_country	Romania		179
+	iavh_country	Russian Federation		180
+	iavh_country	Rwanda		181
+	iavh_country	Réunion		182
+	iavh_country	Saint Barthélemy		183
+	iavh_country	Saint Helena, Ascension and Tristan da Cunha		184
+	iavh_country	Saint Kitts and Nevis		185
+	iavh_country	Saint Lucia		186
+	iavh_country	Saint Martin (French part)		187
+	iavh_country	Saint Pierre and Miquelon		188
+	iavh_country	Saint Vincent and the Grenadines		189
+	iavh_country	Samoa		190
+	iavh_country	San Marino		191
+	iavh_country	Sao Tome and Principe		192
+	iavh_country	Saudi Arabia		193
+	iavh_country	Senegal		194
+	iavh_country	Serbia		195
+	iavh_country	Seychelles		196
+	iavh_country	Sierra Leone		197
+	iavh_country	Singapore		198
+	iavh_country	Sint Maarten (Dutch part)		199
+	iavh_country	Slovakia		200
+	iavh_country	Slovenia		201
+	iavh_country	Solomon Islands		202
+	iavh_country	Somalia		203
+	iavh_country	South Africa		204
+	iavh_country	South Georgia and the South Sandwich Islands		205
+	iavh_country	South Sudan		206
+	iavh_country	Spain		207
+	iavh_country	Sri Lanka		208
+	iavh_country	Sudan		209
+	iavh_country	Suriname		210
+	iavh_country	Svalbard and Jan Mayen		211
+	iavh_country	Swaziland		212
+	iavh_country	Sweden		213
+	iavh_country	Switzerland		214
+	iavh_country	Syrian Arab Republic		215
+	iavh_country	Taiwan, Province of China		216
+	iavh_country	Tajikistan		217
+	iavh_country	Tanzania, United Republic of		218
+	iavh_country	Thailand		219
+	iavh_country	Timor-Leste		220
+	iavh_country	Togo		221
+	iavh_country	Tokelau		222
+	iavh_country	Tonga		223
+	iavh_country	Trinidad and Tobago		224
+	iavh_country	Tunisia		225
+	iavh_country	Turkey		226
+	iavh_country	Turkmenistan		227
+	iavh_country	Turks and Caicos Islands		228
+	iavh_country	Tuvalu		229
+	iavh_country	Uganda		230
+	iavh_country	Ukraine		231
+	iavh_country	United Arab Emirates		232
+	iavh_country	United Kingdom		233
+	iavh_country	United States		234
+	iavh_country	United States Minor Outlying Islands		235
+	iavh_country	Uruguay		236
+	iavh_country	Uzbekistan		237
+	iavh_country	Vanuatu		238
+	iavh_country	Venezuela, Bolivarian Republic of		239
+	iavh_country	Viet Nam		240
+	iavh_country	Virgin Islands, British		241
+	iavh_country	Virgin Islands, U.S.		242
+	iavh_country	Wallis and Futuna		243
+	iavh_country	Western Sahara		244
+	iavh_country	Yemen		245
+	iavh_country	Zambia		246
+	iavh_country	Zimbabwe		247
+	iavh_country	Åland Islands		248
+	iavh_state	Antioquia	05	0
+	iavh_state	Atlántico	08	1
+	iavh_state	Bogotá, D.C.	11	2
+	iavh_state	Bolívar	13	3
+	iavh_state	Boyacá	15	4
+	iavh_state	Caldas	17	5
+	iavh_state	Caquetá	18	6
+	iavh_state	Cauca	19	7
+	iavh_state	Cesar	20	8
+	iavh_state	Córdoba	23	9
+	iavh_state	Cundinamarca	25	10
+	iavh_state	Chocó	27	11
+	iavh_state	Huila	41	12
+	iavh_state	La Guajira	44	13
+	iavh_state	Magdalena	47	14
+	iavh_state	Meta	50	15
+	iavh_state	Nariño	52	16
+	iavh_state	Norte de Santander	54	17
+	iavh_state	Quindio	63	18
+	iavh_state	Risaralda	66	19
+	iavh_state	Santander	68	20
+	iavh_state	Sucre	70	21
+	iavh_state	Tolima	73	22
+	iavh_state	Valle del Cauca	76	23
+	iavh_state	Arauca	81	24
+	iavh_state	Casanare	85	25
+	iavh_state	Putumayo	86	26
+	iavh_state	Archipiélago de San Andrés y Providencia	88	27
+	iavh_state	Amazonas	91	28
+	iavh_state	Guainía	94	29
+	iavh_state	Guaviare	95	30
+	iavh_state	Vaupés	97	31
+	iavh_state	Vichada	99	32
+	iavh_state	Other	00	33
