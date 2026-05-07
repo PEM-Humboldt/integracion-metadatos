@@ -53,7 +53,7 @@ Un nuevo archivo puede generarse desde un excel, agregando todas las columnas ne
 
 ### Paso 2: Cargar el nuevo archivo a Dataverse
 Puede añadir el nuevo archivo al contenedor con:
-`docker cp new_block.tsv dataverse@/usr/local/dvinstall/data/metadatablocks/`
+`docker cp new_block.tsv dataverse:/usr/local/dvinstall/data/metadatablocks/`
 
 Posteriormente, se debe cargar el archivo a través de la API de Dataverse, con el siguiente comando:
 `curl http://localhost:8080/api/admin/datasetfield/load -H "Content-type: text/tab-separated-values" -X POST --upload-file <route>/new_block.tsv`
