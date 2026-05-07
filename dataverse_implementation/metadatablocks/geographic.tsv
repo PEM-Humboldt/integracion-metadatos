@@ -7,30 +7,30 @@
 	vectorLayerDescription	Vector Layer Description	Description of a vector layer		textbox	3		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorReferenceSystemEpsg	EPSG Reference System Identifier	Spatial reference system used in the dataset, identified with a EPSG SRID number		int	4		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorResolution	Vector Resolution	Scale denominator describing the scale	if scale is 1/10000, put 10000	int	5		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	vectorFileName	Vector File Name	Name of the file which contains the vector layer		text			FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	vectorFileFormat	Vector File Format	Format of the file which contains the vector layer		text	6		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	vectorSoftware	Vector software	Software used to create the vector layer		text	7		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	vectorSofwareVersion	Vector Software Version	Version of the software used to create the vector layer		text	8		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	topologicalLevel	Topological level	degree of complexity of the spatial relationships		text	9		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
-	geometricObjectType	Geometric Object Type	name of point or vector objects used to locate zero-, one-, two-, or three-dimensional spatial locations in the dataset		text	10		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	https://standards.iso.org/iso/19139/#MD_GeometricObjectTypeCode
-	rasterLayer	Raster Layer	Group of variables for describing a raster layer		none	11		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		geographic	
-	rasterLayerName	Raster Layer Name	Name of a raster layer		text	12		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	rasterLayer	geographic	
-	rasterLayerDescription	Raster Layer Description	Description of a raster layer		textbox	13		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterReferenceSystemEpsg	Spatial reference system used in the dataset, identified with a EPSG SRID number	Spatial reference system used in the raster layer, identified with a EPSG SRID number		int	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	vectorFileName	Vector File Name	Name of the file which contains the vector layer		text	6		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
+	vectorFileFormat	Vector File Format	Format of the file which contains the vector layer		text	7		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
+	vectorSoftware	Vector software	Software used to create the vector layer		text	8		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
+	vectorSofwareVersion	Vector Software Version	Version of the software used to create the vector layer		text	9		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
+	topologicalLevel	Topological level	degree of complexity of the spatial relationships		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
+	geometricObjectType	Geometric Object Type	name of point or vector objects used to locate zero-, one-, two-, or three-dimensional spatial locations in the dataset		text	11		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	https://standards.iso.org/iso/19139/#MD_GeometricObjectTypeCode
+	rasterLayer	Raster Layer	Group of variables for describing a raster layer		none	12		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		geographic	
+	rasterLayerName	Raster Layer Name	Name of a raster layer		text	13		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	rasterLayer	geographic	
+	rasterLayerDescription	Raster Layer Description	Description of a raster layer		textbox	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterReferenceSystemEpsg	Spatial reference system used in the dataset, identified with a EPSG SRID number	Spatial reference system used in the raster layer, identified with a EPSG SRID number		int	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	resolutionRaster	raster resolution	Resolution of the raster data (e.g 1km)		text	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterFileName	Raster Filename	Name of the file which contains the raster layer		text			FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterFileFormat	raster File Format	Format of the file which contains the raster layer		text	17		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterSoftware	raster software	Software used to create the raster layer		text	18		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterSofwareVersion	raster Software Version	Version of the software used to create the raster layer		text	19		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	dimensionNumber	Dimension Number	Number of spatio-temporal axes		int	20		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	cellGeometry	Cell Geometry	Geometry associated with the cell in the raster data		text	21		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CellGeometryCode
-	transformationParameterAvailibility	Transformation Parameter Availibility	Indicates whether there is an available transformation parameter between image coordinates and geographic or map coordinates		text	22		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	geographicQualityControl				textbox	23		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		geographic	
-	geographicBiases	Geographic dataset biases	Description of potential biases for the dataset		textbox			FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		geographic	
-	illustration	Illustration	Image used to illustrate the dataset		none	24		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geographic	
-	illustrationFile	Illustration File	Url address of the illustrating file		url	25		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
-	illustrationDescription	Illustration Description	Description of the illustrating image		textbox	26		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
-	illustrationFormat	Illustration File Format	Format of the illustration file		text	27		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	rasterFileName	Raster Filename	Name of the file which contains the raster layer		text	17		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterFileFormat	raster File Format	Format of the file which contains the raster layer		text	18		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterSoftware	raster software	Software used to create the raster layer		text	19		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterSofwareVersion	raster Software Version	Version of the software used to create the raster layer		text	20		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	dimensionNumber	Dimension Number	Number of spatio-temporal axes		int	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	cellGeometry	Cell Geometry	Geometry associated with the cell in the raster data		text	22		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CellGeometryCode
+	transformationParameterAvailibility	Transformation Parameter Availibility	Indicates whether there is an available transformation parameter between image coordinates and geographic or map coordinates		text	23		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	geographicQualityControl				textbox	24		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		geographic	
+	geographicBiases	Geographic dataset biases	Description of potential biases for the dataset		textbox	25		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		geographic	
+	illustration	Illustration	Image used to illustrate the dataset		none	26		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geographic	
+	illustrationFile	Illustration File	Url address of the illustrating file		url	27		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	illustrationDescription	Illustration Description	Description of the illustrating image		textbox	28		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
+	illustrationFormat	Illustration File Format	Format of the illustration file		text	29		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	illustration	geographic	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	spatialRepresentationType	raster		0
 	spatialRepresentationType	vector		1

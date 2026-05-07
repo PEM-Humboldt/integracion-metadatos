@@ -389,13 +389,7 @@ any(duplicated(unlist(nameVar)))
 block_pb<-which(!sapply(allConfigs,function(x)all(0:(nrow(x$field)-1) %in% x$field$displayOrder)))
 if(length(block_pb)>0)
 {warning("Por favor corregir la variable displayOrder en los bloques siguientes:\n",paste(names(allConfigs)[block_pb],collapse="\n"))}
-```
 
-    Warning: Por favor corregir la variable displayOrder en los bloques siguientes:
-    dvmetadatablock_localContext
-    dvmetadatablock_geographic
-
-``` r
 (checkDO_contrVoc<-lapply(allConfigs,function(x)
   {
     res<-by(x$contrVoc,x$contrVoc$DatasetField,function(tab)
