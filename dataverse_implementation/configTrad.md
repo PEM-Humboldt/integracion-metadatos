@@ -306,7 +306,7 @@ sapply(allConfigs,function(x)any(is.na(x$field$metadatablock_id)))
 ```
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
-                              FALSE                            TRUE 
+                              FALSE                           FALSE 
       dvmetadatablock_institutional    dvmetadatablock_localContext 
                               FALSE                           FALSE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
@@ -319,7 +319,7 @@ sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
 ```
 
            dvmetadatablock_citation      dvmetadatablock_geospatial 
-                               TRUE                              NA 
+                               TRUE                            TRUE 
       dvmetadatablock_institutional    dvmetadatablock_localContext 
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
