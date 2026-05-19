@@ -126,8 +126,8 @@ require(openxlsx)
 
 ``` r
 #wb<-loadWorkbook("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
-wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx"
-sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx")
+wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx"
+sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx")
 rawCitation<-read.xlsx(wb,sheet="dvmetadatablock_citation",colNames=F)
 blockPartStart<-which(rawCitation[,1]=="#metadataBlock")
 fieldPartStart<-which(rawCitation[,1]=="#datasetField")
@@ -174,9 +174,9 @@ read_configXl<-function(wkbook_config,sheet)
 Now we just need to do:
 
 ``` r
-citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_citation")
-socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_social_science")
-geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260505.xlsx", sheet = "dvmetadatablock_geospatial")
+citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_citation")
+socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_social_science")
+geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_geospatial")
 ```
 
 ## Exportación traducciones en curso (tables)
