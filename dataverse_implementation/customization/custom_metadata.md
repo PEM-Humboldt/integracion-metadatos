@@ -125,11 +125,13 @@ Este último paso puede no ser necesario en caso de que el dataverso sobre el qu
 Una vez finalizados los pasos anteriores, es posible que dataverse se comporte de manera extraña al momento de crear o editar datasets, haciendo que algunos metadatos no se muestren correctamente o que aparezcan bloques vacíos. Eso puede deberse a que la plantilla original que heredan los datasets, no ha sido actualizada para tomar los nuevos cambios. Para solucionar esto, simplemente se debe ingresar a `Plantillas` -> `Editar plantilla` -> `Guardar` sin hacer ningún cambio para que la plantilla se actualice.
 
 ### Modificar metadatos con Controlled Vocabulary
-Modificar archivos TSV propios no tiene diferencia a lo que sería agregar un nuevo archivo, es decir, se debe cargar el archivo y reindexarlo a Solr, luego actualizar la plantilla si aparecen inconsistencias. Sin embargo, cuando se modifica un vocabulario controlado, en proceso puede variar, ya que Dataverse no detecta muy bien estas modificaciones:
+Modificar archivos TSV propios no tiene diferencia a lo que sería agregar un nuevo archivo: se debe cargar el TSV y reindexarlo a Solr, luego actualizar la plantilla si aparecen inconsistencias. Sin embargo, cuando se modifica un vocabulario controlado, el proceso puede variar ligeramente ya que Dataverse no detecta muy bien estas modificaciones:
 
-1. Si no se altera ningun vocabulario controlado que ya existía, y sólo se agrega uno nuevo, entonces bastará con los pasos normales para actualizar un TSV.
-2. Si se modifica un vocabulario controlado que ya existía, entonces la modificación se añadirá como un nuevo metadato y el antiguo, que se intentó modificar, persistirá. Para arreglar esto, se tendrá que eliminar directamente de la base de datos. Por ejemplo:
-Asumimos que tenemos el siguiente vocabulario controlado en un archivo tsv:
+1. Si no se modifica un vocabulario controlado existente y sólo se agrega uno nuevo, entonces bastará con los pasos descritos anteriormente para actualizar un TSV.
+2. Si se modifica un vocabulario controlado que ya existía, entonces esta modificación se añadirá como un nuevo vocabulario controlado y el antiguo, que se intentó modificar, persistirá, lo que generará una redundancia. Para arreglar esto, se tendrá que eliminar el antiguo directamente desde la base de datos. 
+
+**Por ejemplo:**
+Asumimos que tenemos el siguiente vocabulario controlado en un archivo TSV:
 ```
 	emlSubType	Taxonomic authority		0
 	emlSubType	Thematic inventory		1
@@ -139,7 +141,7 @@ Asumimos que tenemos el siguiente vocabulario controlado en un archivo tsv:
 	emlSubType	Observation		5
 	emlSubType	Other		6
 ```
-Realizaremos la prueba modificando el último elemento (`Other`) y agregando uno adicional. De forma que nuestro nuevo vocabulario controlado quedaría de la siguiente manera:
+Realizaremos la prueba modificando el último elemento `Other` por `Other But Changed` y agregando uno adicional que llamaremos `New one`. Con estos cambios, nuestro nuevo vocabulario controlado quedaría de la siguiente manera:
 ```
 	emlSubType	Taxonomic authority		0
 	emlSubType	Thematic inventory		1
@@ -154,23 +156,27 @@ Y en nuestro archivo de traducción, también realizamos la modificación corres
 ```
 controlledvocabulary.emlSubType.other=Otro
 ```
-A lo siguiente:
+A lo siguiente (nótese que aquí también eliminamos por completo la referencia al campo `Other`):
 ```
 controlledvocabulary.emlSubType.other_but_changed=Otro pero diferente
 controlledvocabulary.emlSubType.new_one=Nuevo
 ```
 
-Una vez realizados los pasos de carga y reindexación, al ingresar al campo notaremos que el campo original `Other` persiste, y tanto el nuevo campo como el modificado, se agregaron como campos nuevos:
-[controlled_vocab_1](../../images/custom_metadata_controlledvocab_1.png)
+Una vez realizados los pasos de carga y reindexación a Solr, al ingresar al metadato notaremos que el vocabulario original `Other` persiste, y tanto el nuevo vocabulario como el modificado, fueron añadidos como si fuesen nuevos, dejándonos con una opción adicional a lo que originalmente nos planteamos:
+
+![controlled_vocab_1](../../images/custom_metadata_controlledvocab_1.png)
 
 Si observamos la base de datos, observaremos el mismo comportamiento:
-[controlled_vocab_2](../../images/custom_metadata_controlledvocab_2.png)
 
-Lo anterior implica la necesidad de modificar directamente la base de datos para eliminar el campo que ha quedado obsoleto, en nuestro caos, el campo `Other`. 
-[controlled_vocab_3](../../images/custom_metadata_controlledvocab_3.png)
+![controlled_vocab_2](../../images/custom_metadata_controlledvocab_2.png)
 
-Con este cambio, ya automáticamente se ve reflejado el cambio en el vocabulario controlado, de igual manera, se recomienda repetir el paso 4 de la sección anterior (Reindexar a Solr).
-[controlled_vocab_4](../../images/custom_metadata_controlledvocab_4.png)
+Esto sucede porque Dataverse es incapaz de detectar que un  vocabulario fue modificado, y cualquier cambio lo asume como una nueva opción. Lo anterior implica la necesidad de modificar directamente la base de datos para eliminar el campo que ha quedado obsoleto, en nuestro caso, el campo `Other`. 
+
+![controlled_vocab_3](../../images/custom_metadata_controlledvocab_3.png)
+
+Con esto, automáticamente se ve reflejado el cambio en el vocabulario controlado. De igual manera, se recomienda repetir el paso 4 de la sección anterior (Reindexar a Solr) para evitar posibles inconsistencias.
+
+![controlled_vocab_4](../../images/custom_metadata_controlledvocab_4.png)
 
 ### Definición de campos visibles durante la creación
 Dataverse fue desarrollado con la idea de separar la creación de datasets en dos partes, para evitar saturar al usuario: 
