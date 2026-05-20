@@ -34,6 +34,7 @@ Esta es la sección intermedia del archivo y está posicionada justo debajo de l
 - `parent`: Define si el campo es hijo de otro campo.
 - `metadatablock_id`: Especifica el nombre del #metadataBlock del que este metadato hace parte.
 - `termURI`: Especifica una URI externa.
+
 Para conocer mayores detalles de los metadatos, se puede acceder directamente a la [documentación](https://guides.dataverse.org/en/6.6/admin/metadatacustomization.html). 
 
 ### Sección de vocabulario controlado
@@ -53,72 +54,89 @@ Un nuevo archivo puede generarse desde un excel, agregando todas las columnas ne
 
 ### Paso 2: Cargar el nuevo archivo a Dataverse
 Puede añadir el nuevo archivo al contenedor con:
+
 `docker cp new_block.tsv dataverse:/usr/local/dvinstall/data/metadatablocks/`
 
 Posteriormente, se debe cargar el archivo a través de la API de Dataverse, con el siguiente comando:
+
 `curl http://localhost:8080/api/admin/datasetfield/load -H "Content-type: text/tab-separated-values" -X POST --upload-file <route>/new_block.tsv`
 
 Si la carga es exitosa retornará un mensaje `{"status":"OK"}`, de lo contrario especificará la línea del problema para su revisión. 
 
 Para ver el nuevo bloque de metadatos cargado en la UI, reinicie el servidor:
+
 `asadmin restart-domain domain1`
 
 ### Paso 3: Habilitar nuevos metadatos
-Hasta este punto, un administrador podrá ingresar a la opción “Nuevo dataverso” y verá el nuevo bloque en el listado de metadatos, pero no estará habilitado. Para habilitarlo:
- 
-* Se ejecuta el siguiente comando indicando los bloques de metadatos a habilitar. Este comando se puede ejecutar sobre un dataverso en específico o sobre el dataverso padre (`:root`), sin embargo, se recomienda habilitarlo sobre el dataverseo root directamente y luego editar cualquier dataverso hijo que no requiera ciertos bloques desde la UI, en aras de evitar posibles errores. 
+Hasta este punto, un administrador podrá ingresar a la opción “Nuevo dataverso” y verá el nuevo bloque en el listado de metadatos, pero no estará habilitado. Para habilitarlo desde la API, se ejecuta el siguiente comando indicando los bloques de metadatos a habilitar. Este comando se puede ejecutar sobre un dataverso en específico o sobre el dataverso padre (`:root`), sin embargo, se recomienda habilitarlo sobre el dataverseo root directamente y luego editar cualquier dataverso hijo que no requiera ciertos bloques desde la UI, en aras de evitar posibles errores. 
 
-> Desde el panel de administrador, se copia el Token
->     `export API_TOKEN=xxxxxx` 
->     Se habilitan los metadatos 
->     `curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H
-> "Content-type:application/json" -d "[\"citation\",\"geospatial\",...,
-> \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks `
+- Desde el panel de administrador, se copia el Token:
+	`export API_TOKEN=xxxxxx` 
+
+- Se habilitan los metadatos 
+
+	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" -d "[\"citation\",\"geospatial\",..., \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks `
 
   **Nota: Este comando sobreescribe, no añade. Al momento de ejecutarlo se deben añadir todos los bloques de metadatos.**
 
-También se puede hacer usando un archivo `json` que contenga los nombres de todos los bloques y usarlo en el comando:  
-```json
-[  
-"citation",
-"geospatial",
-...,
-"institutional"
-]
-```
-
-`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" --upload-file metadatablocks.json "http://localhost:8080/api/dataverses/:root/metadatablocks"`
+	Como alternativa, también se puede hacer usando un archivo `json` que contenga los nombres de todos los bloques y usarlo en el comando:  
+	```json
+	[  
+	"citation",
+	"geospatial",
+	...,
+	"institutional"
+	]
+	```
+	
+	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" --upload-file metadatablocks.json "http://localhost:8080/api/dataverses/:root/metadatablocks"`
 
 ### Paso 4: Reindexar a Solr
-Este paso es crucial para garantizar la persistencia, omitir este paso puede ocasionar inconsistencias y errores. Para llevar a cabo este paso, se necesitan archivos de los contenedores de Dataverse y de Solr:
+Este paso es crucial para garantizar la persistencia, omitir este paso puede ocasionar inconsistencias y errores. Para llevar a cabo este paso, se necesitan archivos de los contenedores de Dataverse y de Solr. Se deben correr comandos desde dentro del contenedor de Dataverse y desde la máquina host, de la siguiente manera:
 
-* **Desde el contenedor de Dataverse**:
-	Acceder al contenedor
+#### Desde el contenedor de Dataverse:
+1. Acceder al contenedor
+
 	`docker exec -it dataverse bash`
-	Generar el nuevo esquema de campos con:
+
+2. Generar el nuevo esquema de campos con:
+
 	`curl http://localhost:8080/api/admin/index/solr/schema > /tmp/dv-fields.xml`
 	
-* **Desde la máquina host**:
-	Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
-	1. Copiar `update-fields.sh` del contenedor de Dataverse:
-	`docker cp dataverse:/usr/local/dvinstall/update-fields.sh /tmp/update-fields.sh`
-	2. Copiar `dv-fields.xml` del contenedor de Dataverse:
-	`docker cp dataverse:/tmp/dv-fields.xml /tmp/`
-	3. Copiar `schema.xml` del contenedor de Solr:
-	`docker cp dataverse-solr:/var/solr/data/collection1/conf/schema.xml /tmp/`
-	4. Generar el nuevo índice de Solr:
-	`cd /tmp/`
-	 `./update-fields.sh schema.xml dv-fields.xml`
-	 5. Copiar el nuevo `schema.xml` generado al contenedor de Solr:
-	 `docker cp /tmp/schema.xml dataverse-solr:/var/solr/data/collection1/conf/schema.xml`
-	 
-	 Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
-	 `docker restart dataverse-solr`
+#### Desde la máquina host:
+Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
 
-	Y finalmente, se ingresa nuevamente al contenedor de Dataverse:
-	`docker exec -it dataverse bash`
-	Y se ejecuta el siguiente comando para re-indexar:  
-    `curl "http://localhost:8080/api/admin/index"`
+1. Copiar `update-fields.sh` del contenedor de Dataverse:
+
+	`docker cp dataverse:/usr/local/dvinstall/update-fields.sh /tmp/update-fields.sh`
+
+2. Copiar `dv-fields.xml` del contenedor de Dataverse:
+  
+   `docker cp dataverse:/tmp/dv-fields.xml /tmp/`
+
+3. Copiar `schema.xml` del contenedor de Solr:
+  
+	`docker cp dataverse-solr:/var/solr/data/collection1/conf/schema.xml /tmp/`
+
+4. Generar el nuevo índice de Solr:
+	```
+   cd /tmp/
+   ./update-fields.sh schema.xml dv-fields.xml
+	```
+  
+6. Copiar el nuevo `schema.xml` generado al contenedor de Solr:
+  
+	`docker cp /tmp/schema.xml dataverse-solr:/var/solr/data/collection1/conf/schema.xml`
+	 
+7. Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
+  
+	`docker restart dataverse-solr`
+
+Y finalmente, se ingresa nuevamente al contenedor de Dataverse y se ejecuta desde allí la re-indexación del Solr:
+```
+	docker exec -it dataverse bash
+    curl "http://localhost:8080/api/admin/index"
+```
 
 ### Paso 5: Recargar plantillas (opcional)
 Este último paso puede no ser necesario en caso de que el dataverso sobre el que se hayan habilitado los nuevos metadatos no cuente con una plantilla ya definida. 
