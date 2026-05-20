@@ -124,6 +124,54 @@ Este paso es crucial para garantizar la persistencia, omitir este paso puede oca
 Este último paso puede no ser necesario en caso de que el dataverso sobre el que se hayan habilitado los nuevos metadatos no cuente con una plantilla ya definida. 
 Una vez finalizados los pasos anteriores, es posible que dataverse se comporte de manera extraña al momento de crear o editar datasets, haciendo que algunos metadatos no se muestren correctamente o que aparezcan bloques vacíos. Eso puede deberse a que la plantilla original que heredan los datasets, no ha sido actualizada para tomar los nuevos cambios. Para solucionar esto, simplemente se debe ingresar a `Plantillas` -> `Editar plantilla` -> `Guardar` sin hacer ningún cambio para que la plantilla se actualice.
 
+### Modificar metadatos con Controlled Vocabulary
+Modificar archivos TSV propios no tiene diferencia a lo que sería agregar un nuevo archivo, es decir, se debe cargar el archivo y reindexarlo a Solr, luego actualizar la plantilla si aparecen inconsistencias. Sin embargo, cuando se modifica un vocabulario controlado, en proceso puede variar, ya que Dataverse no detecta muy bien estas modificaciones:
+
+1. Si no se altera ningun vocabulario controlado que ya existía, y sólo se agrega uno nuevo, entonces bastará con los pasos normales para actualizar un TSV.
+2. Si se modifica un vocabulario controlado que ya existía, entonces la modificación se añadirá como un nuevo metadato y el antiguo, que se intentó modificar, persistirá. Para arreglar esto, se tendrá que eliminar directamente de la base de datos. Por ejemplo:
+Asumimos que tenemos el siguiente vocabulario controlado en un archivo tsv:
+```
+	emlSubType	Taxonomic authority		0
+	emlSubType	Thematic inventory		1
+	emlSubType	Regional inventory		2
+	emlSubType	Biological register derivate		3
+	emlSubType	Specimen		4
+	emlSubType	Observation		5
+	emlSubType	Other		6
+```
+Realizaremos la prueba modificando el último elemento (`Other`) y agregando uno adicional. De forma que nuestro nuevo vocabulario controlado quedaría de la siguiente manera:
+```
+	emlSubType	Taxonomic authority		0
+	emlSubType	Thematic inventory		1
+	emlSubType	Regional inventory		2
+	emlSubType	Biological register derivate		3
+	emlSubType	Specimen		4
+	emlSubType	Observation		5
+	emlSubType	Other But Changed		6
+	emlSubType	New one		7
+```
+Y en nuestro archivo de traducción, también realizamos la modificación correspondiente, pasando de:
+```
+controlledvocabulary.emlSubType.other=Otro
+```
+A lo siguiente:
+```
+controlledvocabulary.emlSubType.other_but_changed=Otro pero diferente
+controlledvocabulary.emlSubType.new_one=Nuevo
+```
+
+Una vez realizados los pasos de carga y reindexación, al ingresar al campo notaremos que el campo original `Other` persiste, y tanto el nuevo campo como el modificado, se agregaron como campos nuevos:
+[controlled_vocab_1](../../images/custom_metadata_controlledvocab_1.png)
+
+Si observamos la base de datos, observaremos el mismo comportamiento:
+[controlled_vocab_2](../../images/custom_metadata_controlledvocab_2.png)
+
+Lo anterior implica la necesidad de modificar directamente la base de datos para eliminar el campo que ha quedado obsoleto, en nuestro caos, el campo `Other`. 
+[controlled_vocab_3](../../images/custom_metadata_controlledvocab_3.png)
+
+Con este cambio, ya automáticamente se ve reflejado el cambio en el vocabulario controlado, de igual manera, se recomienda repetir el paso 4 de la sección anterior (Reindexar a Solr).
+[controlled_vocab_4](../../images/custom_metadata_controlledvocab_4.png)
+
 ### Definición de campos visibles durante la creación
 Dataverse fue desarrollado con la idea de separar la creación de datasets en dos partes, para evitar saturar al usuario: 
 1. La creación inicial del recurso solicita al usuario una cantidad limitada y mínima de metadatos, ya sea que estos sean obligatorios u opcionales.
