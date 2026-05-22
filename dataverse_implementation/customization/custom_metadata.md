@@ -34,6 +34,7 @@ Esta es la sección intermedia del archivo y está posicionada justo debajo de l
 - `parent`: Define si el campo es hijo de otro campo.
 - `metadatablock_id`: Especifica el nombre del #metadataBlock del que este metadato hace parte.
 - `termURI`: Especifica una URI externa.
+
 Para conocer mayores detalles de los metadatos, se puede acceder directamente a la [documentación](https://guides.dataverse.org/en/6.6/admin/metadatacustomization.html). 
 
 ### Sección de vocabulario controlado
@@ -53,76 +54,147 @@ Un nuevo archivo puede generarse desde un excel, agregando todas las columnas ne
 
 ### Paso 2: Cargar el nuevo archivo a Dataverse
 Puede añadir el nuevo archivo al contenedor con:
+
 `docker cp new_block.tsv dataverse:/usr/local/dvinstall/data/metadatablocks/`
 
 Posteriormente, se debe cargar el archivo a través de la API de Dataverse, con el siguiente comando:
+
 `curl http://localhost:8080/api/admin/datasetfield/load -H "Content-type: text/tab-separated-values" -X POST --upload-file <route>/new_block.tsv`
 
 Si la carga es exitosa retornará un mensaje `{"status":"OK"}`, de lo contrario especificará la línea del problema para su revisión. 
 
 Para ver el nuevo bloque de metadatos cargado en la UI, reinicie el servidor:
+
 `asadmin restart-domain domain1`
 
 ### Paso 3: Habilitar nuevos metadatos
-Hasta este punto, un administrador podrá ingresar a la opción “Nuevo dataverso” y verá el nuevo bloque en el listado de metadatos, pero no estará habilitado. Para habilitarlo:
- 
-* Se ejecuta el siguiente comando indicando los bloques de metadatos a habilitar. Este comando se puede ejecutar sobre un dataverso en específico o sobre el dataverso padre (`:root`), sin embargo, se recomienda habilitarlo sobre el dataverseo root directamente y luego editar cualquier dataverso hijo que no requiera ciertos bloques desde la UI, en aras de evitar posibles errores. 
+Hasta este punto, un administrador podrá ingresar a la opción “Nuevo dataverso” y verá el nuevo bloque en el listado de metadatos, pero no estará habilitado. Para habilitarlo desde la API, se ejecuta el siguiente comando indicando los bloques de metadatos a habilitar. Este comando se puede ejecutar sobre un dataverso en específico o sobre el dataverso padre (`:root`), sin embargo, se recomienda habilitarlo sobre el dataverseo root directamente y luego editar cualquier dataverso hijo que no requiera ciertos bloques desde la UI, en aras de evitar posibles errores. 
 
-> Desde el panel de administrador, se copia el Token
->     `export API_TOKEN=xxxxxx` 
->     Se habilitan los metadatos 
->     `curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H
-> "Content-type:application/json" -d "[\"citation\",\"geospatial\",...,
-> \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks `
+- Desde el panel de administrador, se copia el Token:
+	`export API_TOKEN=xxxxxx` 
+
+- Se habilitan los metadatos 
+
+	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" -d "[\"citation\",\"geospatial\",..., \"institutional\"]" http://localhost:8080/api/dataverses/:root/metadatablocks `
 
   **Nota: Este comando sobreescribe, no añade. Al momento de ejecutarlo se deben añadir todos los bloques de metadatos.**
 
-También se puede hacer usando un archivo `json` que contenga los nombres de todos los bloques y usarlo en el comando:  
-```json
-[  
-"citation",
-"geospatial",
-...,
-"institutional"
-]
-```
-
-`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" --upload-file metadatablocks.json "http://localhost:8080/api/dataverses/:root/metadatablocks"`
+	Como alternativa, también se puede hacer usando un archivo `json` que contenga los nombres de todos los bloques y usarlo en el comando:  
+	```json
+	[  
+	"citation",
+	"geospatial",
+	...,
+	"institutional"
+	]
+	```
+	
+	`curl -H "X-Dataverse-key:$API_TOKEN" -X POST -H "Content-type:application/json" --upload-file metadatablocks.json "http://localhost:8080/api/dataverses/:root/metadatablocks"`
 
 ### Paso 4: Reindexar a Solr
-Este paso es crucial para garantizar la persistencia, omitir este paso puede ocasionar inconsistencias y errores. Para llevar a cabo este paso, se necesitan archivos de los contenedores de Dataverse y de Solr:
+Este paso es crucial para garantizar la persistencia, omitir este paso puede ocasionar inconsistencias y errores. Para llevar a cabo este paso, se necesitan archivos de los contenedores de Dataverse y de Solr. Se deben correr comandos desde dentro del contenedor de Dataverse y desde la máquina host, de la siguiente manera:
 
-* **Desde el contenedor de Dataverse**:
-	Acceder al contenedor
+#### Desde el contenedor de Dataverse:
+1. Acceder al contenedor
+
 	`docker exec -it dataverse bash`
-	Generar el nuevo esquema de campos con:
+
+2. Generar el nuevo esquema de campos con:
+
 	`curl http://localhost:8080/api/admin/index/solr/schema > /tmp/dv-fields.xml`
 	
-* **Desde la máquina host**:
-	Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
-	1. Copiar `update-fields.sh` del contenedor de Dataverse:
-	`docker cp dataverse:/usr/local/dvinstall/update-fields.sh /tmp/update-fields.sh`
-	2. Copiar `dv-fields.xml` del contenedor de Dataverse:
-	`docker cp dataverse:/tmp/dv-fields.xml /tmp/`
-	3. Copiar `schema.xml` del contenedor de Solr:
-	`docker cp dataverse-solr:/var/solr/data/collection1/conf/schema.xml /tmp/`
-	4. Generar el nuevo índice de Solr:
-	`cd /tmp/`
-	 `./update-fields.sh schema.xml dv-fields.xml`
-	 5. Copiar el nuevo `schema.xml` generado al contenedor de Solr:
-	 `docker cp /tmp/schema.xml dataverse-solr:/var/solr/data/collection1/conf/schema.xml`
-	 
-	 Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
-	 `docker restart dataverse-solr`
+#### Desde la máquina host:
+Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
 
-	Y finalmente, se ingresa nuevamente al contenedor de Dataverse:
-	`docker exec -it dataverse bash`
-	Y se ejecuta el siguiente comando para re-indexar:  
-    `curl "http://localhost:8080/api/admin/index"`
+1. Copiar `update-fields.sh` del contenedor de Dataverse:
+
+	`docker cp dataverse:/usr/local/dvinstall/update-fields.sh /tmp/update-fields.sh`
+
+2. Copiar `dv-fields.xml` del contenedor de Dataverse:
+  
+   `docker cp dataverse:/tmp/dv-fields.xml /tmp/`
+
+3. Copiar `schema.xml` del contenedor de Solr:
+  
+	`docker cp dataverse-solr:/var/solr/data/collection1/conf/schema.xml /tmp/`
+
+4. Generar el nuevo índice de Solr:
+	```
+   cd /tmp/
+   ./update-fields.sh schema.xml dv-fields.xml
+	```
+  
+6. Copiar el nuevo `schema.xml` generado al contenedor de Solr:
+  
+	`docker cp /tmp/schema.xml dataverse-solr:/var/solr/data/collection1/conf/schema.xml`
+	 
+7. Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
+  
+	`docker restart dataverse-solr`
+
+Y finalmente, se ingresa nuevamente al contenedor de Dataverse y se ejecuta desde allí la re-indexación del Solr:
+```
+	docker exec -it dataverse bash
+    curl "http://localhost:8080/api/admin/index"
+```
 
 ### Paso 5: Recargar plantillas (opcional)
 Este último paso puede no ser necesario en caso de que el dataverso sobre el que se hayan habilitado los nuevos metadatos no cuente con una plantilla ya definida. 
 Una vez finalizados los pasos anteriores, es posible que dataverse se comporte de manera extraña al momento de crear o editar datasets, haciendo que algunos metadatos no se muestren correctamente o que aparezcan bloques vacíos. Eso puede deberse a que la plantilla original que heredan los datasets, no ha sido actualizada para tomar los nuevos cambios. Para solucionar esto, simplemente se debe ingresar a `Plantillas` -> `Editar plantilla` -> `Guardar` sin hacer ningún cambio para que la plantilla se actualice.
+
+### Modificar metadatos con Controlled Vocabulary
+Modificar archivos TSV propios no tiene diferencia a lo que sería agregar un nuevo archivo: se debe cargar el TSV y reindexarlo a Solr, luego actualizar la plantilla si aparecen inconsistencias. Sin embargo, cuando se modifica un vocabulario controlado, el proceso puede variar ligeramente ya que Dataverse no detecta muy bien estas modificaciones:
+
+1. Si no se modifica un vocabulario controlado existente y sólo se agrega uno nuevo, entonces bastará con los pasos descritos anteriormente para actualizar un TSV.
+2. Si se modifica un vocabulario controlado que ya existía, entonces esta modificación se añadirá como un nuevo vocabulario controlado y el antiguo, que se intentó modificar, persistirá, lo que generará una redundancia. Para arreglar esto, se tendrá que eliminar el antiguo directamente desde la base de datos. 
+
+**Por ejemplo:**
+Asumimos que tenemos el siguiente vocabulario controlado en un archivo TSV:
+```
+	emlSubType	Taxonomic authority		0
+	emlSubType	Thematic inventory		1
+	emlSubType	Regional inventory		2
+	emlSubType	Biological register derivate		3
+	emlSubType	Specimen		4
+	emlSubType	Observation		5
+	emlSubType	Other		6
+```
+Realizaremos la prueba modificando el último elemento `Other` por `Other But Changed` y agregando uno adicional que llamaremos `New one`. Con estos cambios, nuestro nuevo vocabulario controlado quedaría de la siguiente manera:
+```
+	emlSubType	Taxonomic authority		0
+	emlSubType	Thematic inventory		1
+	emlSubType	Regional inventory		2
+	emlSubType	Biological register derivate		3
+	emlSubType	Specimen		4
+	emlSubType	Observation		5
+	emlSubType	Other But Changed		6
+	emlSubType	New one		7
+```
+Y en nuestro archivo de traducción, también realizamos la modificación correspondiente, pasando de:
+```
+controlledvocabulary.emlSubType.other=Otro
+```
+A lo siguiente (nótese que aquí también eliminamos por completo la referencia al campo `Other`):
+```
+controlledvocabulary.emlSubType.other_but_changed=Otro pero diferente
+controlledvocabulary.emlSubType.new_one=Nuevo
+```
+
+Una vez realizados los pasos de carga y reindexación a Solr, al ingresar al metadato notaremos que el vocabulario original `Other` persiste, y tanto el nuevo vocabulario como el modificado, fueron añadidos como si fuesen nuevos, dejándonos con una opción adicional a lo que originalmente nos planteamos:
+
+![controlled_vocab_1](../../images/custom_metadata_controlledvocab_1.png)
+
+Si observamos la base de datos, observaremos el mismo comportamiento:
+
+![controlled_vocab_2](../../images/custom_metadata_controlledvocab_2.png)
+
+Esto sucede porque Dataverse es incapaz de detectar que un  vocabulario fue modificado, y cualquier cambio lo asume como una nueva opción. Lo anterior implica la necesidad de modificar directamente la base de datos para eliminar el campo que ha quedado obsoleto, en nuestro caso, el campo `Other`. 
+
+![controlled_vocab_3](../../images/custom_metadata_controlledvocab_3.png)
+
+Con esto, automáticamente se ve reflejado el cambio en el vocabulario controlado. De igual manera, se recomienda repetir el paso 4 de la sección anterior (Reindexar a Solr) para evitar posibles inconsistencias.
+
+![controlled_vocab_4](../../images/custom_metadata_controlledvocab_4.png)
 
 ### Definición de campos visibles durante la creación
 Dataverse fue desarrollado con la idea de separar la creación de datasets en dos partes, para evitar saturar al usuario: 
