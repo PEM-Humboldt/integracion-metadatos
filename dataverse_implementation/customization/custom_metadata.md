@@ -324,9 +324,7 @@ Para agregar los términos y condiciones de un Dataverse, un administrador debe 
 
 2. Ficheros restringidos + Condiciones de uso: cada dataset puede contener distintos archivos cargados, y cada uno de ellos puede tener restricciones de acceso diferentes. Desde esta sección es posible definir dichas restricciones, establecer información adicional sobre ellas y habilitar o deshabilitar la opción para que los usuarios soliciten acceso a los archivos restringidos.
 
-Hasta el momento, Dataverse no cuenta con el soporte para modificar los campos de esta sección, pues no pueden ser agregados ni modificados a partir de archivos TSV como los demás metadatos. Si llegase a necesitarse cambiar o reemplazar un campo por otro, se puede jugar con el archivo `.properties` de traducciones para darle una nueva identidad al campo. Por ejemplo, usando este método se cambió el título del campo `Permisos especiales` por `Permisos especiales u otra cosa`:
-![file_custom_license_2](../../custom_metadata_customlicense_2)
-
+Hasta el momento, Dataverse no cuenta con el soporte para modificar los campos de esta sección, pues no pueden ser agregados ni modificados a partir de archivos TSV como los demás metadatos. 
 
 Por otro lado, tampoco es posible generar una comunicación entre un metadato y un campo de las condiciones (que el cambio en un campo active un cambio en el otro), ya que no existe este soporte nativo en el aplicativo. 
 
