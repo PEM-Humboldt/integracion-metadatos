@@ -333,6 +333,36 @@ Adicionalmente, es importante destacar que Dataverse cuenta con campos tipo `url
 Con esto en mente, la sección de metadatos se vería así:
 ![files_2](../../images/custom_metadata_files_2.pngpng)
 
+## Metadatos de términos y condiciones
+Los Dataversos puede establecer licencias o términos predeterminados para todas las colecciones que lo compondrán, es decir que cada vez que un Dataset se cree allí, herederá automáticamente estos términos. A pesar de esto, cada dataset permite la personalización total de su sección de términos y condiciones. 
+
+Para agregar los términos y condiciones de un Dataverse, un administrador debe acceder o crear una plantilla en él y acceder a la sección de "Condiciones", donde encontrará los siguientes bloques:
+
+1. Condiciones de uso del dataset: aquí el administrador puede definir una licencia predeterminada (por defecto: `CC0 1.0` o `CC BY 4.0`) pero también tiene acceso a la opción `Condiciones de uso personalizadas para el dataset`, la cuál permite acceder a una serie de campos adicionales para definir una licencia personalizada y detallada, con sus condiciones de uso, declaración de confidencialidad, permisos, restricciones, requisitos para citaciones y para el depositante, condiciones y renuncia de responsabilidad. Adicionalmente, también es posible agregar más licencias por defecto, este proceso se explica en la próxima sección.
+
+2. Ficheros restringidos + Condiciones de uso: cada dataset puede contener distintos archivos cargados, y cada uno de ellos puede tener restricciones de acceso diferentes. Desde esta sección es posible definir dichas restricciones, establecer información adicional sobre ellas y habilitar o deshabilitar la opción para que los usuarios soliciten acceso a los archivos restringidos.
+
+Hasta el momento, Dataverse no cuenta con el soporte para modificar los campos de esta sección, pues no pueden ser agregados ni modificados a partir de archivos TSV como los demás metadatos. 
+
+Por otro lado, tampoco es posible generar una comunicación entre un metadato y un campo de las condiciones (que el cambio en un campo active un cambio en el otro), ya que no existe este soporte nativo en el aplicativo. 
+
+### Agregar nuevas licencias
+Como mencioné antes, Dataverse cuenta con unas licencias bases cargadas, sin embargo es igualmente posible cargar más licencias de la siguiente manera:
+
+1. Se debe crear un json (se puede usar el mostrado (aquí)[https://guides.dataverse.org/en/6.6/api/native-api.html#license-management-api] como plantilla), o se pueden descargar alguno de los mostrados en la sección (Adding Licenses)[https://guides.dataverse.org/en/6.6/installation/config.html]. El json debe tener un nombre y URI único.
+
+2. El json debe ser cargado al contenedor, puede ser cargado junto al resto de las licencias (ubicadas en la ruta `/usr/local/dvinstall/data/licenses` en el contenedor 6.6 del instituto):
+`docker cp licenseLicenciaIAVH.json dataverse:/usr/local/dvinstall/data/licenses`
+
+3. Ejecutar los siguientes comandos para activar la carga de la licencia:
+```
+export SERVER_URL=http://localhost:8080
+export API_TOKEN=XXXXXXXXXXXX
+curl -X POST -H 'Content-Type: application/json' -H "X-Dataverse-key:$API_TOKEN" --upload-file file.json "$SERVER_URL/api/licenses"
+```
+
+Si es exitoso, retornará una respuesta `{"status":"OK","data":{"message":"License created"}}`. Una vez completados estos pasos, la licencia ya aparecerá en el listado de licencias de la instancia:
+![file_custom_license](../../custom_metadata_customlicense_1)
 
 ## Validación de datos
 Dataverse permite la instalación de scripts personalizados externos para realizar validaciones a los metadatos al momento de publicar un dataset o colecciones de datasets. Descrito en la documentación en la sección JVM Options ([https://guides.dataverse.org/en/6.6/installation/config.html](https://guides.dataverse.org/en/6.6/installation/config.html))
