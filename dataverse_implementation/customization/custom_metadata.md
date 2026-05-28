@@ -349,7 +349,7 @@ Por otro lado, tampoco es posible generar una comunicación entre un metadato y 
 ### Agregar nuevas licencias
 Como mencioné antes, Dataverse cuenta con unas licencias bases cargadas, sin embargo es igualmente posible cargar más licencias de la siguiente manera:
 
-1. Se debe crear un json (se puede usar el mostrado (aquí)[https://guides.dataverse.org/en/6.6/api/native-api.html#license-management-api] como plantilla), o se pueden descargar alguno de los mostrados en la sección (Adding Licenses)[https://guides.dataverse.org/en/6.6/installation/config.html]. El json debe tener un nombre y URI único.
+1. Se debe crear un json (se puede usar el mostrado [aquí](https://guides.dataverse.org/en/6.6/api/native-api.html#license-management-api) como plantilla), o se pueden descargar alguno de los mostrados en la sección [Adding Licenses](https://guides.dataverse.org/en/6.6/installation/config.html). El json debe tener un nombre y URI único.
 
 2. El json debe ser cargado al contenedor, puede ser cargado junto al resto de las licencias (ubicadas en la ruta `/usr/local/dvinstall/data/licenses` en el contenedor 6.6 del instituto):
 `docker cp licenseLicenciaIAVH.json dataverse:/usr/local/dvinstall/data/licenses`
