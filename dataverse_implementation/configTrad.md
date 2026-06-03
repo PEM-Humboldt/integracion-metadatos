@@ -1,6 +1,10 @@
 # Manejo de archivos de configuración y traducción en Dataverse
 Marius Bottin
 
+``` r
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260603.xlsx"
+```
+
 ## Leer los archivos de configuración anteriores
 
 ### Prueba de script con el bloque de metadatos “citation”
@@ -126,8 +130,8 @@ require(openxlsx)
 
 ``` r
 #wb<-loadWorkbook("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración.xlsx")
-wb<-"../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx"
-sn<-getSheetNames("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx")
+wb<-currentFile
+sn<-getSheetNames(currentFile)
 rawCitation<-read.xlsx(wb,sheet="dvmetadatablock_citation",colNames=F)
 blockPartStart<-which(rawCitation[,1]=="#metadataBlock")
 fieldPartStart<-which(rawCitation[,1]=="#datasetField")
@@ -174,9 +178,9 @@ read_configXl<-function(wkbook_config,sheet)
 Now we just need to do:
 
 ``` r
-citation_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_citation")
-socio_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_social_science")
-geospatial_config <- read_configXl("../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260519.xlsx", sheet = "dvmetadatablock_geospatial")
+citation_config <- read_configXl(currentFile, sheet = "dvmetadatablock_citation")
+socio_config <- read_configXl(currentFile, sheet = "dvmetadatablock_social_science")
+geospatial_config <- read_configXl(currentFile, sheet = "dvmetadatablock_geospatial")
 ```
 
 ## Exportación traducciones en curso (tables)
