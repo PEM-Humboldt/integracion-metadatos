@@ -33,8 +33,8 @@
 	iavh_socialScienceNotesType	Type	Type of note.		text	29		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	iavh_socialScienceNotes	iavh_socialscience	
 	iavh_socialScienceNotesSubject	Subject	Note subject.		text	30		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	iavh_socialScienceNotes	iavh_socialscience	
 	iavh_socialScienceNotesText	Text	Text for this note.		textbox	31		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	iavh_socialScienceNotes	iavh_socialscience	
-	iavh_socialScienceBiases	Socio-ecological dataset biases	Description of potential biases for the dataset		textbox	32		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		iavh_socialscience	
-	iavh_socioEcologicalTemplate	SocioEcological Template	Template used for organizing this dataset		text	33		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		iavh_socialscience	
+	iavh_socialScienceBiases	Socio-ecological dataset biases	Description of potential biases for the dataset		textbox	32		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
+	iavh_socioEcologicalTemplate	SocioEcological Template	Template used for organizing this dataset		text	33		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	iavh_collectionMode	Personal interview on a paper form		0
 	iavh_collectionMode	Personal interview on mobil device		1

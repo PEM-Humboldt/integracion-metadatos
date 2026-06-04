@@ -29,7 +29,7 @@
 	collectionId	Collection Identifier	Identifier of the collection		text	25		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	emldn	
 	collectionCode	Collection Code	Code of the collection		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	
 	preservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	
-	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		emldn	
+	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		emldn	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	emlTaxonomicCoverageTaxonRankName	kingdom		0
 	emlTaxonomicCoverageTaxonRankName	phylum		1
