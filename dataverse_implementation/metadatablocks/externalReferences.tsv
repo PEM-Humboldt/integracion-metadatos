@@ -2,17 +2,17 @@
 	externalReferences		Externak References	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
 	externalReference	External Reference	Group of variable for external links or references		none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		externalReferences	
-	externalReferenceType	External Reference Type			text	1		FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	externalReference	externalReferences	
+	externalReferenceType	External Reference Type			text	1		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	citationText	Citation text		Please format in APA for scientific publication	textbox	2		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceURL	URL			url	3		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceDOI	DOI			text	4		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceNote	Note			textbox	5		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
-	externalReferenceType	External Copy of the dataset		0
-	externalReferenceType	External Location of the datafiles		1
-	externalReferenceType	This dataset is cited by		2
-	externalReferenceType	This dataset references		3
-	externalReferenceType	Relationed dataset		4
-	externalReferenceType	Appendix documentation		5
-	externalReferenceType	Link to the same data in other formats		6
-	externalReferenceType	Old link (before migration)		7
+	externalReferenceType	External Copy of the dataset	copy	0
+	externalReferenceType	External Location of the datafiles	almc	1
+	externalReferenceType	This dataset is cited by	cited	2
+	externalReferenceType	This dataset references	cites	3
+	externalReferenceType	Relationed dataset	relat	4
+	externalReferenceType	Appendix documentation	apdx	5
+	externalReferenceType	Link to the same data in other formats	otfor	6
+	externalReferenceType	Old link (before migration)	oldlk	7

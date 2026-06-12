@@ -1,9 +1,9 @@
 #metadataBlock	name	dataverseAlias	displayName	blockURI
 	geographic	geographic	Description of geographic/spatial dataset (vector or raster layers)	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
-	spatialRepresentationType	spatial representation type	Spatial Representation type for geographic data (vector, raster, both or other)		text	0		TRUE	TRUE	FALSE	TRUE	TRUE	TRUE		geographic	
+	spatialRepresentationType	spatial representation type	Spatial Representation type for geographic data (vector, raster, both or other)		text	0		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		geographic	
 	vectorLayer	Vector Layer	Group of variable for describing a vector layer		none	1		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		geographic	
-	vectorLayerName	Vector Layer Name	Name of a vector layer		text	2		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	vectorLayer	geographic	
+	vectorLayerName	Vector Layer Name	Name of a vector layer		text	2		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorLayerDescription	Vector Layer Description	Description of a vector layer		textbox	3		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorReferenceSystemEpsg	EPSG Reference System Identifier	Spatial reference system used in the dataset, identified with a EPSG SRID number		int	4		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorResolution	Vector Resolution	Scale denominator describing the scale	if scale is 1/10000, put 10000	int	5		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
@@ -14,7 +14,7 @@
 	topologicalLevel	Topological level	degree of complexity of the spatial relationships		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
 	geometricObjectType	Geometric Object Type	name of point or vector objects used to locate zero-, one-, two-, or three-dimensional spatial locations in the dataset		text	11		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	https://standards.iso.org/iso/19139/#MD_GeometricObjectTypeCode
 	rasterLayer	Raster Layer	Group of variables for describing a raster layer		none	12		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		geographic	
-	rasterLayerName	Raster Layer Name	Name of a raster layer		text	13		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	rasterLayer	geographic	
+	rasterLayerName	Raster Layer Name	Name of a raster layer		text	13		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	rasterLayerDescription	Raster Layer Description	Description of a raster layer		textbox	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	rasterReferenceSystemEpsg	Spatial reference system used in the dataset, identified with a EPSG SRID number	Spatial reference system used in the raster layer, identified with a EPSG SRID number		int	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	resolutionRaster	raster resolution	Resolution of the raster data (e.g 1km)		text	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
@@ -42,32 +42,32 @@
 	cellGeometry	point		1
 	cellGeometry	stratum		2
 	cellGeometry	voxel		3
-	transformationParameterAvailibility	TRUE		0
-	transformationParameterAvailibility	FALSE		1
-	geometricObjectType	Points		0
-	geometricObjectType	Line and segments		1
-	geometricObjectType	Polygons		2
-	geometricObjectType	Surfaces		3
-	geometricObjectType	Other		4
-	vectorFileFormat	ESRI geodatabase (gdb)		0
-	vectorFileFormat	ESRI shapefile (shp)		1
-	vectorFileFormat	WFS (Web Feature Service, OGC)		2
-	vectorFileFormat	Postgis dump file (dump)		3
-	vectorFileFormat	Spatialite database file (sqlite)		4
-	vectorFileFormat	GeoJSON file		5
-	vectorFileFormat	Geopackage file (gpkg)		6
-	vectorFileFormat	KML/KMZ Keyhole Markup Language File		7
-	vectorFileFormat	Personal geodatabase (mdb)		8
-	vectorFileFormat	Other		9
-	rasterFileFormat	Geotiff (tif)		0
-	rasterFileFormat	WMS (Web Map Service, OGC)		1
-	rasterFileFormat	WMTS (Web Map Tile Service, OGC)		2
-	rasterFileFormat	ESRI geodatabase (gdb)		3
-	rasterFileFormat	GeoJPEG		4
-	rasterFileFormat	Geopackage file (gpkg)		5
-	rasterFileFormat	WCS (Web Coverage Service, OGC)		6
-	rasterFileFormat	ECW (Enhanced Compression Wavelet)		7
-	rasterFileFormat	Personal Geodatabase (mdb)		8
-	rasterFileFormat	ESRI grid file (esri)		9
-	rasterFileFormat	ASCII grid file (asc)		10
-	rasterFileFormat	Other		11
+	transformationParameterAvailibility	TRUE	1.0	0
+	transformationParameterAvailibility	FALSE	0.0	1
+	geometricObjectType	Points	1.0	0
+	geometricObjectType	Line and segments	2.0	1
+	geometricObjectType	Polygons	3a	2
+	geometricObjectType	Surfaces	3b	3
+	geometricObjectType	Other	4.0	4
+	vectorFileFormat	ESRI geodatabase (gdb)	gdb	0
+	vectorFileFormat	ESRI shapefile (shp)	shp	1
+	vectorFileFormat	WFS (Web Feature Service, OGC)	wfs	2
+	vectorFileFormat	Postgis dump file (dump)	dump	3
+	vectorFileFormat	Spatialite database file (sqlite)	sqlite	4
+	vectorFileFormat	GeoJSON file	geojson	5
+	vectorFileFormat	Geopackage file (gpkg)	gpkg	6
+	vectorFileFormat	KML/KMZ Keyhole Markup Language File	kml	7
+	vectorFileFormat	Personal geodatabase (mdb)	mdb	8
+	vectorFileFormat	Other	other	9
+	rasterFileFormat	Geotiff (tif)	tif	0
+	rasterFileFormat	WMS (Web Map Service, OGC)	wms	1
+	rasterFileFormat	WMTS (Web Map Tile Service, OGC)	wmts	2
+	rasterFileFormat	ESRI geodatabase (gdb)	gdb	3
+	rasterFileFormat	GeoJPEG	jpg	4
+	rasterFileFormat	Geopackage file (gpkg)	gpkg	5
+	rasterFileFormat	WCS (Web Coverage Service, OGC)	wcs	6
+	rasterFileFormat	ECW (Enhanced Compression Wavelet)	ecw	7
+	rasterFileFormat	Personal Geodatabase (mdb)	mdb	8
+	rasterFileFormat	ESRI grid file (esri)	esri	9
+	rasterFileFormat	ASCII grid file (asc)	asc	10
+	rasterFileFormat	Other	other	11

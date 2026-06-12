@@ -2,8 +2,8 @@
 	emldn	eml	Ecological Metadata Language	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
 	emlShortName	Short Name	IPT short name for the URL and reference		text	0		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE		emldn	
-	emlType	Type of dataset	Dataset type		text	1		TRUE	TRUE	FALSE	TRUE	TRUE	TRUE		emldn	
-	emlSubType	Subtype of dataset	Dataset subtype		text	2		TRUE	TRUE	FALSE	TRUE	TRUE	TRUE		emldn	
+	emlType	Type of dataset	Dataset type		text	1		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		emldn	
+	emlSubType	Subtype of dataset	Dataset subtype		text	2		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		emldn	
 	DatasetPurpose	Dataset Purpose	Purpose and objectives of the dataset		textbox	3		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE		emldn	
 	emlTaxonomicCoverageDescription	Taxonomic Coverage description	A description of the range of taxa addressed in the data set or collection		textbox	4		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE		emldn	
 	emlTaxonomicCoverageClassification	Taxonomic Classification	Information about the range of taxa addressed in the data set or collection		none	5		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
@@ -12,7 +12,7 @@
 	emlTaxonomicCoverageCommonName	Common name	Specification of applicable common names. These common names may be general descriptions of a group of organisms if appropriate		text	8		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTaxonomicCoverageClassification	emldn	
 	emlTaxonomicCoverageTaxonId	Taxonomic Identifier	The identifier for this taxon from an authority, such as the Gbif backbone, ITIS or USDA Plant Database. Using an external system identifer allows referencing of additional information about a taxon, e.g., authoritative names, historical synonyms, published descriptions or rank hierarchies		text	9		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTaxonomicCoverageClassification	emldn	
 	emlTemporalCoverage	Temporal Coverage	Group of variable for describing the temporal coverage of the dataset		none	10		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
-	temporalCoverageType	Temporal Coverage Type	Type of temporal coverage (single date, range, formation period)		text	11		FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	emlTemporalCoverage	emldn	
+	temporalCoverageType	Temporal Coverage Type	Type of temporal coverage (single date, range, formation period)		text	11		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	emlTemporalCoverage	emldn	
 	TCsimpleDate	Single date	single date corresponding to temporal coverage	Fill when type is "Date"	date	12		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTemporalCoverage	emldn	
 	TCinitialDate	Initial Date	Initial date of a date range	Fill when type is "Date range"	date	13		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTemporalCoverage	emldn	
 	TCfinalDate	Final Date	Final date of a date range	Fill when type is "Date range"	date	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTemporalCoverage	emldn	
@@ -23,9 +23,9 @@
 	emlMethodsSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	19		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	emldn	
 	emlMethodStep	Method step	Group of variable for describing each method step		none	20		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
 	emlMethodStepNumber	Method step number	Number for ordered steps in the methodology		int	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	emldn	
-	emlMethodStepDescription	Method step description	Description of one step of the methodology		textbox	22		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	emlMethodStep	emldn	
+	emlMethodStepDescription	Method step description	Description of one step of the methodology		textbox	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	emldn	
 	collectionData	Collection Data	Group of variable for describing collections		none	23		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
-	collectionName	Collection Name	Name of the collection		text	24		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	collectionData	emldn	
+	collectionName	Collection Name	Name of the collection		text	24		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	
 	collectionId	Collection Identifier	Identifier of the collection		text	25		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	emldn	
 	collectionCode	Collection Code	Code of the collection		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	
 	preservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	

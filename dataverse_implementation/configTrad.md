@@ -2,7 +2,7 @@
 Marius Bottin
 
 ``` r
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260603.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260612.xlsx"
 ```
 
 ## Leer los archivos de configuración anteriores

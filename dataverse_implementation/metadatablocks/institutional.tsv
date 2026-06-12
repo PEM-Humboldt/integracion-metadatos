@@ -1,29 +1,29 @@
 #metadataBlock	name	dataverseAlias	displayName	blockURI
 	institutional	institutional	Institutional information	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
-	project	Project	Institutional project constituting the framework of the research which resulted in the creation of the dataset		none	0		FALSE	FALSE	TRUE	FALSE	TRUE	TRUE		institutional	
-	projectName	Project Name	Official name of the project		text	1		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	project	institutional	
+	project	Project	Institutional project constituting the framework of the research which resulted in the creation of the dataset		none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		institutional	
+	projectName	Project Name	Official name of the project		text	1		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	project	institutional	
 	project shortName	Project short name	Short name of the project, used by the teams		text	2		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	project	institutional	
-	projectID	Project Identifier	Official identifier of the project (please check on GDoc for institutional project identifier)		text	3		TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	project	institutional	
+	projectID	Project Identifier	Official identifier of the project (please check on GDoc for institutional project identifier)		text	3		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	project	institutional	
 	projectDescription	Project Description	Textual description of the project		textbox	4		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	project	institutional	
 	projectPurpose	Project Purpose	Textual description of the goals and purpose of the project		textbox	5		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	project	institutional	
 	projectStudyArea	Project Study Area	Textual description of the study area		text	6		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	project	institutional	
 	projectFunding	Project Funding	Source of funding for the project, please include the institution, and potential identifiers of the funding.		text	7		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	project	institutional	
 	contractor	Contractor	In case of independent contracting this group of variable allows us to link contractors and their institutional contracts		none	8		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		institutional	
-	contractCode	Contract Code	Institutional code for the contract		text	9		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	contractor	institutional	
-	contractorName	Contractor Name	Name of the contractor		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	contractor	institutional	
-	accessLicence	Access and Licence	Description of the conditions for access		none	11		FALSE	FALSE	FALSE	FALSE	TRUE	TRUE		institutional	
-	accessType	Access Type	Categories of access and restrictions		text	12		TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	accessLicence	institutional	
-	altered	Altered or anonymized	Whether the accessible data has been altered or anonymised in order to protect people or species		text	13		TRUE	TRUE	FALSE	FALSE	TRUE	TRUE	accessLicence	institutional	
+	contractCode	Contract Code	Institutional code for the contract		text	9		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	contractor	institutional	
+	contractorName	Contractor Name	Name of the contractor		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	contractor	institutional	
+	accessLicence	Access and Licence	Description of the conditions for access		none	11		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
+	accessType	Access Type	Categories of access and restrictions		text	12		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	accessLicence	institutional	
+	altered	Altered or anonymized	Whether the accessible data has been altered or anonymised in order to protect people or species		text	13		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	accessLicence	institutional	
 	restrictedUntil	Restricted until	Date at which an embargoed dataset will be freed		date	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	accessLicence	institutional	
 	licenceType	Licence Type	Basis of the licence		text	15		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	accessLicence	institutional	
 	licenceNote	Licence Note			textbox	16		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	accessLicence	institutional	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
-	accessType	Fully open access (internal/external)		0
-	accessType	Internal open access		1
-	accessType	Restricted		2
-	licenceType	CC BY-NC - Attribution - Non Commercial		0
-	licenceType	CC BY - Attribution		1
-	licenceType	CC0 - Public Domain		2
-	altered	TRUE		0
-	altered	FALSE		1
+	accessType	Fully open access (internal/external)	intext	0
+	accessType	Internal open access	int	1
+	accessType	Restricted	res	2
+	licenceType	CC BY-NC - Attribution - Non Commercial	ccbync	0
+	licenceType	CC BY - Attribution	ccby	1
+	licenceType	CC0 - Public Domain	cc0	2
+	altered	TRUE	T	0
+	altered	FALSE	F	1
