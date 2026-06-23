@@ -1,5 +1,5 @@
 #metadataBlock	name	dataverseAlias	displayName	blockURI
-	externalReferences		Externak References	
+	externalReferences		External References	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
 	externalReference	External Reference	Group of variable for external links or references		none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		externalReferences	
 	externalReferenceType	External Reference Type			text	1		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
@@ -8,9 +8,9 @@
 	externalReferenceDOI	DOI			text	4		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceOtherId	Other identifier			text	5		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceNote	Note			textbox	6		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
-	externalEncoding	External encoding	Encoding of the external file or URL		text	7		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
-	externalFileFormat	External file format	File format of the external file or link		text	8		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
-	externalFileFormatVersion	External file format version	File format version of the external file or link		text	9		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
+	externalEncoding	External encoding	Encoding of the external file or URL		text	7		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	externalReferences	
+	externalFileFormat	External file format	File format of the external file or link		text	8		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	externalReferences	
+	externalFileFormatVersion	External file format version	File format version of the external file or link		text	9		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	externalReferences	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	externalReferenceType	External Copy of the dataset	copy	0
 	externalReferenceType	Citation	cited	1
