@@ -1,18 +1,22 @@
 #metadataBlock	name	dataverseAlias	displayName	blockURI
 	iavh_geospatial		Geospatial Metadata	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
-	iavh_geographicCoverageDescription	Geographic Coverage Description			textbox	0	#VALUE,	TRUE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_geospatial	
-	iavh_country	Country / Nation	The country or nation that the Dataset is about.		text	1	#VALUE,	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
-	iavh_state	State / Province	The state or province that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	2	#VALUE,	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
-	iavh_city	City	The name of the city that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	3	#VALUE,	TRUE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
-	iavh_otherGeographicCoverage	Other	Other information on the geographic coverage of the data.		text	4	#VALUE,	FALSE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
-	iavh_geographicUnit	Geographic Unit	Lowest level of geographic aggregation covered by the Dataset, e.g., village, county, region.		text	5		TRUE	FALSE	TRUE	TRUE	TRUE	FALSE		iavh_geospatial	
+	iavh_geographicCoverage				none	0		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		iavh_geospatial	
+	iavh_country	Country / Nation	The country or nation that the Dataset is about.		text	1	#VALUE,	TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	iavh_geographicCoverage	iavh_geospatial	
+	iavh_state	State / Province	The state or province that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	2	#VALUE,	TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	iavh_geographicCoverage	iavh_geospatial	
+	iavh_city	City	The name of the city that the Dataset is about. Use GeoNames for correct spelling and avoid abbreviations.		text	3	#VALUE,	TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	iavh_geographicCoverage	iavh_geospatial	
+	iavh_otherGeographicCoverage	Other	Other information on the geographic coverage of the data.		text	4	#VALUE,	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	iavh_geographicCoverage	iavh_geospatial	
+	iavh_geographicUnit	Geographic Unit	Lowest level of geographic aggregation covered by the Dataset, e.g., village, county, region.		text	5		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE		iavh_geospatial	
 	iavh_geographicBoundingBox	Geographic Bounding Box	The fundamental geometric description for any Dataset that models geography is the geographic bounding box. It describes the minimum box, defined by west and east longitudes and north and south latitudes, which includes the largest geographic extent of the  Dataset's geographic coverage. This element is used in the first pass of a coordinate-based search. Inclusion of this element in the codebook is recommended, but is required if the bound polygon box is included.		none	6		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		iavh_geospatial	
 	iavh_westLongitude	Westernmost (Left) Longitude	Westernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -180.0 <= West  Bounding Longitude Value <= 180.0.		text	7		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
 	iavh_eastLongitude	Easternmost (Right) Longitude	Easternmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -180.0 <= East Bounding Longitude Value <= 180.0.		text	8		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
 	iavh_northLatitude	Northernmost (Top) Latitude	Northernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -90.0 <= North Bounding Latitude Value <= 90.0.		text	9		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
 	iavh_southLatitude	Southernmost (Bottom) Latitude	Southernmost coordinate delimiting the geographic extent of the Dataset. A valid range of values,  expressed in decimal degrees, is -90.0 <= South Bounding Latitude Value <= 90.0.		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	iavh_geographicBoundingBox	iavh_geospatial	
-	iavh_wkt	WKT	Well known text specification of the study area		textbox	11		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		iavh_geospatial	
+	altitudeRange	Altitude Range	Altitude range in meters		none	11		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_geospatial	
+	minimumAltitude	Minimum Altitude			int	12		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	altitudeRange	iavh_geospatial	
+	maximumAltitude	Maximum Altitude			int	13		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	altitudeRange	iavh_geospatial	
+	iavh_geographicCoverageDescription	Geographic Coverage Description			textbox	14	#VALUE,	TRUE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_geospatial	
+	iavh_wkt	WKT	Well known text specification of the study area		textbox	15		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		iavh_geospatial	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	iavh_country	Colombia		0
 	iavh_country	Afghanistan		1
@@ -263,37 +267,38 @@
 	iavh_country	Zambia		246
 	iavh_country	Zimbabwe		247
 	iavh_country	Åland Islands		248
-	iavh_state	Antioquia	05	0
-	iavh_state	Atlántico	08	1
-	iavh_state	Bogotá, D.C.	11	2
-	iavh_state	Bolívar	13	3
-	iavh_state	Boyacá	15	4
-	iavh_state	Caldas	17	5
-	iavh_state	Caquetá	18	6
-	iavh_state	Cauca	19	7
-	iavh_state	Cesar	20	8
-	iavh_state	Córdoba	23	9
-	iavh_state	Cundinamarca	25	10
-	iavh_state	Chocó	27	11
-	iavh_state	Huila	41	12
-	iavh_state	La Guajira	44	13
-	iavh_state	Magdalena	47	14
-	iavh_state	Meta	50	15
-	iavh_state	Nariño	52	16
-	iavh_state	Norte de Santander	54	17
-	iavh_state	Quindio	63	18
-	iavh_state	Risaralda	66	19
-	iavh_state	Santander	68	20
-	iavh_state	Sucre	70	21
-	iavh_state	Tolima	73	22
-	iavh_state	Valle del Cauca	76	23
-	iavh_state	Arauca	81	24
-	iavh_state	Casanare	85	25
-	iavh_state	Putumayo	86	26
-	iavh_state	Archipiélago de San Andrés y Providencia	88	27
-	iavh_state	Amazonas	91	28
-	iavh_state	Guainía	94	29
-	iavh_state	Guaviare	95	30
-	iavh_state	Vaupés	97	31
-	iavh_state	Vichada	99	32
-	iavh_state	Other	00	33
+	iavh_state	Colombia (Whole country	1.0	0
+	iavh_state	Antioquia	05	1
+	iavh_state	Atlántico	08	2
+	iavh_state	Bogotá, D.C.	11	3
+	iavh_state	Bolívar	13	4
+	iavh_state	Boyacá	15	5
+	iavh_state	Caldas	17	6
+	iavh_state	Caquetá	18	7
+	iavh_state	Cauca	19	8
+	iavh_state	Cesar	20	9
+	iavh_state	Córdoba	23	10
+	iavh_state	Cundinamarca	25	11
+	iavh_state	Chocó	27	12
+	iavh_state	Huila	41	13
+	iavh_state	La Guajira	44	14
+	iavh_state	Magdalena	47	15
+	iavh_state	Meta	50	16
+	iavh_state	Nariño	52	17
+	iavh_state	Norte de Santander	54	18
+	iavh_state	Quindio	63	19
+	iavh_state	Risaralda	66	20
+	iavh_state	Santander	68	21
+	iavh_state	Sucre	70	22
+	iavh_state	Tolima	73	23
+	iavh_state	Valle del Cauca	76	24
+	iavh_state	Arauca	81	25
+	iavh_state	Casanare	85	26
+	iavh_state	Putumayo	86	27
+	iavh_state	Archipiélago de San Andrés y Providencia	88	28
+	iavh_state	Amazonas	91	29
+	iavh_state	Guainía	94	30
+	iavh_state	Guaviare	95	31
+	iavh_state	Vaupés	97	32
+	iavh_state	Vichada	99	33
+	iavh_state	Other	00	34

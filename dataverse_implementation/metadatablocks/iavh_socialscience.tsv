@@ -20,6 +20,7 @@
 	iavh_deviationsFromSampleDesign	Major Deviations for Sample Design	Show correspondence as well as discrepancies between the sampled units (obtained) and available statistics for the population (age, sex-ratio, marital status, etc.) as a whole.		text	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 	iavh_collectionMode	Collection Mode	Method used to collect the data; instrumentation characteristics (e.g., telephone interview, mail questionnaire, or other).		textbox	17		FALSE	TRUE	TRUE	FALSE	TRUE	FALSE		iavh_socialscience	
 	iavh_researchInstrument	Type of Research Instrument	Type of data collection instrument used. Structured indicates an instrument in which all respondents are asked the same questions/tests, possibly with precoded answers. If a small portion of such a questionnaire includes open-ended questions, provide appropriate comments. Semi-structured indicates that the research instrument contains mainly open-ended questions. Unstructured indicates that in-depth interviews were conducted.		text	18		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		iavh_socialscience	
+	iavh_socioEcologicalTemplate	SocioEcological Template	Template used for organizing this dataset		text	33		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 	iavh_dataCollectionSituation	Characteristics of Data Collection Situation	Description of noteworthy aspects of the data collection situation. Includes information on factors such as cooperativeness of respondents, duration of interviews, number of call backs, or similar.		textbox	19		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 	iavh_actionsToMinimizeLoss	Actions to Minimize Losses	Summary of actions taken to minimize data loss. Include information on actions such as follow-up visits, supervisory checks, historical matching, estimation, and so on.		text	20		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 	iavh_controlOperations	Control Operations	Control OperationsMethods to facilitate data control performed by the primary investigator or by the data archive.		text	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
@@ -34,7 +35,6 @@
 	iavh_socialScienceNotesSubject	Subject	Note subject.		text	30		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	iavh_socialScienceNotes	iavh_socialscience	
 	iavh_socialScienceNotesText	Text	Text for this note.		textbox	31		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	iavh_socialScienceNotes	iavh_socialscience	
 	iavh_socialScienceBiases	Socio-ecological dataset biases	Description of potential biases for the dataset		textbox	32		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
-	iavh_socioEcologicalTemplate	SocioEcological Template	Template used for organizing this dataset		text	33		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		iavh_socialscience	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	iavh_collectionMode	Personal interview on a paper form		0
 	iavh_collectionMode	Personal interview on mobil device		1

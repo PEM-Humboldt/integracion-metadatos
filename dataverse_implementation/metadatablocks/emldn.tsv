@@ -31,26 +31,26 @@
 	preservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	emldn	
 	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		emldn	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
-	emlTaxonomicCoverageTaxonRankName	kingdom		0
-	emlTaxonomicCoverageTaxonRankName	phylum		1
-	emlTaxonomicCoverageTaxonRankName	class		2
-	emlTaxonomicCoverageTaxonRankName	order		3
-	emlTaxonomicCoverageTaxonRankName	family		4
-	emlTaxonomicCoverageTaxonRankName	genus		5
-	emlTaxonomicCoverageTaxonRankName	species		6
-	emlTaxonomicCoverageTaxonRankName	subspecies		7
-	emlType	Checklist		0
-	emlType	Occurrence		1
-	emlType	Sampling event		2
-	emlType	Camtrap DP		3
-	emlType	Other		4
-	emlSubType	Taxonomic authority		0
-	emlSubType	Thematic inventory		1
-	emlSubType	Regional inventory		2
-	emlSubType	Biological register derivate		3
-	emlSubType	Specimen		4
-	emlSubType	Observation		5
-	emlSubType	Other		6
-	temporalCoverageType	Date		0
-	temporalCoverageType	Date Range		1
-	temporalCoverageType	Formation period		2
+	emlTaxonomicCoverageTaxonRankName	kingdom	kg	0
+	emlTaxonomicCoverageTaxonRankName	phylum	phy	1
+	emlTaxonomicCoverageTaxonRankName	class	cl	2
+	emlTaxonomicCoverageTaxonRankName	order	or	3
+	emlTaxonomicCoverageTaxonRankName	family	fam	4
+	emlTaxonomicCoverageTaxonRankName	genus	gen	5
+	emlTaxonomicCoverageTaxonRankName	species	sp	6
+	emlTaxonomicCoverageTaxonRankName	subspecies	subsp	7
+	emlType	Checklist	chkl	0
+	emlType	Occurrence	occ	1
+	emlType	Sampling event	eve	2
+	emlType	Camtrap DP	ctdp	3
+	emlType	Other	oth	4
+	emlSubType	Taxonomic authority	txau	0
+	emlSubType	Thematic inventory	thin	1
+	emlSubType	Regional inventory	regi	2
+	emlSubType	Biological register derivate	deriv	3
+	emlSubType	Specimen	spci	4
+	emlSubType	Observation	obs	5
+	emlSubType	Other	oth	6
+	temporalCoverageType	Date	date	0
+	temporalCoverageType	Date Range	range	1
+	temporalCoverageType	Formation period	period	2

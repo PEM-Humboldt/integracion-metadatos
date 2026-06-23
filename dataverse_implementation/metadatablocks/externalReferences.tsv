@@ -6,13 +6,13 @@
 	citationText	Citation text		Please format in APA for scientific publication	textbox	2		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceURL	URL			url	3		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
 	externalReferenceDOI	DOI			text	4		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
-	externalReferenceNote	Note			textbox	5		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
+	externalReferenceOtherId	Other identifier			text	5		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
+	externalReferenceNote	Note			textbox	6		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	externalReference	externalReferences	
+	externalEncoding	External encoding	Encoding of the external file or URL		text	7		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
+	externalFileFormat	External file format	File format of the external file or link		text	8		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
+	externalFileFormatVersion	External file format version	File format version of the external file or link		text	9		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	externalReference	ExternalReferences	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	externalReferenceType	External Copy of the dataset	copy	0
-	externalReferenceType	External Location of the datafiles	almc	1
-	externalReferenceType	This dataset is cited by	cited	2
-	externalReferenceType	This dataset references	cites	3
-	externalReferenceType	Relationed dataset	relat	4
-	externalReferenceType	Appendix documentation	apdx	5
-	externalReferenceType	Link to the same data in other formats	otfor	6
-	externalReferenceType	Old link (before migration)	oldlk	7
+	externalReferenceType	Citation	cited	1
+	externalReferenceType	This dataset references	cites	2
+	externalReferenceType	Relationed dataset	relat	3
