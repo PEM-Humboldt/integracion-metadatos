@@ -19,8 +19,8 @@
 	TCformationPeriod	Formation Period	Formation period description	Fill when type is formation period	textbox	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTemporalCoverage	emldn	
 	emlMethod	Method	Group of variable for method description		none	16		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
 	emlMethodStudyArea	Study Area	Study Area		textbox	17		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlMethod	emldn	
-	emlMethodQualityControl	Quality Control	Description of one step of the methodology		textbox	18		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethod	emldn	
 	emlMethodsSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	19		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	emldn	
+	emlMethodQualityControl	Quality Control	Description of one step of the methodology		textbox	18		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethod	emldn	
 	emlMethodStep	Method step	Group of variable for describing each method step		none	20		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
 	emlMethodStepNumber	Method step number	Number for ordered steps in the methodology		int	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	emldn	
 	emlMethodStepDescription	Method step description	Description of one step of the methodology		textbox	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	emldn	

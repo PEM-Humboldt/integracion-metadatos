@@ -2,7 +2,7 @@
 Marius Bottin
 
 ``` r
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260623.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260707.xlsx"
 ```
 
 ## Leer los archivos de configuración anteriores
@@ -327,7 +327,7 @@ sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
       dvmetadatablock_institutional    dvmetadatablock_localContext 
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
-                              FALSE                            TRUE 
+                               TRUE                            TRUE 
                 dvmetadatablock_eml  dvmetadatablock_social_science 
                                TRUE                            TRUE 
 

@@ -18,6 +18,7 @@
 	restrictedUntil	Restricted until	Date at which an embargoed dataset will be freed		date	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	accessLicence	institutional	
 	licenceType	Licence Type	Basis of the licence		text	15		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	accessLicence	institutional	
 	licenceNote	Licence Note			textbox	16		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	accessLicence	institutional	
+	aknowledgement	Aknowledgements			textbox	17		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	accessType	Fully open access (internal/external)	intext	0
 	accessType	Internal open access	int	1
