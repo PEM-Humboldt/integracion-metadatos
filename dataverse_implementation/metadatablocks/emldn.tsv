@@ -5,7 +5,7 @@
 	emlType	Type of dataset	Dataset type		text	1		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		emldn	
 	emlSubType	Subtype of dataset	Dataset subtype		text	2		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		emldn	
 	DatasetPurpose	Dataset Purpose	Purpose and objectives of the dataset		textbox	3		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE		emldn	
-	emlTaxonomicCoverageDescription	Taxonomic Coverage description	A description of the range of taxa addressed in the data set or collection		textbox	4		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE		emldn	
+	emlTaxonomicCoverageDescription	Taxonomic Coverage description	A description of the range of taxa addressed in the data set or collection		textbox	4		TRUE	FALSE	TRUE	TRUE	TRUE	FALSE		emldn	
 	emlTaxonomicCoverageClassification	Taxonomic Classification	Information about the range of taxa addressed in the data set or collection		none	5		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		emldn	
 	emlTaxonomicCoverageTaxonRankName	Taxon rank name	The name of the taxonomic rank for which the Taxon rank value is provided		text	6		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	emlTaxonomicCoverageClassification	emldn	
 	emlTaxonomicCoverageTaxonRankValue	Scientific name	Taxonomic name		text	7		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	emlTaxonomicCoverageClassification	emldn	
@@ -32,13 +32,40 @@
 	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		emldn	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	emlTaxonomicCoverageTaxonRankName	kingdom	kg	0
-	emlTaxonomicCoverageTaxonRankName	phylum	phy	1
-	emlTaxonomicCoverageTaxonRankName	class	cl	2
-	emlTaxonomicCoverageTaxonRankName	order	or	3
-	emlTaxonomicCoverageTaxonRankName	family	fam	4
-	emlTaxonomicCoverageTaxonRankName	genus	gen	5
-	emlTaxonomicCoverageTaxonRankName	species	sp	6
-	emlTaxonomicCoverageTaxonRankName	subspecies	subsp	7
+	emlTaxonomicCoverageTaxonRankName	subkingdom	skg	1
+	emlTaxonomicCoverageTaxonRankName	superphylum	spphy	2
+	emlTaxonomicCoverageTaxonRankName	phylum	phy	3
+	emlTaxonomicCoverageTaxonRankName	subphylum	sphy	4
+	emlTaxonomicCoverageTaxonRankName	superclass	spcl	5
+	emlTaxonomicCoverageTaxonRankName	class	cl	6
+	emlTaxonomicCoverageTaxonRankName	subclass	scl	7
+	emlTaxonomicCoverageTaxonRankName	supercohort	spcoh	8
+	emlTaxonomicCoverageTaxonRankName	cohort	coh	9
+	emlTaxonomicCoverageTaxonRankName	subcohort	scoh	10
+	emlTaxonomicCoverageTaxonRankName	superorder	spor	11
+	emlTaxonomicCoverageTaxonRankName	order	or	12
+	emlTaxonomicCoverageTaxonRankName	suborder	sor	13
+	emlTaxonomicCoverageTaxonRankName	infraorder	inor	14
+	emlTaxonomicCoverageTaxonRankName	superfamily	spfam	15
+	emlTaxonomicCoverageTaxonRankName	family	fam	16
+	emlTaxonomicCoverageTaxonRankName	subfamily	sfam	17
+	emlTaxonomicCoverageTaxonRankName	tribe	tr	18
+	emlTaxonomicCoverageTaxonRankName	subtribe	str	19
+	emlTaxonomicCoverageTaxonRankName	genus	gen	20
+	emlTaxonomicCoverageTaxonRankName	subgenus	sgen	21
+	emlTaxonomicCoverageTaxonRankName	section	sec	22
+	emlTaxonomicCoverageTaxonRankName	subsection	ssec	23
+	emlTaxonomicCoverageTaxonRankName	series	ser	24
+	emlTaxonomicCoverageTaxonRankName	subseries	sser	25
+	emlTaxonomicCoverageTaxonRankName	species	sp	26
+	emlTaxonomicCoverageTaxonRankName	subspecies	subsp	27
+	emlTaxonomicCoverageTaxonRankName	variety	var	28
+	emlTaxonomicCoverageTaxonRankName	subvariety	svar	29
+	emlTaxonomicCoverageTaxonRankName	form	fo	30
+	emlTaxonomicCoverageTaxonRankName	subform	sfo	31
+	emlTaxonomicCoverageTaxonRankName	cultivar	cul	32
+	emlTaxonomicCoverageTaxonRankName	strain	st	33
+	emlTaxonomicCoverageTaxonRankName	unranked	un	34
 	emlType	Checklist	chkl	0
 	emlType	Occurrence	occ	1
 	emlType	Sampling event	eve	2
