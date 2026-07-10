@@ -613,3 +613,101 @@ print(json.dumps(json_dic, indent=4, sort_keys=True))
         "separator": "/",
         "storageIdentifier": "file://10.21068/CTQ20N"
     }
+
+Para obtener la lista de los datasets en biocultural
+
+``` python
+dv_id='iavh_i2d'
+apiUrl=baseUrl+'/api/dataverses/' + dv_id + '/contents'
+response=requests.get(apiUrl, headers=headers)
+#print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+Ahora si queremos traducir esta lista a una tabla
+
+``` python
+import pandas as pd
+import tabulate
+df_datasets=pd.DataFrame([x for x in response.json()['data'] if x['type'] == 'dataset'])
+print(tabulate.tabulate(df_datasets.head(10), headers='keys', tablefmt='github'))
+```
+
+|  | id | identifier | persistentUrl | protocol | authority | separator | publisher | storageIdentifier | metadataLanguage | datasetType | type | publicationDate |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| 0 | 76 | GJQA1V | https://doi.org/10.21068/GJQA1V | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/GJQA1V | es | dataset | dataset | nan |
+| 1 | 78 | 6FUXJR | https://doi.org/10.21068/6FUXJR | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/6FUXJR | es | dataset | dataset | 2023-08-29 |
+| 2 | 81 | WH1XJX | https://doi.org/10.21068/WH1XJX | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/WH1XJX | es | dataset | dataset | 2023-08-29 |
+| 3 | 83 | AYGJHN | https://doi.org/10.21068/AYGJHN | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/AYGJHN | es | dataset | dataset | 2023-08-29 |
+| 4 | 90 | 7UAZDX | https://doi.org/10.21068/7UAZDX | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/7UAZDX | es | dataset | dataset | 2023-11-15 |
+| 5 | 94 | SALZW7 | https://doi.org/10.21068/SALZW7 | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/SALZW7 | es | dataset | dataset | 2023-12-22 |
+| 6 | 100 | RC8R8R | https://doi.org/10.21068/RC8R8R | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/RC8R8R | es | dataset | dataset | 2024-01-12 |
+| 7 | 105 | 9VZV1Y | https://doi.org/10.21068/9VZV1Y | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/9VZV1Y | es | dataset | dataset | 2024-02-13 |
+| 8 | 109 | K4W4V2 | https://doi.org/10.21068/K4W4V2 | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/K4W4V2 | es | dataset | dataset | 2024-02-19 |
+| 9 | 114 | RUUNQP | https://doi.org/10.21068/RUUNQP | doi | 10.2107 | / | Catálogo de Datos Socioecológicos | file://10.21068/RUUNQP | es | dataset | dataset | 2024-03-13 |
+
+Ahora para tener la lista de versiones en 1 dataset:
+
+``` python
+dataset=str(df_datasets['id'].iloc[1])
+apiUrl=baseUrl+'/api/datasets/' + dataset + '/versions'
+params= {
+  'excludeFiles': True,
+  'excludeMetadataBlocks': True,
+}
+response=requests.get(apiUrl, params=params, headers=headers)
+print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+    {
+        "data": [
+            {
+                "citationDate": "2023-08-29",
+                "citationRequirements": "Santamar\u00eda, Andr\u00e9s (2023). Encuestas para estimar la demanda de prop\u00f3leo como coadyuvante en el tratamiento de enfermedades reum\u00e1ticas en el \u00c1rea Metropolitana de Bucaramanga. Expedici\u00f3n cient\u00edfica sobre la biodiversidad funcional asociada a los agroecosistemas de Montes de Mar\u00eda bajo contextos de transformaci\u00f3n y cambio clim\u00e1tico. Instituto de Investigaci\u00f3n de Recursos Biol\u00f3gicos Alexander von Humboldt.",
+                "confidentialityDeclaration": "El Instituto Humboldt entrega los microdatos en forma anonimizada cuidando la confidencialidad y la intimidad de las fuentes en el marco de la constituci\u00f3n pol\u00edtica de Colombia (art\u00edculos 15 y 20), respeta el Habeas Data regulado en la Ley 1266 de 2008 y se acoge a la regulaci\u00f3n de censos y encuestas en los t\u00e9rminos del art\u00edculo 5 de la ley 79 de 1993: \u201clos datos no podr\u00e1n darse a conocer al p\u00fablico ni a las entidades u organismos oficiales, ni a las autoridades p\u00fablicas, sino \u00fanicamente en res\u00famenes num\u00e9ricos, que no hagan posible deducir de ellos informaci\u00f3n alguna de car\u00e1cter individual que pudiera utilizarse para fines comerciales, de tributaci\u00f3n fiscal, de investigaci\u00f3n judicial o cualquier otro diferente del propiamente estad\u00edstico\u201d.",
+                "contactForAccess": "Infraestructura Institucional de Datos e Informaci\u00f3n: i2d@humboldt.org.co",
+                "createTime": "2023-08-29T21:04:49Z",
+                "datasetId": 78,
+                "datasetPersistentId": "doi:10.21068/6FUXJR",
+                "deaccessionLink": "",
+                "disclaimer": "El usuario de la informaci\u00f3n se compromete a: 1. Utilizar la informaci\u00f3n \u00fanicamente para los fines autorizados. 2. Respetar y hacer valer frente a terceros los derechos de propiedad de los autores. 3. No distribuir la informaci\u00f3n a terceros sin previa autorizaci\u00f3n de los autores. 4. Dar cr\u00e9ditos a los autores en todos los productos derivados del uso de la informaci\u00f3n. 5. No realizar modificaciones, ni incluir logos - s\u00edmbolos o publicidad diferente a aquella que permita identificar la fuente de la informaci\u00f3n entregada. 6. No comercializar. 7. Responder por la correcta utilizaci\u00f3n de la informaci\u00f3n. 8. Asumir la responsabilidad del uso del software empleado en los an\u00e1lisis y de los resultados obtenidos. 9. Entregar al Instituto Humboldt, copias digitales de los productos que resulten de la cartograf\u00eda entregada (cuando aplique). 10. No ceder las obligaciones adquiridas.",
+                "fileAccessRequest": true,
+                "id": 29,
+                "lastUpdateTime": "2023-08-29T21:05:36Z",
+                "latestVersionPublishingState": "RELEASED",
+                "productionDate": "2023-08-15",
+                "publicationDate": "2023-08-29",
+                "releaseTime": "2023-08-29T21:05:36Z",
+                "storageIdentifier": "file://10.21068/6FUXJR",
+                "termsOfAccess": "Contactar a Mario Andr\u00e9s Murcia L\u00f3pez: mmurcia@humboldt.org.co Investigador Principal, Centro Econom\u00eda y Finanzas de la Biodiversidad",
+                "termsOfUse": "- Libre a nivel interno",
+                "versionMinorNumber": 1,
+                "versionNumber": 1,
+                "versionState": "RELEASED"
+            },
+            {
+                "citationDate": "2023-08-29",
+                "citationRequirements": "Santamar\u00eda, Andr\u00e9s (2023). Encuestas para estimar la demanda de prop\u00f3leo como coadyuvante en el tratamiento de enfermedades reum\u00e1ticas en el \u00c1rea Metropolitana de Bucaramanga. Expedici\u00f3n cient\u00edfica sobre la biodiversidad funcional asociada a los agroecosistemas de Montes de Mar\u00eda bajo contextos de transformaci\u00f3n y cambio clim\u00e1tico. Instituto de Investigaci\u00f3n de Recursos Biol\u00f3gicos Alexander von Humboldt.",
+                "confidentialityDeclaration": "El Instituto Humboldt entrega los microdatos en forma anonimizada cuidando la confidencialidad y la intimidad de las fuentes en el marco de la constituci\u00f3n pol\u00edtica de Colombia (art\u00edculos 15 y 20), respeta el Habeas Data regulado en la Ley 1266 de 2008 y se acoge a la regulaci\u00f3n de censos y encuestas en los t\u00e9rminos del art\u00edculo 5 de la ley 79 de 1993: \u201clos datos no podr\u00e1n darse a conocer al p\u00fablico ni a las entidades u organismos oficiales, ni a las autoridades p\u00fablicas, sino \u00fanicamente en res\u00famenes num\u00e9ricos, que no hagan posible deducir de ellos informaci\u00f3n alguna de car\u00e1cter individual que pudiera utilizarse para fines comerciales, de tributaci\u00f3n fiscal, de investigaci\u00f3n judicial o cualquier otro diferente del propiamente estad\u00edstico\u201d.",
+                "contactForAccess": "Infraestructura Institucional de Datos e Informaci\u00f3n: i2d@humboldt.org.co",
+                "createTime": "2023-08-23T07:03:16Z",
+                "datasetId": 78,
+                "datasetPersistentId": "doi:10.21068/6FUXJR",
+                "deaccessionLink": "",
+                "disclaimer": "El usuario de la informaci\u00f3n se compromete a: 1. Utilizar la informaci\u00f3n \u00fanicamente para los fines autorizados. 2. Respetar y hacer valer frente a terceros los derechos de propiedad de los autores. 3. No distribuir la informaci\u00f3n a terceros sin previa autorizaci\u00f3n de los autores. 4. Dar cr\u00e9ditos a los autores en todos los productos derivados del uso de la informaci\u00f3n. 5. No realizar modificaciones, ni incluir logos - s\u00edmbolos o publicidad diferente a aquella que permita identificar la fuente de la informaci\u00f3n entregada. 6. No comercializar. 7. Responder por la correcta utilizaci\u00f3n de la informaci\u00f3n. 8. Asumir la responsabilidad del uso del software empleado en los an\u00e1lisis y de los resultados obtenidos. 9. Entregar al Instituto Humboldt, copias digitales de los productos que resulten de la cartograf\u00eda entregada (cuando aplique). 10. No ceder las obligaciones adquiridas.",
+                "fileAccessRequest": true,
+                "id": 26,
+                "lastUpdateTime": "2023-08-29T20:52:40Z",
+                "latestVersionPublishingState": "RELEASED",
+                "productionDate": "2023-08-15",
+                "publicationDate": "2023-08-29",
+                "releaseTime": "2023-08-29T20:52:40Z",
+                "storageIdentifier": "file://10.21068/6FUXJR",
+                "termsOfAccess": "Contactar a Mario Andr\u00e9s Murcia: mmurcia@humboldt.org.co",
+                "termsOfUse": "- Libre a nivel interno",
+                "versionMinorNumber": 0,
+                "versionNumber": 1,
+                "versionState": "RELEASED"
+            }
+        ],
+        "status": "OK"
+    }

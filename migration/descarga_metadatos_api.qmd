@@ -71,3 +71,36 @@ json_dic = response.json()
 print(json.dumps(json_dic, indent=4, sort_keys=True))
 ```
 
+Para obtener la lista de los datasets en biocultural
+```{python}
+dv_id='iavh_i2d'
+apiUrl=baseUrl+'/api/dataverses/' + dv_id + '/contents'
+response=requests.get(apiUrl, headers=headers)
+#print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+Ahora si queremos traducir esta lista a una tabla
+
+```{python}
+#| results: 'asis'
+import pandas as pd
+import tabulate
+df_datasets=pd.DataFrame([x for x in response.json()['data'] if x['type'] == 'dataset'])
+print(tabulate.tabulate(df_datasets.head(10), headers='keys', tablefmt='github'))
+```
+
+
+Ahora para tener la lista de versiones en 1 dataset:
+
+```{python}
+dataset=str(df_datasets['id'].iloc[1])
+apiUrl=baseUrl+'/api/datasets/' + dataset + '/versions'
+params= {
+  'excludeFiles': True,
+  'excludeMetadataBlocks': True,
+}
+response=requests.get(apiUrl, params=params, headers=headers)
+print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+
