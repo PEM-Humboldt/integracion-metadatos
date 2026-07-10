@@ -1,0 +1,73 @@
+---
+title: "Utilizar las API para halar y formatear metadatos"
+author: "Marius Bottin"
+format:
+  gfm:
+    df-print: kable
+knitr: 
+  opts_chunk: 
+    fig.path: "./Fig/docApi_"
+---
+
+
+Primero, enviamos el entorno virtual a R para que reticulate permita utilizarlo en los chunks en Python:
+
+```{r}
+#| echo: false
+#| include: false
+reticulate::use_virtualenv("./env_migration/")
+```
+
+
+Importamos los paquetes python necesarios:
+
+
+```{python}
+import requests
+import dotenv
+import os
+import json
+```
+
+Importamos las variables de ambiente contenidas en el archivo `.env`.
+
+```{python}
+dotenv.load_dotenv()
+api_token=os.getenv("BIOCULTURAL_API_TOKEN_ADMIN")
+baseUrl=os.getenv("BIOCULTURAL_URL")
+baseUrl
+```
+
+
+Definimos los parámetros de la consulta a la api:
+
+```{python}
+apiUrl=baseUrl+'/api/datasets/export'
+metadataformat='dataverse_json'
+persistentId='doi:10.21068/CTQ20N'
+version='1.0'
+params = {
+    'exporter': metadataformat,
+    'persistentId':persistentId,
+    'version': version,
+}
+
+headers = {
+    'X-Dataverse-key': api_token,
+}
+```
+
+Enviamos la consulta
+
+```{python}
+response = requests.get(apiUrl, params=params, headers=headers)
+```
+
+Interpretación de la respuesta de la API:
+
+
+```{python}
+json_dic = response.json()
+print(json.dumps(json_dic, indent=4, sort_keys=True))
+```
+
