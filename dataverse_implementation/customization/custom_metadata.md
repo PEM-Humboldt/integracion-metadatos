@@ -57,6 +57,8 @@ Puede añadir el nuevo archivo al contenedor con:
 
 `docker cp new_block.tsv dataverse:/usr/local/dvinstall/data/metadatablocks/`
 
+> Nota: Esta ruta corresponde al contenedor de la versión 6.6 del instituto, se recomienda alojar allí el bloque de metadato para mantener la consistencia. Sin embargo, puede ser almacenado en cualquier otra ruta para la ejecución de los pasos posteriores. Para la versión 6.10, los bloques de metadato no están almacenados en ninguna ruta del contenedor, sino que se alojan dentro de los volúmenes de Docker. 
+
 Posteriormente, se debe cargar el archivo a través de la API de Dataverse, con el siguiente comando:
 
 `curl http://localhost:8080/api/admin/datasetfield/load -H "Content-type: text/tab-separated-values" -X POST --upload-file <route>/new_block.tsv`
@@ -102,23 +104,27 @@ Este paso es crucial para garantizar la persistencia, omitir este paso puede oca
 2. Generar el nuevo esquema de campos con:
 
 	`curl http://localhost:8080/api/admin/index/solr/schema > /tmp/dv-fields.xml`
+
+> Nota: Asegúrese de tener permisos de acceso a la carpeta donde almacene el archivo. Para la versión 6.10 se recomienda usar una ruta alternativa como  `/opt/payara`
 	
 #### Desde la máquina host:
 Es en la máquina host donde se ejecutarán los scripts que actualizarán el index de Solr. El ejemplo usará la ruta `/tmp/` para almacenar los archivos, sin embargo esta ruta puede ser reemplazada sin inconveniente:
 
-1. Copiar `update-fields.sh` del contenedor de Dataverse:
+1. Puede descargar el script `update-fields.sh` ya sea directamente desde el [repositorio de Dataverse](https://github.com/IQSS/dataverse/blob/develop/conf/solr/update-fields.sh) o descargarlo desde el contenedor de Dataverse con:
 
 	`docker cp dataverse:/usr/local/dvinstall/update-fields.sh /tmp/update-fields.sh`
 
-2. Copiar `dv-fields.xml` del contenedor de Dataverse:
+2. Copiar `dv-fields.xml` previamente generado del contenedor de Dataverse al host:
   
-   `docker cp dataverse:/tmp/dv-fields.xml /tmp/`
+   `docker cp dataverse:/<ruta-contenedor>/dv-fields.xml /tmp/`
 
 3. Copiar `schema.xml` del contenedor de Solr:
   
 	`docker cp dataverse-solr:/var/solr/data/collection1/conf/schema.xml /tmp/`
 
-4. Generar el nuevo índice de Solr:
+> Nota: Recuerde validar el nombre del contenedor del que sea está conectando. Para le versión 6.10, el nombre del contenedor de `solr`
+
+5. Generar el nuevo índice de Solr:
 	```
    cd /tmp/
    ./update-fields.sh schema.xml dv-fields.xml
@@ -127,10 +133,14 @@ Es en la máquina host donde se ejecutarán los scripts que actualizarán el ind
 6. Copiar el nuevo `schema.xml` generado al contenedor de Solr:
   
 	`docker cp /tmp/schema.xml dataverse-solr:/var/solr/data/collection1/conf/schema.xml`
+
+> Nota: Recuerde validar el nombre del contenedor del que sea está conectando. Para le versión 6.10, el nombre del contenedor de `solr`
 	 
-7. Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
+8. Una vez completados los pasos anteriores, se debe reiniciar el contenedor de Solr:
   
 	`docker restart dataverse-solr`
+
+> Nota: Recuerde validar el nombre del contenedor del que sea está conectando. Para le versión 6.10, el nombre del contenedor de `solr`
 
 Y finalmente, se ingresa nuevamente al contenedor de Dataverse y se ejecuta desde allí la re-indexación del Solr:
 ```
