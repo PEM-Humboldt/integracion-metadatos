@@ -57,7 +57,7 @@ Puede añadir el nuevo archivo al contenedor con:
 
 `docker cp new_block.tsv dataverse:/usr/local/dvinstall/data/metadatablocks/`
 
-> Nota: Esta ruta corresponde al contenedor de la versión 6.6 del instituto, se recomienda alojar allí el bloque de metadato para mantener la consistencia. Sin embargo, puede ser almacenado en cualquier otra ruta para la ejecución de los pasos posteriores. Para la versión 6.10, los bloques de metadato no están almacenados en ninguna ruta del contenedor, sino que se alojan dentro de los volúmenes de Docker. 
+> Nota: Esta ruta corresponde al contenedor de la versión 6.6 del instituto, se recomienda alojar allí el bloque de metadato para mantener la consistencia. Sin embargo, puede ser almacenado en cualquier otra ruta para la ejecución de los pasos posteriores. Para la versión 6.10, los bloques de metadatos no están almacenados en ninguna ruta del contenedor, sino que se cargan a la configuración directamente desde el bootstrap. Para cargar un nuevo bloque en la versión 6.10, puede cargarlo temporalmente dentro del contenedor a la ruta `/opt/payara` o a cualquier otra ruta con permisos.
 
 Posteriormente, se debe cargar el archivo a través de la API de Dataverse, con el siguiente comando:
 
