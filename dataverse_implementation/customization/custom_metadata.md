@@ -381,6 +381,8 @@ Es posible usar las plantillas de Dataverse para definir la licencia y los térm
 En la opción 'Editar condiciones' se podrá acceder a la selección de la licencia. En caso de que se seleccione la opción "Condiciones de uso personalizado para el dataset" una serie de campos editables para personalizar la licencia se habilitarán, como las condiciones de uso, declaración de confidencialidad y renuncia de responsabilidad.
 ![custom_license_template](../../images/custom_license_template.png)
 
+>Nota: Esto sólo podrá realizarse por parte de un usuario con permisos de administrador.
+
 ## Validación de datos
 Dataverse permite la instalación de scripts personalizados externos para realizar validaciones a los metadatos al momento de publicar un dataset o colecciones de datasets. Descrito en la documentación en la sección JVM Options [https://guides.dataverse.org/en/6.6/installation/config.html](https://guides.dataverse.org/en/6.6/installation/config.html)
 
