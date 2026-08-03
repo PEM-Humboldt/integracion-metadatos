@@ -372,7 +372,7 @@ curl -X POST -H 'Content-Type: application/json' -H "X-Dataverse-key:$API_TOKEN"
 ```
 
 Si es exitoso, retornará una respuesta `{"status":"OK","data":{"message":"License created"}}`. Una vez completados estos pasos, la licencia ya aparecerá en el listado de licencias de la instancia:
-![file_custom_license](../../images/custom_metadata_customlicense_1)
+![file_custom_license](../../images/custom_metadata_customlicense_1.png)
 
 
 ### Definir términos y condiciones personalizados por defecto
