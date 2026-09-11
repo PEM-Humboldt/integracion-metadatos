@@ -102,5 +102,96 @@ params= {
 response=requests.get(apiUrl, params=params, headers=headers)
 print(json.dumps(response.json(), indent=4, sort_keys=True))
 ```
+## Listing blocks
+
+```{python}
+Id='iavh_i2d'
+apiUrl=baseUrl+'/api/dataverses/' + Id + '/metadatablocks'
+response=requests.get(apiUrl, headers=headers)
+print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+```{python}
+namesBlocks=[i['name'] for i in response.json()['data']]
+```
+
+
+
+
+## Listing variables in blocks
+
+```{python}
+block=namesBlocks[1]
+apiUrl=baseUrl+'/api/metadatablocks/' + block
+response=requests.get(apiUrl, headers=headers)
+#print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+```{python}
+for i in response.json()['data']['fields']:
+  print(i, '\n-----------------\n')
+  
+
+def extractVarSubVar(fields, fieldName, block=None, items_toKeep=['name','multiple']):
+  res=[{key:val for key, val in fields[fieldName].items() if key in items_toKeep}]
+  res[0]['parent']=None
+  res[0]['block']=block
+  if 'childFields' in fields[fieldName].keys():
+    c_f=fields[fieldName]['childFields'].keys()
+    for cf in c_f:
+      toAdd={key:val for key, val in fields[fieldName]['childFields'][cf].items() if key in items_toKeep}
+      toAdd['parent']=fieldName
+      toAdd['block']=block
+      res.append(toAdd)
+  return res
+
+extractFields=[]
+for b in namesBlocks:
+  print(b)
+  apiUrl=baseUrl+'/api/metadatablocks/' + b
+  response=requests.get(apiUrl, headers=headers)
+  mainFields = [i for i in response.json()['data']['fields']]
+  for mf in mainFields:
+    extractFields.extend(extractVarSubVar(response.json()['data']['fields'],mf,b))
+
+import pandas as pd
+df=pd.DataFrame(extractFields)
+df.to_csv("../../data_metadatos_catalogos/variables_antiguo_biocultural.csv")
+```
+
+## Licences and conditions of use
+
+
+
+```{python}
+persistent_identifier
+```
+
+
+## List files from datasets
+
+```{python}
+dataset='78'
+version='1.0'
+apiUrl=baseUrl + '/api/datasets/' + dataset + '/versions/' + version + '/files'
+response=requests.get(apiUrl, headers=headers)
+print(json.dumps(response.json(), indent=4, sort_keys=True))
+```
+
+```{python}
+res=[]
+for d in df_datasets['id'].values:
+  dataset=str(d)
+  apiUrl=baseUrl+'/api/datasets/' + dataset + '/versions'
+  params= {'excludeFiles': True,'excludeMetadataBlocks': True,}
+  response=requests.get(apiUrl, params=params, headers=headers)
+  resVersions=response.json()['data']
+  print(dataset)
+  for v in [str(v['versionNumber']) + '.' + str(v['versionMinorNumber']) for v in resVersions if 'versionNumber' in v.keys()]:
+    apiUrl=baseUrl + '/api/datasets/' + dataset + '/versions/' + version + '/files'
+    response=requests.get(apiUrl, headers=headers)
+    print(json.dumps(response.json(), indent=4, sort_keys=True))
+    
+```
 
 
