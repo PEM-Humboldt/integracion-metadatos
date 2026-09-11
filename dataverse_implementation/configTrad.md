@@ -2,7 +2,7 @@
 Marius Bottin
 
 ``` r
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260710.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20260911.xlsx"
 ```
 
 ## Leer los archivos de configuración anteriores
@@ -215,7 +215,7 @@ allConfigs<-lapply(sn[grep("^dvmetadatablock",sn)],FUN=function(sheet,wkbook_con
     [1] "dvmetadatablock_citation"        "dvmetadatablock_geospatial"     
     [3] "dvmetadatablock_institutional"   "dvmetadatablock_localContext"   
     [5] "dvmetadatablock_externalReferen" "dvmetadatablock_geographic"     
-    [7] "dvmetadatablock_eml"             "dvmetadatablock_social_science" 
+    [7] "dvmetadatablock_biologicalMetad" "dvmetadatablock_social_science" 
 
 Averiguar que las columnas de cada parte de los archivos de
 configuración corresponden con lo esperado:
@@ -302,7 +302,7 @@ sapply(allConfigs,function(x)is.na(x$block$name))
                               FALSE                           FALSE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
-                dvmetadatablock_eml  dvmetadatablock_social_science 
+    dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                               FALSE                           FALSE 
 
 ``` r
@@ -315,7 +315,7 @@ sapply(allConfigs,function(x)any(is.na(x$field$metadatablock_id)))
                               FALSE                           FALSE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
-                dvmetadatablock_eml  dvmetadatablock_social_science 
+    dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                               FALSE                           FALSE 
 
 ``` r
@@ -328,7 +328,7 @@ sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-                dvmetadatablock_eml  dvmetadatablock_social_science 
+    dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                                TRUE                            TRUE 
 
 ## variables
@@ -343,7 +343,7 @@ sapply(allConfigs,function(x)all(x$field$parent[!is.na(x$field$parent)] %in% x$f
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-                dvmetadatablock_eml  dvmetadatablock_social_science 
+    dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                                TRUE                            TRUE 
 
 ``` r
@@ -366,7 +366,7 @@ sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$name))
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
-                dvmetadatablock_eml  dvmetadatablock_social_science 
+    dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                                TRUE                            TRUE 
 
 ``` r
@@ -405,7 +405,7 @@ if(length(block_pb)>0)
 ```
 
     $dvmetadatablock_citation
-    [1] "language"
+    character(0)
 
     $dvmetadatablock_geospatial
     character(0)
@@ -422,7 +422,7 @@ if(length(block_pb)>0)
     $dvmetadatablock_geographic
     character(0)
 
-    $dvmetadatablock_eml
+    $dvmetadatablock_biologicalMetad
     character(0)
 
     $dvmetadatablock_social_science
@@ -437,9 +437,6 @@ if(nrow(df_blockPb)>0)
           paste(df_blockPb$varContVoc,"(bloque",df_blockPb$block,")",collapse="\n"))
 }
 ```
-
-    Warning: Por favor corregir la variable displayOrder en las variables de vocabulario controlado siguiente:
-    language (bloque dvmetadatablock_citation )
 
 ## Tipos de las variables descriptivas de la configuración
 
@@ -534,7 +531,7 @@ lapply(allConfigs,function(x)all(x$field$fieldType %in% c("none","date","email",
     $dvmetadatablock_geographic
     [1] TRUE
 
-    $dvmetadatablock_eml
+    $dvmetadatablock_biologicalMetad
     [1] TRUE
 
     $dvmetadatablock_social_science
@@ -613,10 +610,10 @@ exportConfigFiles(allConfigs = allConfigs, exportDir = "../../data_metadatos_cat
 ```
 
     ../../data_metadatos_catalogos/exportConfig//langBundle/citation_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/iavh_geospatial_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/geospatial_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/institutional_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/LocalContextsCVoc_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/externalReferences_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/geographic_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/emldn_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/iavh_socialscience_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/biologicalMetadata_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/socialscience_es.properties 

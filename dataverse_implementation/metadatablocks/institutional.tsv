@@ -12,13 +12,15 @@
 	contractor	Contractor	In case of independent contracting this group of variable allows us to link contractors and their institutional contracts		none	8		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		institutional	
 	contractCode	Contract Code	Institutional code for the contract		text	9		TRUE	FALSE	FALSE	FALSE	TRUE	FALSE	contractor	institutional	
 	contractorName	Contractor Name	Name of the contractor		text	10		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	contractor	institutional	
-	accessLicence	Access and Licence	Description of the conditions for access		none	11		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
-	accessType	Access Type	Categories of access and restrictions		text	12		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	accessLicence	institutional	
-	altered	Altered or anonymized	Whether the accessible data has been altered or anonymised in order to protect people or species		text	13		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	accessLicence	institutional	
-	restrictedUntil	Restricted until	Date at which an embargoed dataset will be freed		date	14		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	accessLicence	institutional	
-	licenceType	Licence Type	Basis of the licence		text	15		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	accessLicence	institutional	
-	licenceNote	Licence Note			textbox	16		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	accessLicence	institutional	
-	aknowledgement	Aknowledgements			textbox	17		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
+	access	Access and Licence	Description of the conditions for access		none	11		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
+	accessType	Access Type	Categories of access and restrictions		text	12		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	access	institutional	
+	restrictionJustification	Restriction Justification	Justification of the restriction		text	13		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	access	institutional	
+	localCommunityParticipation	Local Community Participation	Participation of local community and/or ethnic groups		textbox	14		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	access	institutional	
+	altered	Altered or anonymized	Whether the accessible data has been altered or anonymised in order to protect people or species		text	15		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	access	institutional	
+	restrictedUntil	Restricted until	Date at which an embargoed dataset will be freed		date	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	access	institutional	
+	licenceType	Licence Type	Basis of the licence		text	17		TRUE	TRUE	FALSE	TRUE	FALSE	FALSE	access	institutional	
+	licenceNote	Licence Note			textbox	18		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	access	institutional	
+	aknowledgement	Aknowledgements			textbox	19		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		institutional	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	accessType	Fully open access (internal/external)	intext	0
 	accessType	Internal open access	int	1
@@ -28,3 +30,13 @@
 	licenceType	CC0 - Public Domain	cc0	2
 	altered	TRUE	T	0
 	altered	FALSE	F	1
+	restrictionJustification	1. To protect the privacy and habeas data of individuals	habeasdata	0
+	restrictionJustification	2. To protect the ownership and intellectual property rights of the Institute and its researchers	propri_intel	1
+	restrictionJustification	3. To protect the ownership and/or intellectual property rights of third parties.	titularidad	2
+	restrictionJustification	4. To protect the public interest in line with legal confidentiality obligations or the mission of the Institute	publico_mision	3
+	restrictionJustification	5. To protect the rights of indigenous peoples, ethnic communities and local communities (while a data governance policy for this type of collaboration is being developed, they will be processed as exceptions).	comunidad	4
+	restrictionJustification	6. To protect the integrity and safety of the people involved in the research projects.	seguridad	5
+	restrictionJustification	7. To protect the integrity, quality and replicability of the Institute's research results.	integridad	6
+	restrictionJustification	8. Protect the Institute's liability in relation to third-party data in its possession.	responsabilidad	7
+	localCommunityParticipation	TRUE	T	0
+	localCommunityParticipation	FALSE	F	1
