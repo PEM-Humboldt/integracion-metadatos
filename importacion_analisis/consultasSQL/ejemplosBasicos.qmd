@@ -29,7 +29,7 @@ Podemos hacer consultas complejas en un catálogo particular.
 Por ejemplo, si queremos saber cuales son las extensiones DarwinCore que se utilizaron en los conjuntos de datos que mencionan la clase aves como cobertura taxonómica:
 
 ```{sql}
-#| connection=meta_i2d
+--| connection: meta_i2d
 SELECT m.extension, count(DISTINCT cd_xml_doc) numero_de_conjunto_datos
 FROM ceiba.taxonomic_classification tclas
 LEFT JOIN ceiba.taxonomic_coverage tcov USING (cd_taxonomic_coverage)
@@ -46,7 +46,7 @@ Por ejemplo, si queremos saber en cuántos conjuntos de datos nuestros colegas C
 
 
 ```{sql}
-#| connection=meta_i2d
+| connection=meta_i2d
 WITH a AS(
 SELECT 'ceiba' AS catalog, EXTRACT('year' FROM created::date) "year",
   CASE

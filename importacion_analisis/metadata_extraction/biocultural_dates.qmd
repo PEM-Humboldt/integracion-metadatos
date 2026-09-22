@@ -1,0 +1,117 @@
+---
+title: "Fechas en biocultural metadata"
+author: "Marius Bottin"
+lang: es
+format: 
+  gfm:
+    df-print: kable
+knitr: 
+  opts_chunk: 
+    fig.path: "./Fig/biocultural_date_time"
+execute: 
+  tidy: true
+  tidy-opts:
+    - width-cutoff: 60
+---
+
+El objetivo de este documento es entender como funcionan las fechas en biocultural.
+Para eso, vamos a utilizar la base de datos extraída (ver <https://github.com/PEM-Humboldt/integracion-metadatos/blob/master/importacion_analisis/metadata_extraction/extraction.md>).
+
+```{r}
+require(RPostgres)
+meta_i2d<-dbConnect(Postgres(),dbname='meta_i2d_v2')
+```
+
+
+La consulta completa para obtener las fechas es:
+
+```{sql}
+--| connection: meta_i2d
+--| max-print: 20
+SELECT dataset_id, title, createdate, globalidcreatetime, modificationtime, publicationdate,
+    datasetversion_id, versionnumber::text || '.' || COALESCE(minorversionnumber::text, '0') version, versionstate, createtime,
+    production_date, date_of_deposit,
+    ds_description_date, 
+    time_period_covered_start,time_period_covered_end,
+    date_of_collection_start,date_of_collection_end
+
+FROM biocultural.datasetversion dv
+LEFT JOIN biocultural.dataset d USING (dataset_id)
+LEFT JOIN biocultural.ds_description ds USING (datasetversion_id)
+LEFT JOIN biocultural.citation c USING (datasetversion_id)
+LEFT JOIN biocultural.time_period_covered tpc USING (datasetversion_id)
+LEFT JOIN biocultural.date_of_collection doc USING (datasetversion_id)
+ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
+;
+
+```
+
+Como lo pueden ver, las fechas se pueden separar en varios grupos:
+
+* fechas automaticas creadas por el sistema, para el dataset, o el datasetversion
+* fechas de producción, deposición y metadatos
+* fechas que tienen que ver con la metodología
+
+
+## Fechas automaticas
+
+
+```{sql}
+--| connection: meta_i2d
+--| max-print: 20
+SELECT dataset_id, title, createdate, globalidcreatetime, modificationtime, publicationdate,
+    datasetversion_id, versionnumber::text || '.' || COALESCE(minorversionnumber::text, '0') version, versionstate, createtime
+
+FROM biocultural.datasetversion dv
+LEFT JOIN biocultural.dataset d USING (dataset_id)
+LEFT JOIN biocultural.citation c USING (datasetversion_id)
+ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
+;
+
+```
+
+
+|variable | version | tipo| note |
+---------|---------|------|------|
+createdate| No | timestamp | Es la fecha la más antigua, corresponde con el createtime de la primera version |
+globalidcreatetime| No | timestamp| Probablemente corresponde a la fecha de creación de un id, que no corresponde a un createtime de versión |
+modificationtime| No | | Parece que corresponde al createtime de la ultima version|
+publicationdate| No | timestamp | Probablemente corresponde al createtime de la primera versión publicada |
+createtime| Sí | timestamp | referencia para la versión|
+
+## Fechas de los metadatos
+
+
+```{sql}
+--| connection: meta_i2d
+--| max-print: 20
+SELECT title, dataset_id ,
+    datasetversion_id, versionnumber::text || '.' || COALESCE(minorversionnumber::text, '0') version,  createtime,
+    production_date, date_of_deposit,
+    ds_description_date, 
+    time_period_covered_start,time_period_covered_end,
+    date_of_collection_start,date_of_collection_end
+
+FROM biocultural.datasetversion dv
+LEFT JOIN biocultural.dataset d USING (dataset_id)
+LEFT JOIN biocultural.ds_description ds USING (datasetversion_id)
+LEFT JOIN biocultural.citation c USING (datasetversion_id)
+LEFT JOIN biocultural.time_period_covered tpc USING (datasetversion_id)
+LEFT JOIN biocultural.date_of_collection doc USING (datasetversion_id)
+ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
+;
+
+```
+
+
+| variable | group | formato | nivel | relaciones | comentario |
+|----------|-------|---------|-------|-----------------|----------------|
+| productionDate  | producción / deposición | texto (contiene `N/A`) | versión | Se pone a veces la fecha dateOfCollection_end, a veces ulterior |  |  
+| dateOfDeposit |  producción / deposición | fechas limpias  |dataset  |  usualmente ultima fecha |  |  
+| dsDescriptionDate | producción / deposición | texto (contiene año sin mes ni día) | versión (usualmente dataset) | Regularmente la misma fecha que productionDate |  |
+| timePeriodCovered_start | metodología | fechas limpias| dataset |  | muy pocos valores |  
+| timePeriodCovered_end | metodología | fechas limpias | dataset | usualmente más amplio que las demás | muy pocos valores | 
+| dateOfCollection_start |metodología  | fechas limpias | multiple in version |  |  |  
+| dateOfCollection_end | metodología | fechas limpias | multiple in version  |  |  |  
+
+
