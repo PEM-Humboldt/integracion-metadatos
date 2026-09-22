@@ -53,12 +53,12 @@ Como lo pueden ver, las fechas se pueden separar en varios grupos:
 * fechas que tienen que ver con la metodología
 
 
-## Fechas automaticas
+## Fechas automáticas
 
 
 ```{sql}
 --| connection: meta_i2d
---| max-print: 20
+--| max-print: 5
 SELECT dataset_id, title, createdate, globalidcreatetime, modificationtime, publicationdate,
     datasetversion_id, versionnumber::text || '.' || COALESCE(minorversionnumber::text, '0') version, versionstate, createtime
 
@@ -79,12 +79,12 @@ modificationtime| No | | Parece que corresponde al createtime de la ultima versi
 publicationdate| No | timestamp | Probablemente corresponde al createtime de la primera versión publicada |
 createtime| Sí | timestamp | referencia para la versión|
 
-## Fechas de los metadatos
+## Fechas en los metadatos manuales
 
 
 ```{sql}
 --| connection: meta_i2d
---| max-print: 20
+--| max-print: 5
 SELECT title, dataset_id ,
     datasetversion_id, versionnumber::text || '.' || COALESCE(minorversionnumber::text, '0') version,  createtime,
     production_date, date_of_deposit,
@@ -109,7 +109,7 @@ ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
 | productionDate  | producción / deposición | texto (contiene `N/A`) | versión | Se pone a veces la fecha dateOfCollection_end, a veces ulterior |  |  
 | dateOfDeposit |  producción / deposición | fechas limpias  |dataset  |  usualmente ultima fecha |  |  
 | dsDescriptionDate | producción / deposición | texto (contiene año sin mes ni día) | versión (usualmente dataset) | Regularmente la misma fecha que productionDate |  |
-| timePeriodCovered_start | metodología | fechas limpias| dataset |  | muy pocos valores |  
+| timePeriodCovered_start | metodología | fechas limpias| dataset | usualmente más amplio que las demás | muy pocos valores |  
 | timePeriodCovered_end | metodología | fechas limpias | dataset | usualmente más amplio que las demás | muy pocos valores | 
 | dateOfCollection_start |metodología  | fechas limpias | multiple in version |  |  |  
 | dateOfCollection_end | metodología | fechas limpias | multiple in version  |  |  |  

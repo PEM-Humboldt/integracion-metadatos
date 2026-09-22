@@ -67,7 +67,7 @@ Como lo pueden ver, las fechas se pueden separar en varios grupos:
 - fechas de producción, deposición y metadatos
 - fechas que tienen que ver con la metodología
 
-## Fechas automaticas
+## Fechas automáticas
 
 ``` sql
 SELECT dataset_id, title, createdate, globalidcreatetime, modificationtime, publicationdate,
@@ -87,23 +87,8 @@ ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
 | 11 | Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta) | 2022-12-09 19:19:55 | 2022-12-21 02:14:43 | 2022-12-21 02:14:43 | 2022-12-09 19:43:22 | 3 | 1.0 | RELEASED | 2022-12-09 19:19:55 |
 | 11 | Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 2022-12-09 19:19:55 | 2022-12-21 02:14:43 | 2022-12-21 02:14:43 | 2022-12-09 19:43:22 | 7 | 1.1 | RELEASED | 2022-12-14 15:15:01 |
 | 11 | Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 2022-12-09 19:19:55 | 2022-12-21 02:14:43 | 2022-12-21 02:14:43 | 2022-12-09 19:43:22 | 10 | 1.2 | RELEASED | 2022-12-15 01:07:12 |
-| 11 | Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 2022-12-09 19:19:55 | 2022-12-21 02:14:43 | 2022-12-21 02:14:43 | 2022-12-09 19:43:22 | 23 | 1.3 | RELEASED | 2022-12-21 02:12:50 |
-| 11 | Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 2022-12-09 19:19:55 | 2022-12-21 02:14:43 | 2022-12-21 02:14:43 | 2022-12-09 19:43:22 | 24 | 1.4 | RELEASED | 2022-12-21 02:14:29 |
-| 18 | Recopilación y sistematización de información de los procesos de formulación del Plan de Manejo de los páramos y de las estrategias de monitoreo desarrolladas por las Corporaciones Autónomas Regionales. | 2022-12-14 13:58:35 | 2022-12-14 15:12:15 | 2022-12-14 15:12:15 | 2022-12-14 14:12:52 | 4 | 1.0 | RELEASED | 2022-12-14 13:58:35 |
-| 18 | Recopilación y sistematización de información de los procesos de formulación del Plan de Manejo de los páramos y de las estrategias de monitoreo desarrolladas por las Corporaciones Autónomas Regionales. Año 2019 | 2022-12-14 13:58:35 | 2022-12-14 15:12:15 | 2022-12-14 15:12:15 | 2022-12-14 14:12:52 | 6 | 1.1 | RELEASED | 2022-12-14 15:11:44 |
-| 22 | Encuesta socioecológica sobre unidades de paisaje en el Valle de Sibundoy, Putumayo. Año 2020 | 2022-12-14 14:50:03 | 2025-01-09 07:01:20 | 2025-01-09 07:01:20 | 2022-12-14 15:10:16 | 5 | 1.0 | RELEASED | 2022-12-14 14:50:03 |
-| 22 | Encuesta socioecológica sobre unidades de paisaje en el Valle de Sibundoy, Putumayo. Año 2020 | 2022-12-14 14:50:03 | 2025-01-09 07:01:20 | 2025-01-09 07:01:20 | 2022-12-14 15:10:16 | 77 | 2.0 | RELEASED | 2025-01-09 06:54:55 |
-| 26 | Caracterización del conflicto socioambiental en Selvas de Aliwa. Año 2020 | 2022-12-14 20:37:04 | 2025-01-09 07:31:21 | 2025-01-09 07:31:20 | 2022-12-14 20:53:17 | 8 | 1.0 | RELEASED | 2022-12-14 20:37:04 |
-| 26 | Caracterización del conflicto socioambiental en Selvas de Aliwa. Año 2020 | 2022-12-14 20:37:04 | 2025-01-09 07:31:21 | 2025-01-09 07:31:20 | 2022-12-14 20:53:17 | 78 | 2.0 | RELEASED | 2025-01-09 07:28:59 |
-| 34 | Encuesta estructurada componente Pesquero río Magdalena. Año 2020 | 2022-12-15 02:14:38 | 2025-01-09 07:41:52 | 2025-01-09 07:41:51 | 2022-12-15 02:32:28 | 11 | 1.0 | RELEASED | 2022-12-15 02:14:38 |
-| 34 | Encuesta estructurada componente Pesquero río Magdalena. Año 2020 | 2022-12-15 02:14:38 | 2025-01-09 07:41:52 | 2025-01-09 07:41:51 | 2022-12-15 02:32:28 | 79 | 2.0 | RELEASED | 2025-01-09 07:39:18 |
-| 39 | Directorio de Meliponicultores de Colombia. Censo Preliminar año 2020 | 2022-12-15 21:09:45 | 2025-01-09 08:03:28 | 2025-01-09 08:03:28 | 2022-12-15 21:37:38 | 12 | 1.0 | RELEASED | 2022-12-15 21:09:45 |
-| 39 | Directorio de Meliponicultores de Colombia. Censo Preliminar año 2020 | 2022-12-15 21:09:45 | 2025-01-09 08:03:28 | 2025-01-09 08:03:28 | 2022-12-15 21:37:38 | 80 | 2.0 | RELEASED | 2025-01-09 07:55:10 |
-| 42 | Extracción de Datos Documentales de Información interna del Instituto Humboldt e Insumos para el Plan Piloto para el Observatorio de Política y Biodiversidad. Año 2021 | 2022-12-16 00:00:39 | 2025-01-09 08:11:59 | 2025-01-09 08:11:58 | 2022-12-16 00:17:45 | 13 | 1.0 | RELEASED | 2022-12-16 00:00:39 |
-| 46 | Identificación de posibles procesos y prácticas asociadas a gobernanza. Año 2022 | 2022-12-16 02:36:05 | 2025-01-09 08:29:48 | 2025-01-09 08:29:48 | 2022-12-16 03:26:40 | 14 | 1.0 | RELEASED | 2022-12-16 02:36:05 |
-| 46 | Identificación de posibles procesos y prácticas asociadas a gobernanza. Año 2022 | 2022-12-16 02:36:05 | 2025-01-09 08:29:48 | 2025-01-09 08:29:48 | 2022-12-16 03:26:40 | 82 | 2.0 | RELEASED | 2025-01-09 08:18:20 |
 
-Displaying records 1 - 20
+Displaying records 1 - 5
 
 | variable | version | tipo | note |
 |----|----|----|----|
@@ -113,7 +98,7 @@ Displaying records 1 - 20
 | publicationdate | No | timestamp | Probablemente corresponde al createtime de la primera versión publicada |
 | createtime | Sí | timestamp | referencia para la versión |
 
-## Fechas de los metadatos
+## Fechas en los metadatos manuales
 
 ``` sql
 SELECT title, dataset_id ,
@@ -140,30 +125,15 @@ ORDER BY dataset_id, versionnumber ASC, minorversionnumber ASC
 | Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta) | 11 | 3 | 1.0 | 2022-12-09 19:19:55 | NA | 2022-12-09 | NA | NA | NA | 2018-07-07 | 2018-07-19 |
 | Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta) | 11 | 3 | 1.0 | 2022-12-09 19:19:55 | NA | 2022-12-09 | NA | NA | NA | 2018-02-17 | 2018-03-01 |
 | Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta) | 11 | 3 | 1.0 | 2022-12-09 19:19:55 | NA | 2022-12-09 | NA | NA | NA | 2018-09-07 | 2018-09-20 |
-| Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 7 | 1.1 | 2022-12-14 15:15:01 | NA | 2022-12-09 | NA | NA | NA | 2018-02-17 | 2018-03-01 |
-| Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 7 | 1.1 | 2022-12-14 15:15:01 | NA | 2022-12-09 | NA | NA | NA | 2018-07-07 | 2018-07-19 |
-| Encuesta socioecológica para los municipio de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 7 | 1.1 | 2022-12-14 15:15:01 | NA | 2022-12-09 | NA | NA | NA | 2018-09-07 | 2018-09-20 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 10 | 1.2 | 2022-12-15 01:07:12 | NA | 2022-12-09 | NA | NA | NA | 2018-07-07 | 2018-07-19 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 10 | 1.2 | 2022-12-15 01:07:12 | NA | 2022-12-09 | NA | NA | NA | 2018-02-17 | 2018-03-01 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 10 | 1.2 | 2022-12-15 01:07:12 | NA | 2022-12-09 | NA | NA | NA | 2018-09-07 | 2018-09-20 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 23 | 1.3 | 2022-12-21 02:12:50 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-09-07 | 2018-09-20 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 23 | 1.3 | 2022-12-21 02:12:50 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-07-07 | 2018-07-19 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 23 | 1.3 | 2022-12-21 02:12:50 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-02-17 | 2018-03-01 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 24 | 1.4 | 2022-12-21 02:14:29 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-02-17 | 2018-03-01 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 24 | 1.4 | 2022-12-21 02:14:29 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-09-07 | 2018-09-20 |
-| Encuesta socioecológica para los municipios de El Carmen de Chucurí (veredas Islanda y La Belleza); Cimitarra (veredas El Águila y Guineal) y Santa Barbara (veredas Salinas y Esparta). Año 2018 | 11 | 24 | 1.4 | 2022-12-21 02:14:29 | 2018-09-30 | 2022-12-09 | NA | NA | NA | 2018-07-07 | 2018-07-19 |
-| Recopilación y sistematización de información de los procesos de formulación del Plan de Manejo de los páramos y de las estrategias de monitoreo desarrolladas por las Corporaciones Autónomas Regionales. | 18 | 4 | 1.0 | 2022-12-14 13:58:35 | NA | 2022-12-14 | NA | NA | NA | 2019-10-10 | 2019-10-22 |
-| Recopilación y sistematización de información de los procesos de formulación del Plan de Manejo de los páramos y de las estrategias de monitoreo desarrolladas por las Corporaciones Autónomas Regionales. Año 2019 | 18 | 6 | 1.1 | 2022-12-14 15:11:44 | NA | 2022-12-14 | NA | NA | NA | 2019-10-10 | 2019-10-22 |
-| Encuesta socioecológica sobre unidades de paisaje en el Valle de Sibundoy, Putumayo. Año 2020 | 22 | 5 | 1.0 | 2022-12-14 14:50:03 | NA | 2022-12-14 | NA | NA | NA | 2020-02-01 | 2020-06-30 |
 
-Displaying records 1 - 20
+Displaying records 1 - 5
 
 | variable | group | formato | nivel | relaciones | comentario |
 |----|----|----|----|----|----|
 | productionDate | producción / deposición | texto (contiene `N/A`) | versión | Se pone a veces la fecha dateOfCollection_end, a veces ulterior |  |
 | dateOfDeposit | producción / deposición | fechas limpias | dataset | usualmente ultima fecha |  |
 | dsDescriptionDate | producción / deposición | texto (contiene año sin mes ni día) | versión (usualmente dataset) | Regularmente la misma fecha que productionDate |  |
-| timePeriodCovered_start | metodología | fechas limpias | dataset |  | muy pocos valores |
+| timePeriodCovered_start | metodología | fechas limpias | dataset | usualmente más amplio que las demás | muy pocos valores |
 | timePeriodCovered_end | metodología | fechas limpias | dataset | usualmente más amplio que las demás | muy pocos valores |
 | dateOfCollection_start | metodología | fechas limpias | multiple in version |  |  |
 | dateOfCollection_end | metodología | fechas limpias | multiple in version |  |  |
