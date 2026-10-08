@@ -19,53 +19,55 @@
 	formationPeriod	Formation Period	Formation period description	Fill when type is formation period	textbox	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	temporalCoverage	biologicalMetadata	
 	emlMethod	Method	Group of variable for method description		none	16		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	emlMethodStudyArea	Study Area	Study Area		textbox	17		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlMethod	biologicalMetadata	
-	emlMethodsSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	19		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	biologicalMetadata	
+	emlMethodSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	19		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	biologicalMetadata	
 	emlMethodQualityControl	Quality Control	Description of one step of the methodology		textbox	18		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethod	biologicalMetadata	
 	emlMethodStep	Method step	Group of variable for describing each method step		none	20		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	emlMethodStepNumber	Method step number	Number for ordered steps in the methodology		int	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	biologicalMetadata	
 	emlMethodStepDescription	Method step description	Description of one step of the methodology		textbox	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	biologicalMetadata	
+	specimenPreservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
 	collectionData	Collection Data	Group of variable for describing collections		none	23		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	collectionName	Collection Name	Name of the collection		text	24		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	parentCollectionIdentifier	Parent Collection Identifier	Identifier of the parent collection		text			FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
 	collectionIdentifier	Collection Identifier	Identifier of the collection		text	25		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
 	collectionCode	Collection Code	Code of the collection		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	specimenPreservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
 	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
-	taxonRankName	kingdom	kg	0
-	taxonRankName	subkingdom	skg	1
-	taxonRankName	superphylum	spphy	2
-	taxonRankName	phylum	phy	3
-	taxonRankName	subphylum	sphy	4
-	taxonRankName	superclass	spcl	5
-	taxonRankName	class	cl	6
-	taxonRankName	subclass	scl	7
-	taxonRankName	supercohort	spcoh	8
-	taxonRankName	cohort	coh	9
-	taxonRankName	subcohort	scoh	10
-	taxonRankName	superorder	spor	11
-	taxonRankName	order	or	12
-	taxonRankName	suborder	sor	13
-	taxonRankName	infraorder	inor	14
-	taxonRankName	superfamily	spfam	15
-	taxonRankName	family	fam	16
-	taxonRankName	subfamily	sfam	17
-	taxonRankName	tribe	tr	18
-	taxonRankName	subtribe	str	19
-	taxonRankName	genus	gen	20
-	taxonRankName	subgenus	sgen	21
-	taxonRankName	section	sec	22
-	taxonRankName	subsection	ssec	23
-	taxonRankName	series	ser	24
-	taxonRankName	subseries	sser	25
-	taxonRankName	species	sp	26
-	taxonRankName	subspecies	subsp	27
-	taxonRankName	variety	var	28
-	taxonRankName	subvariety	svar	29
-	taxonRankName	form	fo	30
-	taxonRankName	subform	sfo	31
-	taxonRankName	cultivar	cul	32
-	taxonRankName	strain	st	33
-	taxonRankName	unranked	un	34
+	taxonRankName	domain	dom	0
+	taxonRankName	kingdom	kg	1
+	taxonRankName	subkingdom	skg	2
+	taxonRankName	superphylum	spphy	3
+	taxonRankName	phylum	phy	4
+	taxonRankName	subphylum	sphy	5
+	taxonRankName	superclass	spcl	6
+	taxonRankName	class	cl	7
+	taxonRankName	subclass	scl	8
+	taxonRankName	supercohort	spcoh	9
+	taxonRankName	cohort	coh	10
+	taxonRankName	subcohort	scoh	11
+	taxonRankName	superorder	spor	12
+	taxonRankName	order	or	13
+	taxonRankName	suborder	sor	14
+	taxonRankName	infraorder	inor	15
+	taxonRankName	superfamily	spfam	16
+	taxonRankName	family	fam	17
+	taxonRankName	subfamily	sfam	18
+	taxonRankName	tribe	tr	19
+	taxonRankName	subtribe	str	20
+	taxonRankName	genus	gen	21
+	taxonRankName	subgenus	sgen	22
+	taxonRankName	section	sec	23
+	taxonRankName	subsection	ssec	24
+	taxonRankName	series	ser	25
+	taxonRankName	subseries	sser	26
+	taxonRankName	species	sp	27
+	taxonRankName	subspecies	subsp	28
+	taxonRankName	variety	var	29
+	taxonRankName	subvariety	svar	30
+	taxonRankName	form	fo	31
+	taxonRankName	subform	sfo	32
+	taxonRankName	cultivar	cul	33
+	taxonRankName	strain	st	34
+	taxonRankName	unranked	un	35
 	coreType	Checklist	chkl	0
 	coreType	Occurrence	occ	1
 	coreType	Sampling event	eve	2
@@ -74,7 +76,7 @@
 	subtype	Taxonomic authority	txau	0
 	subtype	Thematic inventory	thin	1
 	subtype	Regional inventory	regi	2
-	subtype	Biological register derivate	deriv	3
+	subtype	Derived from occurrence	deriv	3
 	subtype	Specimen	spci	4
 	subtype	Observation	obs	5
 	subtype	Other	oth	6

@@ -20,7 +20,7 @@
 	deviationsFromSampleDesign	Major Deviations for Sample Design	Show correspondence as well as discrepancies between the sampled units (obtained) and available statistics for the population (age, sex-ratio, marital status, etc.) as a whole.		text	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		socialscience	
 	collectionMode	Collection Mode	Method used to collect the data; instrumentation characteristics (e.g., telephone interview, mail questionnaire, or other).		textbox	17		FALSE	TRUE	TRUE	FALSE	TRUE	FALSE		socialscience	
 	researchInstrument	Type of Research Instrument	Type of data collection instrument used. Structured indicates an instrument in which all respondents are asked the same questions/tests, possibly with precoded answers. If a small portion of such a questionnaire includes open-ended questions, provide appropriate comments. Semi-structured indicates that the research instrument contains mainly open-ended questions. Unstructured indicates that in-depth interviews were conducted.		text	18		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		socialscience	
-	socioEcologicalTemplate				text	19		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		socialscience	
+	socioEcologicalTemplate	Standard I2D template	Select the implemented template		text	19		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE		socialscience	
 	socioEcologicalTemplateVersion	SocioEcological Template	Template used for organizing this dataset		text	20		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		socialscience	
 	dataCollectionSituation	Characteristics of Data Collection Situation	Description of noteworthy aspects of the data collection situation. Includes information on factors such as cooperativeness of respondents, duration of interviews, number of call backs, or similar.		textbox	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		socialscience	
 	actionsToMinimizeLoss	Actions to Minimize Losses	Summary of actions taken to minimize data loss. Include information on actions such as follow-up visits, supervisory checks, historical matching, estimation, and so on.		text	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		socialscience	
@@ -37,28 +37,28 @@
 	socialScienceNotesText	Text	Text for this note.		textbox	33		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	socialScienceNotes	socialscience	
 	socialScienceBiases	Socio-ecological dataset biases	Description of potential biases for the dataset		textbox	34		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		socialscience	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
-	collectionMode	Personal interview on a paper form		0
-	collectionMode	Personal interview on mobil device		1
-	collectionMode	Personal interview on computer		2
-	collectionMode	In-person interview		3
-	collectionMode	Phone interview		4
-	collectionMode	Auto-filled form sent by email		5
-	collectionMode	Auto-filled form sent on webpage with closed answers		6
-	collectionMode	Auto-filled form sent on webpage with free answers		7
-	collectionMode	focal group		8
-	collectionMode	Field observations		9
-	collectionMode	Secundary sources review		10
-	collectionMode	Other method		11
-	researchInstrument	Strutured		0
-	researchInstrument	Semi-structured		1
-	researchInstrument	Unstructured		2
-	socioEcologicalTemplate	Interview		0
-	socioEcologicalTemplate	Survey		1
-	socioEcologicalTemplate	Actor mapping		2
-	socioEcologicalTemplate	Document review		3
-	socioEcologicalTemplate	Social mapping		4
-	socioEcologicalTemplate	Socio-environmental matrix		5
-	socioEcologicalTemplate	Governance - collective action matrix		6
-	socioEcologicalTemplate	Biodiversity use practice listing		7
-	socioEcologicalTemplate	Inventary		8
-	socioEcologicalTemplate	Other instrument - unstructured		9
+	collectionMode	Personal interview on a paper form	intPap	0
+	collectionMode	Personal interview on mobile device	intDev	1
+	collectionMode	Personal interview on computer	intCom	2
+	collectionMode	In-person interview	intInp	3
+	collectionMode	Phone interview	intPho	4
+	collectionMode	Auto-filled form sent by email	formMail	5
+	collectionMode	Auto-filled form sent on webpage with closed answers	formWebC	6
+	collectionMode	Auto-filled form sent on webpage with free answers	formWeb	7
+	collectionMode	Focus group	focGp	8
+	collectionMode	Field observations	field	9
+	collectionMode	Secondary sources review	revSec	10
+	collectionMode	Other method	other	11
+	researchInstrument	Structured	struct	0
+	researchInstrument	Semi-structured	semstr	1
+	researchInstrument	Unstructured	ustr	2
+	socioEcologicalTemplate	Interview	int	0
+	socioEcologicalTemplate	Survey	surv	1
+	socioEcologicalTemplate	Actor mapping	actMap	2
+	socioEcologicalTemplate	Document review	docRev	3
+	socioEcologicalTemplate	Social mapping	socMap	4
+	socioEcologicalTemplate	Socio-environmental matrix	socEnv	5
+	socioEcologicalTemplate	Governance - collective action matrix	gober	6
+	socioEcologicalTemplate	Biodiversity use practice listing	useBiodiv	7
+	socioEcologicalTemplate	Inventory	Inv	8
+	socioEcologicalTemplate	Other instrument - unstructured	other	9
