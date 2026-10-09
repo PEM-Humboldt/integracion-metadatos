@@ -2,7 +2,7 @@
 Marius Bottin
 
 ``` r
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261007.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261008.xlsx"
 ```
 
 ## Leer los archivos de configuración anteriores
@@ -363,9 +363,9 @@ sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$name))
            dvmetadatablock_citation      dvmetadatablock_geospatial 
                                TRUE                            TRUE 
       dvmetadatablock_institutional    dvmetadatablock_localContext 
-                              FALSE                            TRUE 
+                               TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
-                               TRUE                           FALSE 
+                               TRUE                            TRUE 
     dvmetadatablock_biologicalMetad  dvmetadatablock_social_science 
                                TRUE                            TRUE 
 
@@ -380,15 +380,7 @@ if(any(!sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$na
     warning("En el bloque ",names(allConfigs)[i]," las variables siguientes están declaradas en el vocabulario controlado sin que estén declaradas en los nombres:\n",paste("\"",contrVocNotInName,"\"",sep="",collapse="\n"))
   }
 }
-```
 
-    Warning: En el bloque dvmetadatablock_institutional las variables siguientes están declaradas en el vocabulario controlado sin que estén declaradas en los nombres:
-    "licenceTyoe"
-
-    Warning: En el bloque dvmetadatablock_geographic las variables siguientes están declaradas en el vocabulario controlado sin que estén declaradas en los nombres:
-    "transformationParameterAvailibility"
-
-``` r
 nameVar<-lapply(allConfigs,function(x)x$field$name)
 any(duplicated(unlist(nameVar)))
 ```
@@ -401,12 +393,7 @@ any(duplicated(unlist(nameVar)))
 block_pb<-which(!sapply(allConfigs,function(x)all(0:(nrow(x$field)-1) %in% x$field$displayOrder)))
 if(length(block_pb)>0)
 {warning("Por favor corregir la variable displayOrder en los bloques siguientes:\n",paste(names(allConfigs)[block_pb],collapse="\n"))}
-```
 
-    Warning: Por favor corregir la variable displayOrder en los bloques siguientes:
-    dvmetadatablock_biologicalMetad
-
-``` r
 (checkDO_contrVoc<-lapply(allConfigs,function(x)
   {
     res<-by(x$contrVoc,x$contrVoc$DatasetField,function(tab)
@@ -424,7 +411,7 @@ if(length(block_pb)>0)
     character(0)
 
     $dvmetadatablock_institutional
-    [1] "licenceTyoe"
+    character(0)
 
     $dvmetadatablock_localContext
     NULL
@@ -450,9 +437,6 @@ if(nrow(df_blockPb)>0)
           paste(df_blockPb$varContVoc,"(bloque",df_blockPb$block,")",collapse="\n"))
 }
 ```
-
-    Warning: Por favor corregir la variable displayOrder en las variables de vocabulario controlado siguiente:
-    licenceTyoe (bloque dvmetadatablock_institutional )
 
 ## Tipos de las variables descriptivas de la configuración
 

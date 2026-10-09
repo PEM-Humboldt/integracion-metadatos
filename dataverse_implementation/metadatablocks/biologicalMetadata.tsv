@@ -19,18 +19,18 @@
 	formationPeriod	Formation Period	Formation period description	Fill when type is formation period	textbox	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	temporalCoverage	biologicalMetadata	
 	emlMethod	Method	Group of variable for method description		none	16		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	emlMethodStudyArea	Study Area	Study Area		textbox	17		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	emlMethod	biologicalMetadata	
-	emlMethodSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	19		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	biologicalMetadata	
-	emlMethodQualityControl	Quality Control	Description of one step of the methodology		textbox	18		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethod	biologicalMetadata	
+	emlMethodSampling	Sampling methods and procedures	Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study		textbox	18		TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	emlMethod	biologicalMetadata	
+	emlMethodQualityControl	Quality Control	Description of one step of the methodology		textbox	19		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethod	biologicalMetadata	
 	emlMethodStep	Method step	Group of variable for describing each method step		none	20		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	emlMethodStepNumber	Method step number	Number for ordered steps in the methodology		int	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	biologicalMetadata	
 	emlMethodStepDescription	Method step description	Description of one step of the methodology		textbox	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	emlMethodStep	biologicalMetadata	
-	specimenPreservationMethod	Preservation Method	Description of the preservation method		textbox	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
-	collectionData	Collection Data	Group of variable for describing collections		none	23		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
-	collectionName	Collection Name	Name of the collection		text	24		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	parentCollectionIdentifier	Parent Collection Identifier	Identifier of the parent collection		text			FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	collectionIdentifier	Collection Identifier	Identifier of the collection		text	25		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	collectionCode	Collection Code	Code of the collection		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
+	specimenPreservationMethod	Preservation Method	Description of the preservation method		textbox	23		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
+	collectionData	Collection Data	Group of variable for describing collections		none	24		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
+	collectionName	Collection Name	Name of the collection		text	25		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	parentCollectionIdentifier	Parent Collection Identifier	Identifier of the parent collection		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	collectionIdentifier	Collection Identifier	Identifier of the collection		text	27		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	collectionCode	Collection Code	Code of the collection		text	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	29		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	taxonRankName	domain	dom	0
 	taxonRankName	kingdom	kg	1
@@ -72,7 +72,8 @@
 	coreType	Occurrence	occ	1
 	coreType	Sampling event	eve	2
 	coreType	Camtrap DP	ctdp	3
-	coreType	Other	oth	4
+	coreType	Metadata only	meta	4
+	coreType	Other	oth	5
 	subtype	Taxonomic authority	txau	0
 	subtype	Thematic inventory	thin	1
 	subtype	Regional inventory	regi	2

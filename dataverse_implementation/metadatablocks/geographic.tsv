@@ -18,17 +18,17 @@
 	vectorFileFormat	Vector File Format	Format of the file which contains the vector layer		text	14		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorSoftware	Vector software	Software used to create the vector layer		text	15		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
 	vectorSoftwareVersion	Vector Software Version	Version of the software used to create the vector layer		text	16		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	
-	topologyLevel	Topology level	degree of complexity of the spatial relationships		text	17		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
+	topologyLevel	Topology level	Degree of complexity of the spatial relationships		text	17		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_TopologyLevelCode
 	geometricObjectType	Geometric Object Type	name of point or vector objects used to locate zero-, one-, two-, or three-dimensional spatial locations in the dataset		text	18		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	vectorLayer	geographic	https://standards.iso.org/iso/19139/#MD_GeometricObjectTypeCode
 	rasterLayer	Raster Layer	Group of variables for describing a raster layer		none	19		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		geographic	
 	rasterLayerName	Raster Layer Name	Name of a raster layer		text	20		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	rasterLayerDescription	Raster Layer Description	Description of a raster layer		textbox	21		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterReferenceSystemEpsg	Spatial reference system used in the dataset, identified with a EPSG SRID number	Spatial reference system used in the raster layer, identified with a EPSG SRID number		int	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterResolution	raster resolution	Resolution of the raster data (e.g 1km)		text	23		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterReferenceSystemEpsg	Raster EPSG reference system code	Spatial reference system used in the raster layer, identified with a EPSG SRID number		int	22		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterResolution	Raster resolution	Resolution of the raster data (e.g 1km)		text	23		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	rasterFileName	Raster Filename	Name of the file which contains the raster layer		text	24		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterFileFormat	raster File Format	Format of the file which contains the raster layer		text	25		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterSoftware	raster software	Software used to create the raster layer		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
-	rasterSoftwareVersion	raster Software Version	Version of the software used to create the raster layer		text	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterFileFormat	Raster File Format	Format of the file which contains the raster layer		text	25		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterSoftware	Raster software	Software used to create the raster layer		text	26		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
+	rasterSoftwareVersion	Raster Software Version	Version of the software used to create the raster layer		text	27		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	dimensionNumber	Dimension Number	Number of spatio-temporal axes		int	28		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
 	cellGeometry	Cell Geometry	Geometry associated with the cell in the raster data		text	29		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CellGeometryCode
 	transformationParameterAvailability	Transformation Parameter Availability	Indicates whether there is an available transformation parameter between image coordinates and geographic or map coordinates		text	30		FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	rasterLayer	geographic	
@@ -56,8 +56,8 @@
 	cellGeometry	point		1
 	cellGeometry	stratum		2
 	cellGeometry	voxel		3
-	transformationParameterAvailibility	TRUE	1.0	0
-	transformationParameterAvailibility	FALSE	0.0	1
+	transformationParameterAvailability	TRUE	1.0	0
+	transformationParameterAvailability	FALSE	0.0	1
 	geometricObjectType	Points	1.0	0
 	geometricObjectType	Line and segments	2.0	1
 	geometricObjectType	Polygons	3a	2
