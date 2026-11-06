@@ -16,7 +16,7 @@ tidy-opts:
 
 
 ```{r}
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261008.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261106.xlsx"
 ```
 
 
@@ -449,9 +449,9 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat("metadatablock.name=",format1val(allConfigs[[i]]$block$traducción_name),"\n",sep="",file=fileName)
     cat("metadatablock.displayName=",format1val(allConfigs[[i]]$block$traducción_displayName),"\n",sep="",file=fileName, append=T)
     cat("metadatablock.displayFacet=",format1val(allConfigs[[i]]$block$traducción_facetName),"\n",sep="",file=fileName, append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
     if("contrVoc" %in% names(allConfigs_base[[i]]) && nrow(allConfigs[[i]]$contrVoc)>0)
     {
       cat(paste("controlledvocabulary.",allConfigs[[i]]$contrVoc$DatasetField,".",formatRef(allConfigs[[i]]$contrVoc$Value),"=",formatValue(allConfigs[[i]]$contrVoc$traducción_Value),sep="",collapse="\n"),file=fileName,append=T)

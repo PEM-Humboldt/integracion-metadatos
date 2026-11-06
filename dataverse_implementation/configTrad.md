@@ -2,7 +2,7 @@
 Marius Bottin
 
 ``` r
-currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261008.xlsx"
+currentFile <- "../../data_metadatos_catalogos/Revisión de metadatos - Calidad - Capa Integración_20261106.xlsx"
 ```
 
 ## Leer los archivos de configuración anteriores
@@ -212,8 +212,8 @@ allConfigs<-lapply(sn[grep("^dvmetadatablock",sn)],FUN=function(sheet,wkbook_con
 (names(allConfigs)<-sn[grep("^dvmetadatablock",sn)])
 ```
 
-    [1] "dvmetadatablock_citation"        "dvmetadatablock_geospatial"     
-    [3] "dvmetadatablock_institutional"   "dvmetadatablock_localContext"   
+    [1] "dvmetadatablock_citation"        "dvmetadatablock_institutional"  
+    [3] "dvmetadatablock_geospatial"      "dvmetadatablock_localContext"   
     [5] "dvmetadatablock_externalReferen" "dvmetadatablock_geographic"     
     [7] "dvmetadatablock_biologicalMetad" "dvmetadatablock_social_science" 
 
@@ -271,6 +271,9 @@ if(length(lack))
     displayOrder
     traducción_Value
 
+    Warning: En la descripción de las variables del bloque "dvmetadatablock_geographic" esas variables no están reconocidas:
+    iso19139
+
 - averiguar que los nombres de bloques correspondan en todo el archivo
   - en la descripción de las variables (que corresponda a nombre de
     bloque)
@@ -296,9 +299,9 @@ any(duplicated(sapply(allConfigs,function(x)x$block$name)))
 sapply(allConfigs,function(x)is.na(x$block$name))
 ```
 
-           dvmetadatablock_citation      dvmetadatablock_geospatial 
+           dvmetadatablock_citation   dvmetadatablock_institutional 
                               FALSE                           FALSE 
-      dvmetadatablock_institutional    dvmetadatablock_localContext 
+         dvmetadatablock_geospatial    dvmetadatablock_localContext 
                               FALSE                           FALSE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
@@ -309,9 +312,9 @@ sapply(allConfigs,function(x)is.na(x$block$name))
 sapply(allConfigs,function(x)any(is.na(x$field$metadatablock_id)))
 ```
 
-           dvmetadatablock_citation      dvmetadatablock_geospatial 
+           dvmetadatablock_citation   dvmetadatablock_institutional 
                               FALSE                           FALSE 
-      dvmetadatablock_institutional    dvmetadatablock_localContext 
+         dvmetadatablock_geospatial    dvmetadatablock_localContext 
                               FALSE                           FALSE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                               FALSE                           FALSE 
@@ -322,9 +325,9 @@ sapply(allConfigs,function(x)any(is.na(x$field$metadatablock_id)))
 sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
 ```
 
-           dvmetadatablock_citation      dvmetadatablock_geospatial 
+           dvmetadatablock_citation   dvmetadatablock_institutional 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional    dvmetadatablock_localContext 
+         dvmetadatablock_geospatial    dvmetadatablock_localContext 
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
@@ -337,9 +340,9 @@ sapply(allConfigs,function(x)all(x$field$metadatablock_id==x$block$name))
 sapply(allConfigs,function(x)all(x$field$parent[!is.na(x$field$parent)] %in% x$field$name))
 ```
 
-           dvmetadatablock_citation      dvmetadatablock_geospatial 
+           dvmetadatablock_citation   dvmetadatablock_institutional 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional    dvmetadatablock_localContext 
+         dvmetadatablock_geospatial    dvmetadatablock_localContext 
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
@@ -360,9 +363,9 @@ if(any(sapply(allConfigs,function(x)all(x$field$parent[!is.na(x$field$parent)] %
 sapply(allConfigs,function(x)all(x$contrVoc$DatasetField %in% x$field$name))
 ```
 
-           dvmetadatablock_citation      dvmetadatablock_geospatial 
+           dvmetadatablock_citation   dvmetadatablock_institutional 
                                TRUE                            TRUE 
-      dvmetadatablock_institutional    dvmetadatablock_localContext 
+         dvmetadatablock_geospatial    dvmetadatablock_localContext 
                                TRUE                            TRUE 
     dvmetadatablock_externalReferen      dvmetadatablock_geographic 
                                TRUE                            TRUE 
@@ -407,10 +410,10 @@ if(length(block_pb)>0)
     $dvmetadatablock_citation
     character(0)
 
-    $dvmetadatablock_geospatial
+    $dvmetadatablock_institutional
     character(0)
 
-    $dvmetadatablock_institutional
+    $dvmetadatablock_geospatial
     character(0)
 
     $dvmetadatablock_localContext
@@ -509,6 +512,9 @@ for(i in names(allConfigs))
 }
 ```
 
+    Warning: En la configuración de dvmetadatablock_geographic la variable iso19139
+    de la parte field no se reconoce
+
 ``` r
 lapply(allConfigs,function(x)all(x$field$fieldType %in% c("none","date","email","text","textbox","string","url","int","float")))
 ```
@@ -516,10 +522,10 @@ lapply(allConfigs,function(x)all(x$field$fieldType %in% c("none","date","email",
     $dvmetadatablock_citation
     [1] TRUE
 
-    $dvmetadatablock_geospatial
+    $dvmetadatablock_institutional
     [1] TRUE
 
-    $dvmetadatablock_institutional
+    $dvmetadatablock_geospatial
     [1] TRUE
 
     $dvmetadatablock_localContext
@@ -597,9 +603,9 @@ exportConfigFiles <- function(allConfigs, exportDir, fieldList, overwriteDir=T)
     cat("metadatablock.name=",format1val(allConfigs[[i]]$block$traducción_name),"\n",sep="",file=fileName)
     cat("metadatablock.displayName=",format1val(allConfigs[[i]]$block$traducción_displayName),"\n",sep="",file=fileName, append=T)
     cat("metadatablock.displayFacet=",format1val(allConfigs[[i]]$block$traducción_facetName),"\n",sep="",file=fileName, append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",file=fileName,append=T)
-    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".title=",formatValue(allConfigs[[i]]$field$traducción_title),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".description=",formatValue(allConfigs[[i]]$field$traducción_description),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
+    cat(paste("datasetfieldtype.",allConfigs[[i]]$field$name,".watermark=",formatValue(allConfigs[[i]]$field$traducción_watermark),sep="",collapse="\n"),"\n",sep="",file=fileName,append=T)
     if("contrVoc" %in% names(allConfigs_base[[i]]) && nrow(allConfigs[[i]]$contrVoc)>0)
     {
       cat(paste("controlledvocabulary.",allConfigs[[i]]$contrVoc$DatasetField,".",formatRef(allConfigs[[i]]$contrVoc$Value),"=",formatValue(allConfigs[[i]]$contrVoc$traducción_Value),sep="",collapse="\n"),file=fileName,append=T)
@@ -610,8 +616,8 @@ exportConfigFiles(allConfigs = allConfigs, exportDir = "../../data_metadatos_cat
 ```
 
     ../../data_metadatos_catalogos/exportConfig//langBundle/citation_es.properties 
-    ../../data_metadatos_catalogos/exportConfig//langBundle/geospatial_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/institutional_es.properties 
+    ../../data_metadatos_catalogos/exportConfig//langBundle/geospatial_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/LocalContextsCVoc_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/externalReferences_es.properties 
     ../../data_metadatos_catalogos/exportConfig//langBundle/geographic_es.properties 
