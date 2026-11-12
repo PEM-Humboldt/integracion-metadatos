@@ -30,8 +30,8 @@
 	collectionData	Collection Data	Group of variable for describing collections		none	26		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		biologicalMetadata	
 	collectionName	Collection Name	Name of the collection		text	27	#VALUE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
 	parentCollectionIdentifier	Parent Collection Identifier	Identifier of the parent collection		text	28	– colección madre: #VALUE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	collectionIdentifier	Collection Identifier	Identifier of the collection		text	29	– #VALUE	FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
-	collectionCode	Collection Code	Code of the collection		text	30	(#VALUE)	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	collectionIdentifier	Collection Identifier	The URI (LSID or URL) of the collection, e.g. its GRSciColl page		text	29	– #VALUE	FALSE	FALSE	TRUE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
+	collectionCode	Collection Code	The acronym or initials that identify the collection		text	30	(#VALUE)	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	collectionData	biologicalMetadata	
 	biologicalBiases	Biological dataset biases	Description of potential biases for the dataset		textbox	31		FALSE	FALSE	FALSE	FALSE	TRUE	FALSE		biologicalMetadata	
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	taxonRankName	domain	dom	0
